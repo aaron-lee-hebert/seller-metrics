@@ -2,6 +2,21 @@
 
 This file tracks all development tasks for the SellerMetrics application.
 
+**Business Context:** This application supports a sole proprietorship with two revenue streams:
+1. **eBay Reselling** - Track inventory, COGS, storage locations, profit from synced orders
+2. **Computer Support Services** - Track component inventory, view invoices/payments from Wave
+
+**Key Integration Points:**
+- **eBay API** - Sync orders and fees (listings/shipping done directly in eBay Seller Hub)
+- **Wave API** - Pull invoices and payments for visibility (invoicing done directly in Wave)
+
+**Hosting:** Self-hosted on VPS or home server (public-facing with Microsoft Identity authentication)
+
+**Primary Goals:**
+- Know where inventory is stored in my home (eBay items + repair components)
+- See combined revenue and profit across both business lines
+- Track expenses and mileage for tax reporting (Schedule C)
+
 ---
 
 ## Project Setup & Infrastructure
@@ -23,157 +38,260 @@ This file tracks all development tasks for the SellerMetrics application.
 - [X] Configure .editorconfig in `src/` for code style consistency
 
 ### Database & Entity Framework Core
-- [ ] Set up SQL Server/Azure SQL Database connection
-- [ ] Configure EF Core with DbContext in Infrastructure layer
-- [ ] Implement Repository pattern with generic repository base
-- [ ] Configure database connection string management (user secrets, env variables)
-- [ ] Create initial migration for database schema
-- [ ] Set up database seeding for development data (sample inventory, locations, expense categories)
+- [ ] Set up SQL Server connection (local SQL Server or SQL Server Express)
+- [ ] Configure EF Core DbContext in Infrastructure layer
+- [ ] Implement Repository pattern
+- [ ] Configure connection string management (user secrets for dev, environment variables for prod)
+- [ ] Create initial migration
+- [ ] Set up database seeding (storage locations, expense categories, component types)
 
 ### Development Environment
-- [ ] Configure user secrets for sensitive configuration (eBay API keys, connection strings)
-- [ ] Set up appsettings.json structure (Development, Staging, Production)
-- [ ] Configure logging providers (Console, Debug, Application Insights)
-- [ ] Set up development SSL certificate
+- [ ] Configure user secrets (eBay API, Wave API, connection strings)
+- [ ] Set up appsettings.json structure (Development, Production)
+- [ ] Configure logging (Console, File, Seq/Serilog optional)
 
 ---
 
-## Core Domain Models
+## Authentication & Security (Microsoft Identity)
 
-### Inventory Management
-- [ ] Create Inventory entity with COGS tracking
-- [ ] Implement InventoryItem value objects (SKU, Condition)
-- [ ] Create StorageLocation entity (hierarchical: Room > Unit > Shelf/Bin)
-- [ ] Add StorageLocationId to Inventory for physical location tracking
-- [ ] Define inventory status enumeration (Unlisted, Listed, Sold, Reserved)
-- [ ] Create domain events for inventory state changes (ItemAdded, ItemListed, ItemSold)
-- [ ] Implement business rules for inventory validation (SKU uniqueness, positive COGS)
+### Microsoft Entra ID (Azure AD) Setup
+- [ ] Register application in Microsoft Entra ID (Azure Portal)
+- [ ] Configure redirect URIs for your domain
+- [ ] Set up client ID and tenant ID
+- [ ] Configure supported account types (single tenant for personal use)
 
-### Orders & Sales
-- [ ] Create Order entity with eBay order mapping
-- [ ] Define OrderItem for line-level details
-- [ ] Implement order status workflow (Pending, Paid, Shipped, Completed)
-- [ ] Create domain logic for profit calculation (revenue - COGS - fees)
-- [ ] Define order domain events (OrderPlaced, OrderShipped, OrderCompleted)
+### ASP.NET Core Identity Integration
+- [ ] Install Microsoft.Identity.Web packages
+- [ ] Configure authentication in Program.cs
+- [ ] Set up authorization policies
+- [ ] Implement [Authorize] on controllers
+- [ ] Configure secure cookie settings
+- [ ] Add login/logout UI flow
 
-### eBay Listings
-- [ ] Create Listing entity synchronized with eBay
-- [ ] Define listing status (Draft, Active, Ended, Sold)
-- [ ] Link listings to inventory items
-- [ ] Implement listing fee tracking
-- [ ] Create business rules for listing validation
+### Security Hardening (Public-Facing)
+- [ ] Configure HTTPS with Let's Encrypt certificate
+- [ ] Set up HSTS headers
+- [ ] Implement CSRF protection on all forms
+- [ ] Configure Content Security Policy (CSP) headers
+- [ ] Add rate limiting middleware
+- [ ] Implement request validation and input sanitization
+- [ ] Configure CORS if API endpoints needed
+- [ ] Set up security headers (X-Frame-Options, X-Content-Type-Options, etc.)
+- [ ] Store secrets securely (environment variables, not in config files)
 
-### Financial Tracking
-- [ ] Create BusinessExpense entity for non-inventory costs
-- [ ] Define IRS Schedule C expense categories:
+---
+
+## Inventory Management (eBay + Components)
+
+### Storage Location Tracking
+- [ ] Create StorageLocation entity
+  - [ ] Hierarchical structure: Room > Unit > Bin/Shelf
+  - [ ] Examples: "Garage > Shelf A > Bin 3", "Office > Closet > Top Shelf"
+  - [ ] Support for both eBay inventory and repair components
+- [ ] Create StorageLocation use cases:
+  - [ ] CreateStorageLocation command
+  - [ ] UpdateStorageLocation command
+  - [ ] DeleteStorageLocation command (prevent if items exist)
+  - [ ] GetStorageLocationHierarchy query
+  - [ ] GetItemsByLocation query
+
+### eBay Inventory
+- [ ] Create InventoryItem entity
+  - [ ] SKU (optional - for items with eBay SKU)
+  - [ ] Title/Description
+  - [ ] COGS (cost of goods sold)
+  - [ ] PurchaseDate
+  - [ ] StorageLocationId (where it's stored)
+  - [ ] Status (Unlisted, Listed, Sold)
+  - [ ] Condition
+  - [ ] Notes
+  - [ ] PhotoPath (optional)
+- [ ] Create InventoryItem use cases:
+  - [ ] CreateInventoryItem command
+  - [ ] UpdateInventoryItem command
+  - [ ] MoveInventoryItem command (change location)
+  - [ ] MarkAsSold command (link to order when synced)
+  - [ ] GetInventoryList query (filter by status, location)
+  - [ ] GetInventoryDetails query
+  - [ ] SearchInventory query (find item by title, SKU, location)
+  - [ ] GetInventoryValue query (total COGS of unsold items)
+
+### Component Inventory (Computer Repair Parts)
+- [ ] Create ComponentType entity (catalog of part types)
+  - [ ] Name (RAM, SSD, HDD, Power Supply, etc.)
+  - [ ] DefaultCategory (for expense tracking if purchased)
+- [ ] Create ComponentItem entity
+  - [ ] ComponentTypeId
+  - [ ] Description (e.g., "8GB DDR4 2666MHz", "500GB Samsung 860 EVO")
+  - [ ] Quantity (track multiples of same component)
+  - [ ] UnitCost
+  - [ ] StorageLocationId
+  - [ ] Status (Available, Reserved, Used, Sold)
+  - [ ] AcquiredDate
+  - [ ] Source (Purchased, Salvaged, Customer-provided)
+  - [ ] Notes
+- [ ] Create ComponentItem use cases:
+  - [ ] CreateComponentItem command
+  - [ ] UpdateComponentItem command
+  - [ ] AdjustQuantity command (add/remove stock)
+  - [ ] MoveComponent command (change location)
+  - [ ] UseComponent command (mark as used in repair)
+  - [ ] GetComponentList query (filter by type, location, status)
+  - [ ] GetLowStockComponents query
+  - [ ] GetComponentValue query (total value of parts inventory)
+
+---
+
+## eBay Integration (Order Sync)
+
+### eBay API Client
+- [ ] Create IEbayApiClient interface
+- [ ] Implement OAuth 2.0 authentication
+- [ ] Implement GetOrders API call (sync sold items)
+- [ ] Configure rate limiting and retry policies (Polly)
+- [ ] Handle API errors gracefully
+
+### Order Sync
+- [ ] Create EbayOrder entity
+  - [ ] EbayOrderId
+  - [ ] OrderDate
+  - [ ] BuyerUsername
+  - [ ] GrossSale (sale price)
+  - [ ] EbayFees (final value fee + payment processing)
+  - [ ] ShippingCost (what buyer paid)
+  - [ ] ShippingActual (what you paid - manual entry)
+  - [ ] InventoryItemId (link to local inventory)
+  - [ ] NetPayout (Gross - Fees)
+  - [ ] Profit (NetPayout - COGS - ShippingActual)
+- [ ] Create order sync use cases:
+  - [ ] SyncOrdersFromEbay command (background job)
+  - [ ] LinkOrderToInventory command (match order to inventory item)
+  - [ ] UpdateShippingCost command (enter actual shipping paid)
+  - [ ] GetOrderList query (with profit calculations)
+  - [ ] GetOrderDetails query
+
+---
+
+## Wave Integration (Read-Only Sync)
+
+### Wave API Client
+- [ ] Research Wave API (GraphQL-based)
+- [ ] Create IWaveApiClient interface
+- [ ] Implement authentication (OAuth or API token)
+- [ ] Handle API errors and rate limiting
+
+### Invoice/Payment Sync (Read-Only)
+- [ ] Create WaveInvoice entity (local cache of Wave data)
+  - [ ] WaveInvoiceId
+  - [ ] InvoiceNumber
+  - [ ] CustomerName
+  - [ ] InvoiceDate
+  - [ ] DueDate
+  - [ ] TotalAmount
+  - [ ] AmountPaid
+  - [ ] Status (Draft, Sent, Viewed, Paid, Overdue)
+  - [ ] LastSyncedAt
+- [ ] Create WavePayment entity
+  - [ ] WavePaymentId
+  - [ ] WaveInvoiceId
+  - [ ] PaymentDate
+  - [ ] Amount
+  - [ ] PaymentMethod
+- [ ] Create Wave sync use cases:
+  - [ ] SyncInvoicesFromWave command (background job)
+  - [ ] SyncPaymentsFromWave command
+  - [ ] GetInvoiceList query (view-only)
+  - [ ] GetInvoiceDetails query
+  - [ ] GetUnpaidInvoices query
+  - [ ] GetServiceRevenue query (sum of paid invoices by period)
+
+---
+
+## Financial Tracking
+
+### Revenue Tracking
+- [ ] Create RevenueSource enum (eBay, ComputerServices)
+- [ ] Aggregate revenue from:
+  - [ ] eBay: Sum of NetPayout from synced orders
+  - [ ] Services: Sum of paid Wave invoices
+- [ ] Create unified revenue queries:
+  - [ ] GetRevenueBySource query (eBay vs Services breakdown)
+  - [ ] GetMonthlyRevenue query
+  - [ ] GetQuarterlyRevenue query
+  - [ ] GetYearToDateRevenue query
+
+### Profit Calculation
+- [ ] eBay Profit = NetPayout - COGS - ActualShipping
+- [ ] Service Profit = Invoice Amount - Related Expenses (optional tracking)
+- [ ] Combined profit view for tax reporting
+
+### Business Expenses
+- [ ] Create BusinessExpense entity
+  - [ ] Date
+  - [ ] Description
+  - [ ] Amount
+  - [ ] Category (IRS Schedule C categories)
+  - [ ] BusinessLine (eBay, Services, Shared)
+  - [ ] ReceiptPath (optional photo)
+  - [ ] Notes
+- [ ] IRS Schedule C expense categories:
   - [ ] Shipping Supplies
   - [ ] Office Supplies
   - [ ] Advertising/Marketing
   - [ ] Professional Services
-  - [ ] Storage/Warehouse
-  - [ ] Other Business Expenses
-- [ ] Create MileageLog entity (Date, Purpose, StartLocation, Destination, Miles, Rate)
-- [ ] Create QuarterlySummary aggregate for tax reporting (Q3 2025, Q4 2025, etc.)
-- [ ] Create AnnualSummary for yearly tax reports
-- [ ] Implement fee calculation service (eBay final value, payment processing)
-- [ ] Define value objects for Money type (Currency, Amount)
-- [ ] Create TaxableIncome calculation service (matching spreadsheet formula)
-- [ ] Implement estimated quarterly tax calculation logic
+  - [ ] Vehicle/Mileage
+  - [ ] Tools & Equipment
+  - [ ] Software/Subscriptions
+  - [ ] Parts & Materials
+  - [ ] Other
+- [ ] Create expense use cases:
+  - [ ] CreateExpense command
+  - [ ] UpdateExpense command
+  - [ ] DeleteExpense command
+  - [ ] GetExpensesByCategory query
+  - [ ] GetExpensesByBusinessLine query
+  - [ ] GetExpensesByDateRange query
+
+### Mileage Log
+- [ ] Create MileageEntry entity
+  - [ ] Date
+  - [ ] Purpose (e.g., "Post office - ship orders", "Client visit - Smith residence")
+  - [ ] StartLocation
+  - [ ] Destination
+  - [ ] Miles
+  - [ ] BusinessLine (eBay, Services)
+  - [ ] Notes
+- [ ] Store current IRS mileage rate (configurable)
+- [ ] Create mileage use cases:
+  - [ ] CreateMileageEntry command
+  - [ ] UpdateMileageEntry command
+  - [ ] DeleteMileageEntry command
+  - [ ] GetMileageLog query (by date range, business line)
+  - [ ] CalculateMileageDeduction query
 
 ---
 
-## Application Layer (Use Cases)
+## Tax Reporting
 
-### Inventory Use Cases
-- [ ] CreateInventoryItem command and handler (with storage location)
-- [ ] UpdateInventoryItem command and handler
-- [ ] UpdateInventoryLocation command (move item to new location)
-- [ ] DeleteInventoryItem command and handler
-- [ ] GetInventoryList query and handler (with pagination, filtering by status, location)
-- [ ] GetInventoryDetails query and handler
-- [ ] SearchInventoryByLocation query (find items in specific storage location)
-- [ ] CalculateInventoryValue query (total COGS of unsold inventory)
-- [ ] GetUnlistedInventory query (items not yet on eBay)
+### Quarterly Summary
+- [ ] Create QuarterlySummary view/report
+  - [ ] Quarter identifier (Q1 2025, Q2 2025, etc.)
+  - [ ] Revenue by source (eBay, Services)
+  - [ ] Total Revenue
+  - [ ] Expenses by category
+  - [ ] Total Expenses
+  - [ ] Mileage deduction
+  - [ ] Net Profit
+- [ ] Create GetQuarterlySummary query
 
-### Order Use Cases
-- [ ] SyncOrdersFromEbay command (background job)
-- [ ] GetOrderList query with filters (date range, status)
-- [ ] GetOrderDetails query with profit breakdown
-- [ ] UpdateOrderStatus command
-- [ ] GenerateOrderReport query
-
-### Listing Use Cases
-- [ ] SyncListingsFromEbay command
-- [ ] CreateListing command (with eBay API push)
-- [ ] UpdateListing command
-- [ ] EndListing command
-- [ ] GetActiveListings query
-
-### Reporting Use Cases
-- [ ] GenerateQuarterlySummary query (Q3 2025, Q4 2025 format matching spreadsheet)
-- [ ] GenerateAnnualSummary query (for Schedule C tax filing)
-- [ ] GetProfitMarginsByCategory query
-- [ ] GetTopSellingItems query
-- [ ] GetExpenseReport query (by category, date range, for Schedule C)
-- [ ] CalculateYearToDateMetrics query
-- [ ] ExportTaxReport command (CSV/Excel for accountant)
-
-### Business Expense Use Cases
-- [ ] CreateBusinessExpense command and handler
-- [ ] UpdateBusinessExpense command and handler
-- [ ] DeleteBusinessExpense command and handler
-- [ ] GetExpensesByCategory query (for Schedule C reporting)
-- [ ] GetExpensesByDateRange query
-- [ ] ImportExpenses command (CSV upload)
-
-### Mileage Log Use Cases
-- [ ] CreateMileageEntry command and handler
-- [ ] UpdateMileageEntry command and handler
-- [ ] DeleteMileageEntry command and handler
-- [ ] GetMileageLogByDateRange query
-- [ ] CalculateMileageDeduction query (using current IRS rate)
-- [ ] GetQuarterlyMileageTotal query
-- [ ] ExportMileageLog command (for tax records)
-
-### Storage Location Use Cases
-- [ ] CreateStorageLocation command (Room, Unit, Shelf)
-- [ ] UpdateStorageLocation command
-- [ ] DeleteStorageLocation command (if empty)
-- [ ] GetStorageLocationHierarchy query (tree view)
-- [ ] GetInventoryByLocation query
-- [ ] GetStorageUtilization query (items per location)
-
----
-
-## Infrastructure Layer
-
-### eBay API Integration
-- [ ] Create IEbayApiClient interface in Application layer
-- [ ] Implement EbayApiClient with OAuth 2.0 authentication
-- [ ] Implement GetOrders API call with pagination
-- [ ] Implement GetListings API call
-- [ ] Implement CreateListing API call
-- [ ] Implement UpdateListing API call
-- [ ] Configure rate limiting and retry policies (Polly)
-- [ ] Add comprehensive error handling and logging
-- [ ] Create eBay API response DTOs
-- [ ] Implement mapping from eBay DTOs to domain entities
-
-### Data Persistence
-- [ ] Configure EF Core DbContext with entity configurations
-- [ ] Implement entity type configurations for all domain entities
-- [ ] Create repositories implementing domain interfaces
-- [ ] Configure indexes for performance (SKU, Order dates, etc.)
-- [ ] Implement Unit of Work pattern
-- [ ] Add soft delete support for key entities
-- [ ] Configure audit fields (CreatedAt, UpdatedAt, CreatedBy, UpdatedBy)
-
-### Background Jobs
-- [ ] Set up Hangfire or similar for background job processing
-- [ ] Implement eBay order sync job (hourly/daily)
-- [ ] Implement eBay listing sync job
-- [ ] Create monthly summary generation job
-- [ ] Add job monitoring and failure notifications
+### Annual Summary
+- [ ] Create AnnualSummary view/report
+  - [ ] Year
+  - [ ] Quarterly breakdown
+  - [ ] Annual totals
+  - [ ] Schedule C preview (categorized for tax filing)
+- [ ] Create GetAnnualSummary query
+- [ ] Create ExportTaxReport command (CSV/Excel for accountant)
 
 ---
 
@@ -181,160 +299,159 @@ This file tracks all development tasks for the SellerMetrics application.
 
 ### Layout & Navigation
 - [ ] Create _Layout.cshtml with Bootstrap 5
-- [ ] Implement responsive navigation with sidebar
-- [ ] Create footer with app version and links
-- [ ] Set up Bootstrap 5 theme/customization
-- [ ] Implement mobile-responsive hamburger menu
-- [ ] Add breadcrumb navigation
+- [ ] Implement responsive sidebar navigation:
+  - [ ] Dashboard
+  - [ ] Inventory (eBay Items)
+  - [ ] Components (Repair Parts)
+  - [ ] eBay Orders
+  - [ ] Service Invoices (Wave)
+  - [ ] Expenses
+  - [ ] Mileage Log
+  - [ ] Reports
+  - [ ] Settings
+- [ ] Mobile-responsive design
+- [ ] Add user info and logout in header (Microsoft Identity)
 
 ### Dashboard
-- [ ] Create dashboard view with key metrics cards
-- [ ] Display total inventory value (unsold items)
-- [ ] Show current quarter revenue, expenses, profit (matching spreadsheet)
-- [ ] Display year-to-date totals
-- [ ] Add recent orders list (last 10)
-- [ ] Create active listings summary
-- [ ] Show upcoming quarterly tax deadline
-- [ ] Implement charts for profit trends by quarter (Chart.js or similar)
-- [ ] Add quick stats: Total items listed, Items sold this quarter, Net payout
+- [ ] Key metrics cards:
+  - [ ] eBay Inventory Value (total COGS of unsold items)
+  - [ ] Component Inventory Value
+  - [ ] Quarter-to-Date Revenue (eBay + Services)
+  - [ ] Quarter-to-Date Profit
+  - [ ] Year-to-Date Revenue
+  - [ ] Year-to-Date Profit
+- [ ] Recent activity:
+  - [ ] Last 5 eBay orders
+  - [ ] Last 5 Service invoices (from Wave)
+- [ ] Alerts:
+  - [ ] Unpaid invoices count
+  - [ ] Next quarterly tax deadline
+- [ ] Simple chart: Monthly revenue trend (eBay vs Services)
 
-### Inventory Management UI
-- [ ] Create inventory list view with DataTables or similar
-- [ ] Implement inventory search and filtering (by status, location, SKU)
-- [ ] Create add/edit inventory modal or page (with storage location dropdown)
-- [ ] Add bulk import functionality (CSV upload)
-- [ ] Implement inventory detail view
-- [ ] Add photo upload for inventory items
-- [ ] Create "Find Item" search by storage location
-- [ ] Add visual storage location hierarchy tree
-- [ ] Implement quick location change (drag-drop or dropdown)
-- [ ] Show inventory status badges (Unlisted, Listed, Sold)
+### Inventory UI (eBay Items)
+- [ ] List view with DataTables (search, filter, sort)
+- [ ] Filter by: Status, Location
+- [ ] Add/Edit inventory form
+  - [ ] Storage location dropdown (hierarchical)
+- [ ] Quick "Find Item" search (for when order comes in)
+- [ ] Inventory detail view
+- [ ] Status badges (Unlisted, Listed, Sold)
 
-### Orders UI
-- [ ] Create orders list view with filtering
-- [ ] Implement order detail view with profit breakdown
-- [ ] Add order status update functionality
-- [ ] Create order search (by order ID, buyer, date)
-- [ ] Display eBay fee breakdown per order
+### Components UI (Repair Parts)
+- [ ] List view with DataTables
+- [ ] Filter by: Type, Location, Status
+- [ ] Add/Edit component form
+- [ ] Quantity adjustment (+/-)
+- [ ] Low stock alert indicator
+- [ ] Component detail view
 
-### Listings UI
-- [ ] Create active listings view
-- [ ] Implement listing creation form
-- [ ] Add listing edit functionality
-- [ ] Display listing performance metrics
-- [ ] Implement end listing functionality
+### eBay Orders UI
+- [ ] List view with profit calculations
+- [ ] Filter by date range
+- [ ] Order detail view:
+  - [ ] Gross sale, fees, net payout
+  - [ ] Link to inventory item (COGS)
+  - [ ] Actual shipping cost entry
+  - [ ] Calculated profit
+- [ ] Manual "Sync Now" button
+
+### Service Invoices UI (Wave Data)
+- [ ] List view (read-only from Wave)
+- [ ] Filter by status, date range
+- [ ] Invoice detail view
+- [ ] Payment history
+- [ ] Manual "Sync Now" button
+- [ ] Link to Wave for editing (external link)
+
+### Expenses UI
+- [ ] List view with category grouping
+- [ ] Add/Edit expense form
+  - [ ] Category dropdown
+  - [ ] Business line selector
+- [ ] Filter by category, business line, date range
+- [ ] Summary totals by category
+
+### Mileage Log UI
+- [ ] List view with running total
+- [ ] Add/Edit mileage entry form
+- [ ] Filter by business line, date range
+- [ ] Display current IRS rate
+- [ ] Show calculated deduction total
 
 ### Reports UI
-- [ ] Create quarterly summary report page (matching spreadsheet tabs: Q3_2025, Q4_2025)
-- [ ] Implement annual summary report for tax filing
-- [ ] Create business expense tracking UI
-  - [ ] Add expense entry form with category dropdown
-  - [ ] Display expenses by category (Schedule C format)
-  - [ ] Add expense category management
-- [ ] Create mileage log UI
-  - [ ] Mileage entry form (Date, Purpose, From, To, Miles)
-  - [ ] Mileage log table with calculated deduction
-  - [ ] Display total deduction by quarter/year
-  - [ ] Show current IRS mileage rate
-- [ ] Create profit margin analysis page
-- [ ] Implement date range selectors for reports (Quarter, Year, Custom)
-- [ ] Add export to CSV/Excel functionality (for accountant/tax prep)
-- [ ] Create Schedule C preview report (categorized expenses)
-- [ ] Add quarterly tax estimate calculator
+- [ ] Quarterly summary page
+  - [ ] Select quarter
+  - [ ] Revenue breakdown (eBay vs Services)
+  - [ ] Expense breakdown by category
+  - [ ] Mileage deduction
+  - [ ] Net profit
+- [ ] Annual summary page
+  - [ ] Full year view
+  - [ ] Schedule C preview format
+- [ ] Export to CSV/Excel button
 
-### Forms & Validation
-- [ ] Implement client-side validation with Bootstrap 5 validation styles
-- [ ] Add server-side validation using FluentValidation
-- [ ] Create reusable form components (date picker, currency input)
-- [ ] Implement AJAX form submissions with error handling
-- [ ] Add loading indicators for async operations
+### Storage Locations UI
+- [ ] Tree view of locations
+- [ ] Add/Edit location form
+- [ ] View items at location
 
 ---
 
-## CI/CD & DevOps
+## Background Jobs
 
-### GitHub Actions
-- [ ] Create CI workflow for build and test on PR
-- [ ] Set up automated testing in pipeline
-- [ ] Configure code coverage reporting
-- [ ] Implement CD workflow for Azure App Service deployment
-- [ ] Add database migration step in deployment pipeline
-- [ ] Configure environment-specific deployments (Staging, Production)
-- [ ] Set up GitHub Secrets for Azure credentials and connection strings
-
-### Azure Infrastructure
-- [ ] Provision Azure App Service (Linux or Windows)
-- [ ] Create Azure SQL Database
-- [ ] Configure Application Insights for monitoring
-- [ ] Set up Azure Key Vault for secrets management
-- [ ] Configure connection strings in App Service settings
-- [ ] Enable auto-scaling rules if needed
-- [ ] Set up backup policies for Azure SQL
-
-### Monitoring & Logging
-- [ ] Configure Application Insights logging
-- [ ] Set up custom metrics for eBay API usage
-- [ ] Create alerts for application errors
-- [ ] Implement health check endpoints
-- [ ] Add performance monitoring for database queries
+- [ ] Set up Hangfire (with SQL Server storage)
+- [ ] eBay order sync job (configurable schedule)
+- [ ] Wave invoice/payment sync job (configurable schedule)
+- [ ] Hangfire dashboard (secured with Microsoft Identity)
 
 ---
 
-## Testing
+## Deployment (Self-Hosted VPS/Home Server)
 
-### Test Project Setup (SellerMetrics.Tests)
-- [ ] Set up NUnit test project (src/SellerMetrics.Tests)
-- [ ] Add NuGet packages:
-  - [ ] NUnit
-  - [ ] NUnit3TestAdapter
-  - [ ] Microsoft.NET.Test.Sdk
-  - [ ] Moq or NSubstitute (for mocking)
-  - [ ] FluentAssertions (for readable assertions)
-  - [ ] Testcontainers (for integration tests with real database)
-- [ ] Create folder structure in test project:
-  - [ ] Domain/ (unit tests for domain entities)
-  - [ ] Application/ (unit tests for handlers)
-  - [ ] Infrastructure/ (integration tests)
-  - [ ] Helpers/ (test utilities, builders, fixtures)
+### Server Setup
+- [ ] Provision VPS or configure home server
+- [ ] Install .NET 9 runtime
+- [ ] Install SQL Server Express or configure remote SQL Server
+- [ ] Configure firewall rules (80, 443)
+- [ ] Set up reverse proxy (nginx or Caddy recommended)
 
-### Unit Tests - Domain Layer
-- [ ] Write unit tests for domain entities and business rules (SellerMetrics.Tests/Domain/)
-  - [ ] Test Inventory entity validation
-  - [ ] Test StorageLocation hierarchy
-  - [ ] Test Order profit calculation logic
-  - [ ] Test Money value object
-  - [ ] Test mileage deduction calculations
-  - [ ] Test quarterly summary aggregation
-  - [ ] Test business expense categorization
+### SSL/TLS Configuration
+- [ ] Register domain name (or use dynamic DNS for home server)
+- [ ] Install Certbot for Let's Encrypt
+- [ ] Configure automatic certificate renewal
+- [ ] Set up HTTPS redirect
 
-### Unit Tests - Application Layer
-- [ ] Write unit tests for command/query handlers (SellerMetrics.Tests/Application/)
-  - [ ] Test CreateInventoryItem command handler
-  - [ ] Test SyncOrdersFromEbay command handler
-  - [ ] Test GenerateQuarterlySummary query handler
-  - [ ] Test CalculateMileageDeduction query handler
-- [ ] Mock external dependencies (IEbayApiClient, repositories)
-- [ ] Achieve minimum 80% code coverage for business logic
+### Application Deployment
+- [ ] Create systemd service file for ASP.NET Core app
+- [ ] Configure environment variables for production
+  - [ ] Connection strings
+  - [ ] eBay API credentials
+  - [ ] Wave API credentials
+  - [ ] Microsoft Identity settings
+- [ ] Set up log rotation
+- [ ] Configure Kestrel for production
 
-### Integration Tests - Infrastructure Layer
-- [ ] Set up integration tests (SellerMetrics.Tests/Infrastructure/)
-- [ ] Configure TestContainers for SQL Server or use in-memory database
-- [ ] Write integration tests for repositories
-  - [ ] Test InventoryRepository CRUD operations
-  - [ ] Test OrderRepository with complex queries
-  - [ ] Test QuarterlySummary aggregation queries
-- [ ] Test EF Core configurations and migrations
-- [ ] Test eBay API client integration (with mocked API or test account)
-- [ ] Test quarterly summary calculations with real data
+### Database Deployment
+- [ ] Run EF Core migrations on production database
+- [ ] Set up database backup schedule
+- [ ] Configure backup retention policy
 
-### UI Tests (Optional)
-- [ ] Consider Playwright or Selenium for critical user flows
-- [ ] Test inventory creation workflow
-- [ ] Test order sync and display
+### Monitoring & Maintenance
+- [ ] Set up health check endpoint
+- [ ] Configure uptime monitoring (UptimeRobot, Healthchecks.io)
+- [ ] Set up log aggregation (optional: Seq, Loki)
+- [ ] Configure alerting for errors
+- [ ] Document manual backup/restore procedures
 
----
-
-## Security & Performance
+### CI/CD (GitHub Actions)
+- [ ] Create CI workflow (build, test on PR)
+- [ ] Create CD workflow for deployment:
+  - [ ] Build and publish application
+  - [ ] SSH to server and deploy
+  - [ ] Run database migrations
+  - [ ] Restart service
+- [ ] Store deployment SSH key in GitHub Secrets
+- [ ] Store production secrets in GitHub Secrets
 
 ### Security
 
@@ -389,40 +506,34 @@ This file tracks all development tasks for the SellerMetrics application.
 - [ ] Add rate limiting for API endpoints
 - [ ] Configure secure cookie settings (HttpOnly, Secure, SameSite)
 
-### Performance
-- [ ] Implement caching strategy (memory cache, distributed cache)
-- [ ] Optimize EF Core queries (avoid N+1, use projections)
-- [ ] Add pagination to all list views
-- [ ] Implement lazy loading or eager loading appropriately
-- [ ] Profile and optimize database queries
-- [ ] Add database indexes for common query patterns
+## Testing
 
----
+### Test Project Setup
+- [ ] Set up NUnit test project
+- [ ] Add packages: NUnit, Moq/NSubstitute, FluentAssertions
+- [ ] Create folder structure (Domain/, Application/, Infrastructure/)
 
-## Documentation
+### Unit Tests
+- [ ] Domain entity tests (profit calculations, validations)
+- [ ] Handler tests with mocked dependencies
 
-- [ ] Update README.md with setup instructions
-- [ ] Document eBay API setup and credentials
-- [ ] Create architecture decision records (ADRs) for key decisions
-- [ ] Document database schema
-- [ ] Add XML documentation comments to public APIs
-- [ ] Create user guide for application features
+### Integration Tests
+- [ ] Repository tests with in-memory database
+- [ ] API client tests with mocked HTTP responses
 
 ---
 
 ## Future Enhancements (Backlog)
 
-- [ ] Multi-user support with role-based access (for business partners)
-- [ ] Email notifications for sold items
-- [ ] Automated pricing suggestions based on market data
-- [ ] Integration with shipping carriers (USPS, UPS, FedEx) for real-time rates
-- [ ] Mobile app or PWA version (for inventory lookup while sourcing)
-- [ ] Barcode/QR code scanning for inventory management
-- [ ] Advanced analytics and forecasting (predict quarterly income)
-- [ ] Direct integration with TurboTax or H&R Block
-- [ ] Integration with accounting software (QuickBooks, Xero)
-- [ ] Automatic categorization of expenses using ML
-- [ ] Receipt photo upload and OCR for expense tracking
-- [ ] Inventory valuation methods (FIFO, LIFO, Average Cost)
-- [ ] Sales tax tracking by state (for multi-state sellers)
-- [ ] 1099-K form import and reconciliation
+- [ ] Photo upload for inventory items
+- [ ] Barcode/QR scanning for inventory lookup
+- [ ] Mobile-friendly PWA for quick lookups
+- [ ] Email alerts for overdue invoices
+- [ ] Recurring expense templates
+- [ ] Import expenses from bank CSV
+- [ ] Receipt OCR for expense entry
+- [ ] Parts used tracking (link component to service job)
+- [ ] Multi-year comparison reports
+- [ ] 1099-K reconciliation helper
+- [ ] Docker containerization for easier deployment
+- [ ] Terraform/Ansible scripts for infrastructure as code
