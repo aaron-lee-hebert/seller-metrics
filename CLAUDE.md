@@ -13,24 +13,39 @@ You are acting as a **Senior .NET Engineer** specializing in:
 
 ## Project Overview
 
-SellerMetrics is a comprehensive inventory and financial management system for eBay resellers. The application tracks cost of goods, calculates profit margins after eBay fees, monitors monthly performance, and provides actionable business insights.
+SellerMetrics is a unified inventory and financial tracking system for a sole proprietorship with two revenue streams:
+1. **eBay Reselling** - Track inventory, COGS, storage locations, profit from synced orders
+2. **Computer Support Services** - Track component inventory, view invoices/payments from Wave
+
+The application provides a single dashboard to see combined revenue and profit across both business lines, track where inventory is stored in the home, and generate reports for Schedule C tax filing.
 
 **Technology Stack:**
 - .NET 9
 - ASP.NET Core MVC
 - Entity Framework Core
-- SQL Server / Azure SQL Database
+- SQL Server (self-hosted)
 - Bootstrap 5
-- eBay API integration for order and listing synchronization
+- Microsoft Identity (Entra ID) for authentication
+- eBay API integration for order synchronization
+- Wave API integration for invoice/payment visibility (read-only)
+
+**Hosting:** Self-hosted on VPS or home server (public-facing with Microsoft Identity authentication)
 
 **Core Features:**
-- Inventory management with COGS tracking and home storage location tracking
-- Automated eBay order and listing synchronization
-- Real-time profit calculations including eBay fees
-- Quarterly and annual financial summaries and reports
-- Business expense tracking (supplies, fees, services)
+- Unified inventory management (eBay items + computer repair components)
+- Home storage location tracking (Room > Unit > Bin/Shelf hierarchy)
+- eBay order sync with profit calculations (COGS, fees, shipping)
+- Wave invoice/payment sync for service revenue visibility (read-only)
+- Combined revenue and profit tracking across both business lines
+- Business expense tracking with Schedule C categories
 - Mileage log for business travel (IRS-compliant)
-- Responsive dashboard with key business metrics for sole proprietorship tax reporting
+- Quarterly and annual tax reporting summaries
+
+**What This App Does NOT Do (handled externally):**
+- Creating/managing eBay listings (use eBay Seller Hub directly)
+- Shipping labels and tracking (use eBay Seller Hub directly)
+- Creating invoices (use Wave directly)
+- Payment processing (handled by eBay Managed Payments and Wave)
 
 ## Clean Architecture Structure
 
@@ -60,11 +75,19 @@ seller-metrics/
 **Purpose:** Core business logic, entities, value objects, and domain events
 
 **What belongs here:**
-- Entities (Inventory, Order, Listing, Expense)
+- Entities:
+  - InventoryItem (eBay inventory with COGS)
+  - ComponentItem, ComponentType (computer repair parts)
+  - StorageLocation (hierarchical home storage)
+  - EbayOrder (synced from eBay API)
+  - WaveInvoice, WavePayment (synced from Wave API)
+  - BusinessExpense (Schedule C categories)
+  - MileageEntry (IRS-compliant mileage log)
 - Value Objects (Money, SKU, Address)
-- Domain Events (OrderPlaced, InventorySold)
+- Enums (InventoryStatus, ComponentStatus, RevenueSource, BusinessLine)
+- Domain Events (OrderSynced, InventorySold, InvoicePaid)
 - Domain Exceptions
-- Repository interfaces (IInventoryRepository, IOrderRepository)
+- Repository interfaces (IInventoryRepository, IComponentRepository, etc.)
 - Domain service interfaces
 
 **Rules:**
@@ -80,9 +103,17 @@ seller-metrics/
 - CQRS Commands and Queries
 - Command/Query Handlers
 - DTOs (Data Transfer Objects)
-- Application service interfaces (IEbayApiClient, IEmailService)
+- Application service interfaces (IEbayApiClient, IWaveApiClient)
 - Validators (FluentValidation)
 - Mapping profiles (AutoMapper or manual mappers)
+
+**Key Use Case Categories:**
+- Inventory management (eBay items + components)
+- Storage location management
+- eBay order sync and profit calculation
+- Wave invoice/payment sync (read-only)
+- Expense and mileage tracking
+- Tax reporting (quarterly/annual summaries)
 
 **Rules:**
 - Orchestrates domain objects to fulfill use cases
@@ -96,11 +127,10 @@ seller-metrics/
 **What belongs here:**
 - EF Core DbContext and entity configurations
 - Repository implementations
-- eBay API client implementation
-- Background job services (Hangfire jobs)
-- Email service implementation
-- File storage services
-- External API integrations
+- eBay API client implementation (OAuth 2.0, order sync)
+- Wave API client implementation (GraphQL, invoice/payment sync)
+- Background job services (Hangfire jobs for API sync)
+- File storage services (receipt images, inventory photos)
 
 **Rules:**
 - Implements interfaces defined in Application/Domain
@@ -112,16 +142,18 @@ seller-metrics/
 **Purpose:** User interface, controllers, views, and presentation logic
 
 **What belongs here:**
-- MVC Controllers
+- MVC Controllers (secured with [Authorize])
 - Razor Views with Bootstrap 5
 - ViewModels (presentation-specific models)
-- Middleware
+- Microsoft Identity configuration (Entra ID)
+- Middleware (security headers, error handling)
 - Filters and Action Filters
 - Startup/Program configuration
 - JavaScript files for client-side interactions
 
 **Rules:**
 - Controllers are thin - delegate to Application layer handlers
+- All controllers require authentication (Microsoft Identity)
 - ViewModels for presentation concerns only
 - No business logic in controllers or views
 - Dependency injection wires up Application/Infrastructure
@@ -311,68 +343,107 @@ public class InventoryConfiguration : IEntityTypeConfiguration<Inventory>
 - Use global exception handler middleware
 - Return problem details (RFC 7807) for API errors
 
-### Security Best Practices
+### Security Best Practices (Public-Facing Application)
 - **NEVER** commit secrets, API keys, or connection strings
-- Use user secrets for development, Azure Key Vault for production
+- Use user secrets for development, environment variables for production
 - Validate and sanitize all user input
 - Use parameterized queries (EF Core does this automatically)
 - Implement CSRF protection on forms
-- Use HTTPS everywhere (HSTS headers)
-- Implement proper authentication and authorization
+- Use HTTPS everywhere (Let's Encrypt + HSTS headers)
+- Implement proper authentication (Microsoft Identity/Entra ID)
 - Follow principle of least privilege for database permissions
+
+**Microsoft Identity (Entra ID) Configuration:**
+- Register app in Microsoft Entra ID (Azure Portal)
+- Configure single-tenant for personal use
+- Use Microsoft.Identity.Web NuGet packages
+- All controllers require [Authorize] attribute
+- Configure secure cookie settings for production
+
+**Security Headers (Required for public-facing):**
+- Strict-Transport-Security (HSTS)
+- Content-Security-Policy (CSP)
+- X-Content-Type-Options: nosniff
+- X-Frame-Options: DENY
+- X-XSS-Protection: 1; mode=block
+- Referrer-Policy: strict-origin-when-cross-origin
+
+**Rate Limiting:**
+- Implement rate limiting middleware to prevent abuse
+- Consider IP-based throttling for login attempts
 
 ## Sole Proprietorship Tax Compliance
 
-This application is designed to support **sole proprietorship** tax reporting requirements:
+This application is designed to support **sole proprietorship** tax reporting with two revenue streams:
 
 **IRS Schedule C Compliance:**
-- Track gross receipts/sales by platform (eBay, Direct Sales)
+- Track gross receipts/sales by source:
+  - **eBay Reselling** - synced from eBay API
+  - **Computer Services** - synced from Wave invoices
 - Categorize all business expenses for Schedule C Part II
+- Tag expenses by business line (eBay, Services, Shared)
 - Generate quarterly and annual profit/loss reports
 - Maintain detailed records for 7+ years (IRS audit requirement)
 
 **Mileage Log Requirements (IRS-compliant):**
 - Date of trip
-- Business purpose (e.g., "Post office - ship eBay orders", "Thrift store sourcing")
+- Business purpose (e.g., "Post office - ship eBay orders", "Client visit - Smith", "Thrift store sourcing")
 - Starting location and destination
 - Miles driven
-- Calculate deduction using current IRS mileage rate (e.g., $0.67/mile for 2024)
-- Support both actual expense method and standard mileage method
+- Business line (eBay or Computer Services)
+- Calculate deduction using current IRS mileage rate (configurable, e.g., $0.67/mile for 2024)
+- Support standard mileage method
 
-**Business Expense Categories:**
-- Shipping supplies (boxes, tape, bubble wrap, labels)
-- eBay/PayPal fees (already tracked per transaction)
-- Office supplies
-- Mileage/vehicle expenses
-- Storage/warehouse costs (if applicable)
-- Professional services (accounting, legal)
-- Advertising/marketing
+**Business Expense Categories (Schedule C Part II):**
+- Shipping supplies (boxes, tape, bubble wrap, labels) - eBay
+- eBay fees (tracked automatically per transaction)
+- Office supplies - Shared
+- Mileage/vehicle expenses - Both
+- Tools & Equipment - Services
+- Software/Subscriptions - Shared
+- Parts & Materials - Services
+- Professional services (accounting, legal) - Shared
+- Advertising/marketing - Both
 - Other business expenses
 
 **Quarterly Tax Estimates:**
-- Calculate estimated tax payments based on quarterly profit
+- Calculate estimated tax payments based on quarterly profit (combined both business lines)
 - Track quarterly payments made
 - Alert when quarterly filing deadlines approach (April 15, June 15, Sept 15, Jan 15)
 
 ## Inventory Storage Tracking
 
-**Home Inventory Location:**
-- Track physical location of inventory items in home (e.g., "Garage Shelf A", "Basement Bin 3", "Closet - Top Shelf")
-- Support hierarchical locations (Room > Storage Unit > Bin/Shelf)
-- Quick search/filter to locate items when orders placed
-- Mark items as "Listed" vs "Unlisted" for storage optimization
+**Home Inventory Location (Unified for both business lines):**
+- Track physical location of all inventory in home
+- Support hierarchical locations: Room > Storage Unit > Bin/Shelf
+- Examples: "Garage > Shelf A > Bin 3", "Office > Closet > Top Shelf"
+- Quick search/filter to locate items when orders are placed
 
-## eBay API Integration
+**eBay Inventory:**
+- Track items for resale with COGS
+- Status: Unlisted, Listed, Sold
+- Link to eBay orders when sold
+
+**Component Inventory (Computer Repair Parts):**
+- Track parts available for repairs (RAM, SSDs, HDDs, power supplies, etc.)
+- Track quantity for items with multiples
+- Status: Available, Reserved, Used, Sold
+- Source tracking: Purchased, Salvaged, Customer-provided
+- Low stock alerts
+
+## eBay API Integration (Order Sync Only)
+
+**Scope:** Sync orders and fees from eBay. Listings and shipping are managed directly in eBay Seller Hub.
 
 **Authentication:**
 - Use OAuth 2.0 for eBay API authentication
-- Store refresh tokens securely (Key Vault)
+- Store refresh tokens securely (environment variables)
 - Implement token refresh logic
 
 **Rate Limiting:**
 - Implement retry policies with exponential backoff (Polly library)
 - Track API call quotas
-- Use background jobs for bulk synchronization
+- Use background jobs (Hangfire) for synchronization
 
 **Error Handling:**
 - Handle eBay API errors gracefully (429 Too Many Requests, 401 Unauthorized)
@@ -382,38 +453,81 @@ This application is designed to support **sole proprietorship** tax reporting re
 **Data to Sync from eBay:**
 - Order details (order ID, date, buyer info, gross sale price)
 - Fees breakdown (final value fee, payment processing fee)
-- Shipping costs
-- Item sold (match to inventory SKU)
-- Listing status (active, ended, sold)
+- Shipping cost (what buyer paid)
+- Item sold (match to local inventory by SKU or title)
+
+**NOT Synced (use eBay directly):**
+- Listing creation/management
+- Shipping labels and tracking
+- Buyer communication
+
+## Wave API Integration (Read-Only Sync)
+
+**Scope:** Pull invoices and payments from Wave for visibility. Invoice creation is done directly in Wave.
+
+**API Type:** Wave uses a GraphQL API
+
+**Authentication:**
+- OAuth 2.0 or API token (depending on Wave's current requirements)
+- Store credentials securely (environment variables)
+
+**Rate Limiting:**
+- Implement retry policies with exponential backoff (Polly)
+- Respect Wave API rate limits
+
+**Error Handling:**
+- Handle API errors gracefully
+- Log all API errors with request/response details
+- Graceful degradation if Wave is unavailable
+
+**Data to Sync from Wave (Read-Only):**
+- Invoices (number, customer, date, amount, status)
+- Payments (date, amount, method)
+- Customer names (for display purposes)
+
+**NOT Synced (use Wave directly):**
+- Creating/editing invoices
+- Recording payments
+- Managing customers
+- Bank connections and reconciliation
 
 ## Financial Calculations
 
 **Critical Rules:**
 - **ALWAYS** use `decimal` type for monetary values (NEVER float or double)
-- Account for ALL eBay fees in profit calculations:
-  - Final value fee (percentage of sale price)
-  - Payment processing fee
-  - Listing fees (if applicable)
-  - Promoted listing fees (if applicable)
-- COGS must be tracked at the item level
 - Round monetary values to 2 decimal places for display
 - Store currency code with monetary amounts (use Money value object)
+- Track revenue by source (eBay vs Computer Services)
 
-**Profit Calculation (matching spreadsheet):**
+**eBay Profit Calculation:**
 ```
 Gross Sale = Sale Price from eBay
 Fees = eBay Final Value Fee + Payment Processing Fee
-Shipping = Actual shipping cost paid
-Net Payout = Gross Sale - Fees - Shipping
+Shipping Paid = Actual shipping cost you paid (manual entry)
+Net Payout = Gross Sale - Fees
 
-Profit = Net Payout - COGS
+Profit = Net Payout - COGS - Shipping Paid
+```
+
+**Service Revenue (from Wave):**
+```
+Service Revenue = Sum of paid Wave invoices
+Service Profit = Service Revenue - Related Expenses (optional tracking)
+```
+
+**Combined Reporting:**
+```
+Total Revenue = eBay Net Payout + Service Revenue
+Total Expenses = Business Expenses + Mileage Deduction
+Net Profit = Total Revenue - Total Expenses - COGS
 ```
 
 **Tax Reporting:**
-- Track all sales by quarter (Q3 2025, Q4 2025, etc.)
-- Separate eBay sales from direct sales
+- Track all revenue by quarter (Q1 2025, Q2 2025, etc.)
+- Separate eBay revenue from Computer Services revenue
 - Business expenses must be categorized for Schedule C
-- Mileage log must include: Date, Purpose, Starting Location, Destination, Miles
+- Tag expenses by business line (eBay, Services, Shared)
+- Mileage log must include: Date, Purpose, Starting Location, Destination, Miles, Business Line
 - Generate quarterly summaries for estimated tax payments
 
 ## Testing Strategy
@@ -483,27 +597,33 @@ namespace SellerMetrics.Tests.Infrastructure
 }
 ```
 
-## CI/CD Pipeline (GitHub Actions + Azure)
+## CI/CD Pipeline (GitHub Actions + Self-Hosted)
 
 **CI Pipeline (on PR):**
 - Restore dependencies
 - Build solution
 - Run all tests
 - Check code coverage (fail if below threshold)
-- Run static code analysis (optional: SonarCloud)
 
 **CD Pipeline (on merge to main):**
 - Build and publish application
-- Run database migrations (via migration bundle or SQL script)
-- Deploy to Azure App Service (Staging first, then Production)
-- Run smoke tests against deployed environment
-- Notify team of deployment status
+- SSH to VPS/home server
+- Deploy application files
+- Run database migrations
+- Restart systemd service
+- Run health check
 
-**Azure Resources:**
-- Azure App Service (Web app hosting)
-- Azure SQL Database (Database)
-- Azure Key Vault (Secrets management)
-- Application Insights (Monitoring and logging)
+**Self-Hosted Infrastructure:**
+- VPS or home server (Linux recommended)
+- SQL Server Express (local) or remote SQL Server
+- nginx or Caddy as reverse proxy
+- Let's Encrypt for SSL certificates
+- systemd for service management
+
+**Secrets Management:**
+- Store in GitHub Secrets for CI/CD
+- Use environment variables on server (not in config files)
+- API credentials: eBay, Wave, Microsoft Identity
 
 ## Performance Optimization
 
