@@ -1,9 +1,16 @@
 {
   "permissions": {
     "allow": [
+      "Bash(mkdir:*)",
+      "Bash(dotnet new:*)",
+      "Bash(dotnet restore:*)",
+      "Bash(del:*)",
+      "Bash(dotnet sln:*)",
+      "Bash(dotnet sln add:*)",
+      "Bash(dotnet add:*)",
+      "Bash(dotnet build:*)",
       "Bash(git checkout:*)",
-      "Bash(git add:*)",
-      "Bash(git commit -m \"$(cat <<''EOF''\nAdd CLAUDE.md and TODO.md for project documentation\n\n- Add CLAUDE.md with Clean Architecture guidelines and SOLID principles\n- Define senior .NET engineer role with expertise in ASP.NET Core MVC, SQL Server, Bootstrap 5, and CI/CD\n- Document solution structure with src/ directory containing all projects\n- Include sole proprietorship tax compliance requirements (IRS Schedule C, mileage log)\n- Add inventory storage location tracking for home-based business\n- Define testing strategy using single NUnit test project (SellerMetrics.Tests)\n- Document profit calculation formula matching existing spreadsheet\n- Include quarterly and annual tax reporting requirements\n\n- Add TODO.md with comprehensive project task breakdown\n- Organize tasks by feature categories (Infrastructure, Domain, Application, Web, Testing)\n- Include IRS-compliant mileage log and business expense tracking\n- Add storage location management for home inventory tracking\n- Define quarterly summary reporting (Q3 2025, Q4 2025 format)\n- Include NUnit test project setup with Domain, Application, Infrastructure folders\n- Add CI/CD tasks for GitHub Actions and Azure deployment\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

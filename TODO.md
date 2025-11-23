@@ -22,19 +22,20 @@ This file tracks all development tasks for the SellerMetrics application.
 ## Project Setup & Infrastructure
 
 ### Solution Structure
-- [ ] Create `src/` directory in repository root
-- [ ] Create .NET 9 solution file: `src/SellerMetrics.sln`
-- [ ] Create Clean Architecture projects in `src/`:
-  - [ ] SellerMetrics.Domain (Core domain entities, value objects, interfaces)
-  - [ ] SellerMetrics.Application (Use cases, DTOs, business logic, CQRS handlers)
-  - [ ] SellerMetrics.Infrastructure (EF Core, eBay API, Wave API, external services)
-  - [ ] SellerMetrics.Web (ASP.NET Core MVC, Bootstrap 5 UI)
-- [ ] Create NUnit test project in `src/`:
-  - [ ] SellerMetrics.Tests (tests for all layers - Domain, Application, Infrastructure)
-- [ ] Add all projects to solution file
-- [ ] Configure project dependencies (Domain ← Application ← Infrastructure/Web)
-- [ ] Set up Directory.Build.props for shared project settings
-- [ ] Configure .editorconfig for code style consistency
+- [X] Create `src/` directory in repository root
+- [X] Create .NET 9 solution file: `src/SellerMetrics.sln`
+- [X] Create Clean Architecture projects in `src/`:
+  - [X] SellerMetrics.Domain (Core domain entities, value objects, interfaces)
+  - [X] SellerMetrics.Application (Use cases, DTOs, business logic, CQRS handlers)
+  - [X] SellerMetrics.Infrastructure (EF Core, eBay API client, external services)
+  - [X] SellerMetrics.Web (ASP.NET Core MVC, Bootstrap 5 UI)
+- [X] Create NUnit test project in `src/`:
+  - [X] SellerMetrics.Tests (tests for all layers - Domain, Application, Infrastructure)
+- [X] Add all projects to solution file
+- [X] Configure solution dependencies (Domain ← Application ← Infrastructure/Web)
+- [X] Configure test project references (Tests → Domain, Application, Infrastructure, Web)
+- [X] Set up Directory.Build.props in `src/` for shared project settings
+- [X] Configure .editorconfig in `src/` for code style consistency
 
 ### Database & Entity Framework Core
 - [ ] Set up SQL Server connection (local SQL Server or SQL Server Express)
@@ -452,7 +453,58 @@ This file tracks all development tasks for the SellerMetrics application.
 - [ ] Store deployment SSH key in GitHub Secrets
 - [ ] Store production secrets in GitHub Secrets
 
----
+### Security
+
+#### Identity & Authentication (Microsoft Identity)
+- [ ] Add Microsoft.AspNetCore.Identity.EntityFrameworkCore package to Infrastructure project
+- [ ] Add Microsoft.AspNetCore.Identity.UI package to Web project
+- [ ] Create ApplicationUser entity inheriting from IdentityUser in Domain layer
+  - [ ] Add custom properties (FirstName, LastName, DateCreated, IsActive)
+- [ ] Create ApplicationRole entity inheriting from IdentityRole in Domain layer
+- [ ] Update Infrastructure DbContext to inherit from IdentityDbContext<ApplicationUser, ApplicationRole, string>
+- [ ] Configure Identity in DbContext OnModelCreating (table names, schema, constraints)
+- [ ] Configure Identity services in Web Program.cs
+  - [ ] Add Identity with ApplicationUser and ApplicationRole
+  - [ ] Configure password requirements (length, complexity)
+  - [ ] Configure lockout settings (max attempts, duration)
+  - [ ] Configure user settings (require unique email, require confirmed email)
+  - [ ] Configure cookie settings (expiration, sliding expiration, login path)
+- [ ] Scaffold Identity UI pages to Web project for customization
+  - [ ] Register page with FirstName and LastName fields
+  - [ ] Login page with "Remember Me" option
+  - [ ] Forgot Password page
+  - [ ] Reset Password page
+  - [ ] Two-Factor Authentication pages (optional)
+  - [ ] User Profile page with custom fields
+- [ ] Create initial EF Core migration for Identity tables
+- [ ] Apply migration to create Identity tables in database
+- [ ] Create database seed for default admin user and roles
+  - [ ] Create "Admin" role
+  - [ ] Create "User" role
+  - [ ] Create default admin user account
+- [ ] Add [Authorize] attributes to protected controllers/actions
+- [ ] Add authorization policies for sensitive operations
+  - [ ] Policy for Admin-only actions (user management, system settings)
+  - [ ] Policy for financial data access (reports, expenses)
+  - [ ] Policy for inventory management
+- [ ] Update _Layout.cshtml to show login/logout links and user info
+- [ ] Create Account management area in Web project
+  - [ ] Change password functionality
+  - [ ] Update profile functionality
+  - [ ] Email confirmation workflow (optional)
+- [ ] Implement role-based menu navigation in _Layout.cshtml
+- [ ] Add user audit fields to domain entities (CreatedBy, UpdatedBy)
+- [ ] Implement ICurrentUserService in Infrastructure to get current user ID
+- [ ] Update DbContext SaveChanges to automatically populate audit fields
+
+#### Additional Security Measures
+- [ ] Secure eBay API credentials (Key Vault, user secrets)
+- [ ] Implement CSRF protection on forms (enabled by default in ASP.NET Core)
+- [ ] Add input sanitization and XSS prevention
+- [ ] Configure HTTPS redirection and HSTS
+- [ ] Implement Content Security Policy (CSP) headers
+- [ ] Add rate limiting for API endpoints
+- [ ] Configure secure cookie settings (HttpOnly, Secure, SameSite)
 
 ## Testing
 

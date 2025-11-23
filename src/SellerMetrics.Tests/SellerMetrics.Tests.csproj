@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit3TestAdapter" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Testcontainers.MsSql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SellerMetrics.Domain\SellerMetrics.Domain.csproj" />
+    <ProjectReference Include="..\SellerMetrics.Application\SellerMetrics.Application.csproj" />
+    <ProjectReference Include="..\SellerMetrics.Infrastructure\SellerMetrics.Infrastructure.csproj" />
+    <ProjectReference Include="..\SellerMetrics.Web\SellerMetrics.Web.csproj" />
+  </ItemGroup>
+
+</Project>
