@@ -1,0 +1,243 @@
+@model StorageLocationDetailViewModel
+
+@{
+    var location = Model.Location;
+}
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Location Info Card -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-folder2-open text-warning me-2"></i>@location.Name
+                </h5>
+                <div class="btn-group btn-group-sm">
+                    <a asp-action="Create" asp-route-parentId="@location.Id" class="btn btn-outline-success" title="Add child location">
+                        <i class="bi bi-plus-lg me-1"></i>Add Child
+                    </a>
+                    <a asp-action="Edit" asp-route-id="@location.Id" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil me-1"></i>Edit
+                    </a>
+                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        <i class="bi bi-trash me-1"></i>Delete
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Full Path -->
+                <div class="bg-light rounded p-3 mb-4">
+                    <small class="text-muted d-block mb-1">Full Path</small>
+                    <span class="fw-semibold">
+                        <i class="bi bi-house me-1"></i>
+                        @location.FullPath
+                    </span>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Name</label>
+                        <p class="mb-0">@location.Name</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Parent Location</label>
+                        <p class="mb-0">
+                            @if (location.ParentId.HasValue && Model.Ancestors.Any())
+                            {
+                                var parent = Model.Ancestors.Last();
+                                <a asp-action="Details" asp-route-id="@parent.Id" class="text-decoration-none">
+                                    <i class="bi bi-folder me-1"></i>@parent.Name
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="text-muted">(Root location)</span>
+                            }
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Depth</label>
+                        <p class="mb-0">Level @location.Depth</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Sort Order</label>
+                        <p class="mb-0">@location.SortOrder</p>
+                    </div>
+                    @if (!string.IsNullOrEmpty(location.Description))
+                    {
+                        <div class="col-12">
+                            <label class="form-label text-muted small">Description</label>
+                            <p class="mb-0">@location.Description</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Child Locations -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h6 class="mb-0"><i class="bi bi-diagram-3 me-2"></i>Child Locations</h6>
+                <a asp-action="Create" asp-route-parentId="@location.Id" class="btn btn-sm btn-outline-success">
+                    <i class="bi bi-plus me-1"></i>Add
+                </a>
+            </div>
+            <div class="card-body">
+                @if (Model.Children.Any())
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var child in Model.Children.OrderBy(c => c.SortOrder).ThenBy(c => c.Name))
+                        {
+                            <a asp-action="Details" asp-route-id="@child.Id" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <span>
+                                    @if (child.Children.Any())
+                                    {
+                                        <i class="bi bi-folder2-open text-warning me-2"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-folder text-secondary me-2"></i>
+                                    }
+                                    @child.Name
+                                    @if (!string.IsNullOrEmpty(child.Description))
+                                    {
+                                        <small class="text-muted ms-2">- @child.Description</small>
+                                    }
+                                </span>
+                                @if (child.Children.Any())
+                                {
+                                    <span class="badge bg-secondary">@child.Children.Count sub-locations</span>
+                                }
+                            </a>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted mb-0 text-center py-3">
+                        <i class="bi bi-folder-x me-2"></i>No child locations
+                    </p>
+                }
+            </div>
+        </div>
+
+        <!-- Items in This Location (placeholder for when inventory/component lookup is implemented) -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-box me-2"></i>Items in This Location</h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="bg-light rounded p-3 text-center">
+                            <i class="bi bi-box-seam text-primary fs-3"></i>
+                            <h4 class="mb-0 mt-2">@Model.InventoryItemCount</h4>
+                            <small class="text-muted">Inventory Items</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="bg-light rounded p-3 text-center">
+                            <i class="bi bi-cpu text-info fs-3"></i>
+                            <h4 class="mb-0 mt-2">@Model.ComponentCount</h4>
+                            <small class="text-muted">Components</small>
+                        </div>
+                    </div>
+                </div>
+                @if (Model.InventoryItemCount == 0 && Model.ComponentCount == 0)
+                {
+                    <p class="text-muted text-center mt-3 mb-0">
+                        <small>No items stored in this location yet. When you add inventory or components, you can assign them to this location.</small>
+                    </p>
+                }
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="mt-4">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to All Locations
+            </a>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Breadcrumb Path -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-signpost me-2"></i>Path</h6>
+            </div>
+            <div class="card-body">
+                <div class="location-path">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-house me-2 text-muted"></i>
+                        <a asp-action="Index" class="text-decoration-none">Root</a>
+                    </div>
+                    @foreach (var ancestor in Model.Ancestors)
+                    {
+                        <div class="d-flex align-items-center mb-2 ps-3">
+                            <i class="bi bi-arrow-return-right me-2 text-muted"></i>
+                            <a asp-action="Details" asp-route-id="@ancestor.Id" class="text-decoration-none">@ancestor.Name</a>
+                        </div>
+                    }
+                    <div class="d-flex align-items-center ps-3">
+                        <i class="bi bi-arrow-return-right me-2 text-muted"></i>
+                        <strong>@location.Name</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metadata -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Details</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <small class="text-muted d-block">Created</small>
+                    <span>@location.CreatedAt.ToString("MMM d, yyyy h:mm tt")</span>
+                </div>
+                @if (location.UpdatedAt.HasValue)
+                {
+                    <div>
+                        <small class="text-muted d-block">Last Updated</small>
+                        <span>@location.UpdatedAt.Value.ToString("MMM d, yyyy h:mm tt")</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this storage location?</p>
+                <p class="mb-0">
+                    <strong>@location.Name</strong><br />
+                    <small class="text-muted">@location.FullPath</small>
+                </p>
+                @if (Model.Children.Any())
+                {
+                    <div class="alert alert-warning mt-3 mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        This location has child locations. You must delete or move them first.
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form asp-action="Delete" asp-route-id="@location.Id" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger" @(Model.Children.Any() ? "disabled" : "")>Delete Location</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
