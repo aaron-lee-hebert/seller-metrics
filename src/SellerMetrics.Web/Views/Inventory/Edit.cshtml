@@ -1,0 +1,136 @@
+@model InventoryFormViewModel
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-pencil me-2"></i>@Model.FormTitle
+                </h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" asp-route-id="@Model.Id" method="post" class="needs-validation" novalidate>
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="row g-3">
+                        <!-- Title -->
+                        <div class="col-12">
+                            <label asp-for="Title" class="form-label"></label>
+                            <input asp-for="Title" class="form-control" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-12">
+                            <label asp-for="Description" class="form-label"></label>
+                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <!-- Cost and Currency -->
+                        <div class="col-md-6">
+                            <label asp-for="CogsAmount" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input asp-for="CogsAmount" class="form-control money-input" />
+                            </div>
+                            <span asp-validation-for="CogsAmount" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="CogsCurrency" class="form-label"></label>
+                            <select asp-for="CogsCurrency" class="form-select">
+                                <option value="USD">USD - US Dollar</option>
+                                <option value="CAD">CAD - Canadian Dollar</option>
+                                <option value="GBP">GBP - British Pound</option>
+                                <option value="EUR">EUR - Euro</option>
+                            </select>
+                        </div>
+
+                        <!-- Purchase Date -->
+                        <div class="col-md-6">
+                            <label asp-for="PurchaseDate" class="form-label"></label>
+                            <input asp-for="PurchaseDate" type="date" class="form-control" />
+                            <span asp-validation-for="PurchaseDate" class="text-danger"></span>
+                        </div>
+
+                        <!-- Storage Location -->
+                        <div class="col-md-6">
+                            <label asp-for="StorageLocationId" class="form-label"></label>
+                            <select asp-for="StorageLocationId" class="form-select">
+                                @foreach (var option in Model.LocationOptions)
+                                {
+                                    <option value="@option.Value" selected="@option.Selected">@option.Text</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="col-md-6">
+                            <label asp-for="Status" class="form-label"></label>
+                            <select asp-for="Status" class="form-select">
+                                @foreach (var option in Model.StatusOptions)
+                                {
+                                    if (!string.IsNullOrEmpty(option.Value))
+                                    {
+                                        <option value="@option.Value" selected="@option.Selected">@option.Text</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Condition -->
+                        <div class="col-md-6">
+                            <label asp-for="Condition" class="form-label"></label>
+                            <select asp-for="Condition" class="form-select">
+                                @foreach (var option in Model.ConditionOptions)
+                                {
+                                    <option value="@option.Value" selected="@option.Selected">@option.Text</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- eBay SKU -->
+                        <div class="col-md-6">
+                            <label asp-for="EbaySku" class="form-label"></label>
+                            <input asp-for="EbaySku" class="form-control" />
+                            <div class="form-text">Leave blank to use auto-generated SKU</div>
+                            <span asp-validation-for="EbaySku" class="text-danger"></span>
+                        </div>
+
+                        <!-- Photo Path (read-only for now) -->
+                        @if (!string.IsNullOrEmpty(Model.PhotoPath))
+                        {
+                            <div class="col-md-6">
+                                <label asp-for="PhotoPath" class="form-label"></label>
+                                <input asp-for="PhotoPath" class="form-control" readonly />
+                            </div>
+                        }
+
+                        <!-- Notes -->
+                        <div class="col-12">
+                            <label asp-for="Notes" class="form-label"></label>
+                            <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+                            <span asp-validation-for="Notes" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-1"></i>@Model.SubmitButtonText
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
