@@ -15,6 +15,21 @@ public class SellerMetricsDbContext : IdentityDbContext<ApplicationUser>
     {
     }
 
+    /// <summary>
+    /// Storage locations for inventory and components.
+    /// </summary>
+    public DbSet<StorageLocation> StorageLocations => Set<StorageLocation>();
+
+    /// <summary>
+    /// eBay inventory items.
+    /// </summary>
+    public DbSet<InventoryItem> InventoryItems => Set<InventoryItem>();
+
+    /// <summary>
+    /// Computer repair component items.
+    /// </summary>
+    public DbSet<ComponentItem> ComponentItems => Set<ComponentItem>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

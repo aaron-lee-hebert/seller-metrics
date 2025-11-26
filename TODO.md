@@ -91,16 +91,18 @@ This file tracks all development tasks for the SellerMetrics application.
 
 ### Storage Location Tracking
 
-- [ ] Create StorageLocation entity
-  - [ ] Hierarchical structure: Room > Unit > Bin/Shelf
-  - [ ] Examples: "Garage > Shelf A > Bin 3", "Office > Closet > Top Shelf"
-  - [ ] Support for both eBay inventory and repair components
-- [ ] Create StorageLocation use cases:
-  - [ ] CreateStorageLocation command
-  - [ ] UpdateStorageLocation command
-  - [ ] DeleteStorageLocation command (prevent if items exist)
-  - [ ] GetStorageLocationHierarchy query
-  - [ ] GetItemsByLocation query
+- [x] Create StorageLocation entity
+  - [x] Hierarchical structure: Room > Unit > Bin/Shelf (supports arbitrary depth)
+  - [x] Examples: "Garage > Shelf A > Bin 3", "Office > Closet > Top Shelf"
+  - [x] Support for both eBay inventory and repair components
+  - [x] Soft delete with 30-day retention period
+- [x] Create StorageLocation use cases:
+  - [x] CreateStorageLocation command
+  - [x] UpdateStorageLocation command
+  - [x] DeleteStorageLocation command (prevent if items exist)
+  - [x] GetStorageLocationHierarchy query
+  - [x] GetAllStorageLocations query (flat list for dropdowns)
+  - [ ] GetItemsByLocation query (deferred until inventory entities complete)
 
 ### eBay Inventory
 

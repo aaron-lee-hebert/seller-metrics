@@ -74,6 +74,17 @@ public static class DependencyInjection
         // Register generic repository
         services.AddScoped(typeof(IRepository<>), typeof(RepositoryBase<>));
 
+        // Register specialized repositories
+        services.AddScoped<IStorageLocationRepository, StorageLocationRepository>();
+
+        // Register Application layer handlers
+        services.AddScoped<Application.StorageLocations.Commands.CreateStorageLocationCommandHandler>();
+        services.AddScoped<Application.StorageLocations.Commands.UpdateStorageLocationCommandHandler>();
+        services.AddScoped<Application.StorageLocations.Commands.DeleteStorageLocationCommandHandler>();
+        services.AddScoped<Application.StorageLocations.Queries.GetStorageLocationHierarchyQueryHandler>();
+        services.AddScoped<Application.StorageLocations.Queries.GetStorageLocationQueryHandler>();
+        services.AddScoped<Application.StorageLocations.Queries.GetAllStorageLocationsQueryHandler>();
+
         return services;
     }
 }
