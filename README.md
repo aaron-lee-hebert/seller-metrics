@@ -1,108 +1,98 @@
 # SellerMetrics
 
-A unified inventory and financial tracking system for sole proprietors managing multiple revenue streams. Built for eBay resellers who also provide computer repair services, SellerMetrics consolidates inventory tracking, profit calculations, and tax reporting into a single self-hosted application.
+**SellerMetrics** is a comprehensive inventory and financial management system designed specifically for eBay resellers. Track your cost of goods, calculate actual profit margins after fees, monitor monthly performance, and gain actionable insights into your reselling business. Built with modern ASP.NET Core MVC, Entity Framework Core, and PostgreSQL, SellerMetrics offers a robust, self-hosted alternative to spreadsheet-based tracking systems.
 
-## Overview
+## Key Features
 
-SellerMetrics helps you:
-- **Track inventory** - Know where every item is stored in your home (eBay items and repair components)
-- **See combined profits** - View revenue and profit from both eBay sales and service invoices in one dashboard
-- **Prepare for taxes** - Generate Schedule C reports with categorized expenses and mileage logs
+- Inventory management with COGS tracking
+- Automated eBay order and listing synchronization
+- Real-time profit calculations including eBay fees
+- Quarterly and annual financial summaries and reports
+- Business expense tracking for non-inventory costs
+- Mileage log for business travel (IRS-compliant)
+- Responsive dashboard with key business metrics
 
-### What This App Does
+## Technology Stack
 
-| Feature | Description |
-|---------|-------------|
-| eBay Order Sync | Automatically pull orders and fees from eBay API |
-| Wave Invoice Sync | Pull invoices and payments from Wave for visibility |
-| Inventory Tracking | Track eBay items with COGS and storage locations |
-| Component Inventory | Track computer repair parts (RAM, SSDs, etc.) |
-| Expense Tracking | Categorize expenses for Schedule C reporting |
-| Mileage Log | IRS-compliant mileage tracking for both business lines |
-| Tax Reports | Quarterly and annual summaries for tax filing |
-
-### What This App Does NOT Do
-
-- **eBay listings** - Use eBay Seller Hub directly
-- **Shipping labels** - Use eBay Seller Hub directly
-- **Create invoices** - Use Wave directly
-- **Process payments** - Handled by eBay Managed Payments and Wave
-
-## Tech Stack
-
-- **.NET 9** - Runtime and SDK
-- **ASP.NET Core MVC** - Web framework
-- **Entity Framework Core** - ORM and data access
-- **SQL Server** - Database (Express edition works fine)
-- **Bootstrap 5** - UI framework
-- **Hangfire** - Background job processing
-- **Microsoft Identity (Entra ID)** - Authentication
-
-### External Integrations
-
-- **eBay API** - Order and fee synchronization (OAuth 2.0)
-- **Wave API** - Invoice and payment visibility (GraphQL)
+- .NET 9
+- ASP.NET Core MVC
+- Entity Framework Core
+- PostgreSQL
+- Bootstrap 5
 
 ## Getting Started
 
 ### Prerequisites
 
 - [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
-- [SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) (Express, Developer, or full edition)
-- [Git](https://git-scm.com/)
-- A Microsoft Entra ID (Azure AD) tenant for authentication
+- [PostgreSQL](https://www.postgresql.org/download/) (local or remote instance)
 
-### Clone the Repository
+### Setup
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/aaron-lee-hebert/seller-metrics.git
+   cd seller-metrics
+   ```
+
+2. **Configure User Secrets (Development):**
+
+   User secrets store sensitive configuration outside of source control. Initialize and configure them:
+
+   ```bash
+   # Initialize user secrets (already configured in project)
+   dotnet user-secrets init --project src/SellerMetrics.Web
+
+   # Set the PostgreSQL connection string
+   dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Database=sellermetrics;Username=your_username;Password=your_password" --project src/SellerMetrics.Web
+
+   # Set eBay API credentials (when ready)
+   dotnet user-secrets set "EbayApi:ClientId" "your-client-id" --project src/SellerMetrics.Web
+   dotnet user-secrets set "EbayApi:ClientSecret" "your-client-secret" --project src/SellerMetrics.Web
+
+   # List configured secrets
+   dotnet user-secrets list --project src/SellerMetrics.Web
+   ```
+
+   **PostgreSQL Connection String Format:**
+   ```
+   Host=localhost;Port=5432;Database=sellermetrics;Username=your_username;Password=your_password
+   ```
+
+3. **Build the solution:**
+   ```bash
+   dotnet build src/SellerMetrics.sln
+   ```
+
+4. **Run database migrations** (after entities are created):
+   ```bash
+   dotnet ef database update --project src/SellerMetrics.Infrastructure --startup-project src/SellerMetrics.Web
+   ```
+
+5. **Run the application:**
+   ```bash
+   dotnet run --project src/SellerMetrics.Web
+   ```
+
+   The application will be available at `https://localhost:5001` (or the port configured in launchSettings.json).
+
+### Development Commands
 
 ```bash
-git clone https://github.com/yourusername/seller-metrics.git
-cd seller-metrics
-```
-
-### Configure User Secrets (Development)
-
-```bash
-# Initialize user secrets
-dotnet user-secrets init --project src/SellerMetrics.Web
-
-# Set connection string
-dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=localhost;Database=SellerMetrics;Trusted_Connection=True;TrustServerCertificate=True;" --project src/SellerMetrics.Web
-
-# Set eBay API credentials
-dotnet user-secrets set "EbayApi:ClientId" "your-ebay-client-id" --project src/SellerMetrics.Web
-dotnet user-secrets set "EbayApi:ClientSecret" "your-ebay-client-secret" --project src/SellerMetrics.Web
-
-# Set Wave API credentials
-dotnet user-secrets set "WaveApi:AccessToken" "your-wave-access-token" --project src/SellerMetrics.Web
-
-# Set Microsoft Identity settings
-dotnet user-secrets set "AzureAd:TenantId" "your-tenant-id" --project src/SellerMetrics.Web
-dotnet user-secrets set "AzureAd:ClientId" "your-client-id" --project src/SellerMetrics.Web
-```
-
-### Build and Run
-
-```bash
-# Restore dependencies and build
+# Build the solution
 dotnet build src/SellerMetrics.sln
 
-# Run database migrations
-dotnet ef database update --project src/SellerMetrics.Infrastructure --startup-project src/SellerMetrics.Web
+# Run with hot reload
+dotnet watch --project src/SellerMetrics.Web
 
-# Run the application
-dotnet run --project src/SellerMetrics.Web
-```
-
-The application will be available at `https://localhost:5001` (or the port configured in launchSettings.json).
-
-### Running Tests
-
-```bash
-# Run all tests
+# Run tests
 dotnet test src/SellerMetrics.sln
 
-# Run with coverage
-dotnet test src/SellerMetrics.sln /p:CollectCoverage=true
+# Add a new migration
+dotnet ef migrations add <MigrationName> --project src/SellerMetrics.Infrastructure --startup-project src/SellerMetrics.Web
+
+# Update database
+dotnet ef database update --project src/SellerMetrics.Infrastructure --startup-project src/SellerMetrics.Web
 ```
 
 ## Project Structure
@@ -233,30 +223,6 @@ See [TODO.md](TODO.md) for the full development roadmap. Key upcoming features:
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-```
-MIT License
-
-Copyright (c) 2025 [Your Name]
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
 
 ## Acknowledgments
 

@@ -38,17 +38,17 @@ This file tracks all development tasks for the SellerMetrics application.
 - [X] Configure .editorconfig in `src/` for code style consistency
 
 ### Database & Entity Framework Core
-- [ ] Set up SQL Server connection (local SQL Server or SQL Server Express)
-- [ ] Configure EF Core DbContext in Infrastructure layer
-- [ ] Implement Repository pattern
-- [ ] Configure connection string management (user secrets for dev, environment variables for prod)
-- [ ] Create initial migration
-- [ ] Set up database seeding (storage locations, expense categories, component types)
+- [X] Set up PostgreSQL database connection
+- [X] Configure EF Core with DbContext in Infrastructure layer
+- [X] Implement Repository pattern with generic repository base
+- [X] Configure database connection string management (user secrets, env variables)
+- [ ] Create initial migration for database schema (after domain entities are created)
 
 ### Development Environment
-- [ ] Configure user secrets (eBay API, Wave API, connection strings)
-- [ ] Set up appsettings.json structure (Development, Production)
-- [ ] Configure logging (Console, File, Seq/Serilog optional)
+- [X] Configure user secrets for sensitive configuration (eBay API keys, connection strings)
+- [X] Set up appsettings.json structure (Development, Staging, Production)
+- [X] Configure logging providers (Console, Debug) - Sentry.io deferred for later
+- [X] Set up development SSL certificate (using default ASP.NET Core dev certificate)
 
 ---
 
@@ -397,6 +397,77 @@ This file tracks all development tasks for the SellerMetrics application.
 
 ---
 
+## CI/CD & DevOps
+
+### GitHub Actions
+- [ ] Create CI workflow for build and test on PR
+- [ ] Set up automated testing in pipeline
+- [ ] Configure code coverage reporting
+- [ ] Implement CD workflow for VPS deployment
+- [ ] Add database migration step in deployment pipeline
+- [ ] Configure environment-specific deployments (Staging, Production)
+- [ ] Set up GitHub Secrets for VPS credentials and connection strings
+
+### Monitoring & Logging
+- [ ] Configure Sentry logging
+- [ ] Set up custom metrics for eBay API usage
+- [ ] Create alerts for application errors
+- [ ] Implement health check endpoints
+- [ ] Add performance monitoring for database queries
+
+---
+
+## Testing
+
+### Test Project Setup (SellerMetrics.Tests)
+- [ ] Set up NUnit test project (src/SellerMetrics.Tests)
+- [ ] Add NuGet packages:
+  - [ ] NUnit
+  - [ ] NUnit3TestAdapter
+  - [ ] Microsoft.NET.Test.Sdk
+  - [ ] Moq or NSubstitute (for mocking)
+  - [ ] FluentAssertions (for readable assertions)
+  - [ ] Testcontainers (for integration tests with real database)
+- [ ] Create folder structure in test project:
+  - [ ] Domain/ (unit tests for domain entities)
+  - [ ] Application/ (unit tests for handlers)
+  - [ ] Infrastructure/ (integration tests)
+  - [ ] Helpers/ (test utilities, builders, fixtures)
+
+### Unit Tests - Domain Layer
+- [ ] Write unit tests for domain entities and business rules (SellerMetrics.Tests/Domain/)
+  - [ ] Test Inventory entity validation
+  - [ ] Test StorageLocation hierarchy
+  - [ ] Test Order profit calculation logic
+  - [ ] Test Money value object
+  - [ ] Test mileage deduction calculations
+  - [ ] Test quarterly summary aggregation
+  - [ ] Test business expense categorization
+
+### Unit Tests - Application Layer
+- [ ] Write unit tests for command/query handlers (SellerMetrics.Tests/Application/)
+  - [ ] Test CreateInventoryItem command handler
+  - [ ] Test SyncOrdersFromEbay command handler
+  - [ ] Test GenerateQuarterlySummary query handler
+  - [ ] Test CalculateMileageDeduction query handler
+- [ ] Mock external dependencies (IEbayApiClient, repositories)
+- [ ] Achieve minimum 80% code coverage for business logic
+
+### Integration Tests - Infrastructure Layer
+- [ ] Set up integration tests (SellerMetrics.Tests/Infrastructure/)
+- [ ] Configure TestContainers for PostgreSQL or use in-memory database
+- [ ] Write integration tests for repositories
+  - [ ] Test InventoryRepository CRUD operations
+  - [ ] Test OrderRepository with complex queries
+  - [ ] Test QuarterlySummary aggregation queries
+- [ ] Test EF Core configurations and migrations
+- [ ] Test eBay API client integration (with mocked API or test account)
+- [ ] Test quarterly summary calculations with real data
+
+### UI Tests (Optional)
+- [ ] Consider Playwright or Selenium for critical user flows
+- [ ] Test inventory creation workflow
+- [ ] Test order sync and display
 ## Background Jobs
 
 - [ ] Set up Hangfire (with SQL Server storage)

@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 You are acting as a **Senior .NET Engineer** specializing in:
 - **ASP.NET Core MVC** pattern and best practices
 - **Clean Architecture** with SOLID principles
-- **SQL Server** and **Azure SQL Database** optimization
+- **PostgreSQL** and **Azure Database for PostgreSQL** optimization
 - **Bootstrap 5** front-end development
 - **CI/CD** best practices with GitHub Actions and Azure DevOps
 
@@ -23,7 +23,7 @@ The application provides a single dashboard to see combined revenue and profit a
 - .NET 9
 - ASP.NET Core MVC
 - Entity Framework Core
-- SQL Server (self-hosted)
+- PostgreSQL / Azure Database for PostgreSQL
 - Bootstrap 5
 - Microsoft Identity (Entra ID) for authentication
 - eBay API integration for order synchronization
@@ -615,7 +615,7 @@ namespace SellerMetrics.Tests.Infrastructure
 
 **Self-Hosted Infrastructure:**
 - VPS or home server (Linux recommended)
-- SQL Server Express (local) or remote SQL Server
+- PostgreSQL (local) or PostgreSQL server
 - nginx or Caddy as reverse proxy
 - Let's Encrypt for SSL certificates
 - systemd for service management
@@ -630,7 +630,7 @@ namespace SellerMetrics.Tests.Infrastructure
 - Use caching for frequently accessed, rarely changed data (IMemoryCache or IDistributedCache)
 - Implement pagination on all list endpoints (Page size: 20-50 items)
 - Use database indexes strategically (avoid over-indexing)
-- Profile slow queries with EF Core logging or SQL Profiler
+- Profile slow queries with EF Core logging or PostgreSQL EXPLAIN ANALYZE
 - Use async/await for all I/O operations
 - Consider read replicas for reporting queries (if needed at scale)
 - Use projection queries (`.Select()`) instead of loading full entities when possible
