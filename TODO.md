@@ -75,15 +75,15 @@ This file tracks all development tasks for the SellerMetrics application.
 
 ### Security Hardening (Public-Facing)
 
-- [ ] Configure HTTPS with Let's Encrypt certificate
-- [ ] Set up HSTS headers
-- [ ] Implement CSRF protection on all forms
-- [ ] Configure Content Security Policy (CSP) headers
-- [ ] Add rate limiting middleware
-- [ ] Implement request validation and input sanitization
-- [ ] Configure CORS if API endpoints needed
-- [ ] Set up security headers (X-Frame-Options, X-Content-Type-Options, etc.)
-- [ ] Store secrets securely (environment variables, not in config files)
+- [x] Configure HTTPS with Let's Encrypt certificate (handled by reverse proxy)
+- [x] Set up HSTS headers (configured in Program.cs for non-development)
+- [x] Implement CSRF protection on all forms (antiforgery configured in Program.cs)
+- [x] Configure Content Security Policy (CSP) headers (SecurityHeadersMiddleware)
+- [x] Add rate limiting middleware (AspNetCoreRateLimit configured)
+- [x] Implement request validation and input sanitization (ASP.NET Core model binding)
+- [x] Configure CORS if API endpoints needed (not needed - server-rendered MVC only)
+- [x] Set up security headers (X-Frame-Options, X-Content-Type-Options, etc. in SecurityHeadersMiddleware)
+- [x] Store secrets securely (user secrets for development, environment variables for production)
 
 ---
 
