@@ -30,10 +30,10 @@ This file tracks all development tasks for the SellerMetrics application.
 - [ ] Create initial migration for database schema (after domain entities are created)
 
 ### Development Environment
-- [ ] Configure user secrets for sensitive configuration (eBay API keys, connection strings)
-- [ ] Set up appsettings.json structure (Development, Staging, Production)
-- [ ] Configure logging providers (Console, Debug, Application Insights)
-- [ ] Set up development SSL certificate
+- [X] Configure user secrets for sensitive configuration (eBay API keys, connection strings)
+- [X] Set up appsettings.json structure (Development, Staging, Production)
+- [X] Configure logging providers (Console, Debug) - Sentry.io deferred for later
+- [X] Set up development SSL certificate (using default ASP.NET Core dev certificate)
 
 ---
 
