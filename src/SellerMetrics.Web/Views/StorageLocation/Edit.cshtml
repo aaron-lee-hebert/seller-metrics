@@ -1,0 +1,70 @@
+@model StorageLocationFormViewModel
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-pencil me-2"></i>@Model.FormTitle
+                </h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" asp-route-id="@Model.Id" method="post" class="needs-validation" novalidate>
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="row g-3">
+                        <!-- Name -->
+                        <div class="col-12">
+                            <label asp-for="Name" class="form-label"></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <!-- Parent Location -->
+                        <div class="col-12">
+                            <label asp-for="ParentId" class="form-label"></label>
+                            <select asp-for="ParentId" class="form-select">
+                                @foreach (var option in Model.ParentOptions)
+                                {
+                                    <option value="@option.Value" selected="@option.Selected">@option.Text</option>
+                                }
+                            </select>
+                            <div class="form-text">Select a parent to move this location in the hierarchy</div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-12">
+                            <label asp-for="Description" class="form-label"></label>
+                            <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <!-- Sort Order -->
+                        <div class="col-md-6">
+                            <label asp-for="SortOrder" class="form-label"></label>
+                            <input asp-for="SortOrder" type="number" class="form-control" min="0" />
+                            <span asp-validation-for="SortOrder" class="text-danger"></span>
+                            <div class="form-text">Lower numbers appear first</div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-1"></i>@Model.SubmitButtonText
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
