@@ -55,7 +55,7 @@ public class ComponentItemRepository : RepositoryBase<ComponentItem>, IComponent
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<ComponentItem>> GetByServiceJobAsync(
+    public async Task<IReadOnlyList<ComponentItem>> GetByServiceJobIdAsync(
         int serviceJobId,
         CancellationToken cancellationToken = default)
     {

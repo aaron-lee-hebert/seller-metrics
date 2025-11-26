@@ -265,9 +265,22 @@ This file tracks all development tasks for the SellerMetrics application.
 
 ### Profit Calculation
 
-- [ ] eBay Profit = NetPayout - COGS - ActualShipping
-- [ ] Service Profit = Invoice Amount - Related Expenses (optional tracking)
-- [ ] Combined profit view for tax reporting
+- [x] eBay Profit = NetRevenue - COGS (calculated from linked inventory items)
+- [x] Service Profit = NetRevenue - Component Costs - Expenses (linked to service jobs)
+- [x] Combined profit view for tax reporting
+- [x] Create profit DTOs:
+  - [x] ProfitBySourceDto
+  - [x] CombinedProfitDto
+  - [x] MonthlyProfitDto
+  - [x] QuarterlyProfitDto
+  - [x] ServiceJobProfitDto
+  - [x] TaxReportProfitDto (Schedule C format)
+- [x] Create profit queries:
+  - [x] GetProfitBySource query (eBay vs Services breakdown)
+  - [x] GetCombinedProfit query (unified view)
+  - [x] GetQuarterlyProfit query (fiscal year aware)
+  - [x] GetServiceJobProfit query (per-job profit calculation)
+  - [x] GetTaxReportProfit query (Schedule C format with quarterly breakdown)
 
 ### Business Expenses
 

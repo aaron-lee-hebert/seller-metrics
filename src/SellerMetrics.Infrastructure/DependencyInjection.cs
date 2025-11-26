@@ -124,6 +124,13 @@ public static class DependencyInjection
         services.AddScoped<Application.Revenue.Queries.GetQuarterlyRevenueQueryHandler>();
         services.AddScoped<Application.Revenue.Queries.GetYearToDateRevenueQueryHandler>();
 
+        // Register Application layer handlers - Profit
+        services.AddScoped<Application.Profit.Queries.GetProfitBySourceQueryHandler>();
+        services.AddScoped<Application.Profit.Queries.GetCombinedProfitQueryHandler>();
+        services.AddScoped<Application.Profit.Queries.GetQuarterlyProfitQueryHandler>();
+        services.AddScoped<Application.Profit.Queries.GetServiceJobProfitQueryHandler>();
+        services.AddScoped<Application.Profit.Queries.GetTaxReportProfitQueryHandler>();
+
         return services;
     }
 }
