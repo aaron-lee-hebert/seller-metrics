@@ -1,31 +1,389 @@
+/* Base Styles */
 html {
-  font-size: 14px;
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    html {
+        font-size: 16px;
+    }
 }
 
 body {
-  margin-bottom: 60px;
+    min-height: 100vh;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+/* Focus States */
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+/* Form Placeholders */
+.form-floating>.form-control-plaintext::placeholder,
+.form-floating>.form-control::placeholder {
+    color: var(--bs-secondary-color);
+    text-align: end;
+}
+
+.form-floating>.form-control-plaintext:focus::placeholder,
+.form-floating>.form-control:focus::placeholder {
+    text-align: start;
+}
+
+/* ==========================================================================
+   Sidebar Navigation
+   ========================================================================== */
+
+#wrapper {
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 250px;
+    min-height: 100vh;
+    transition: margin 0.25s ease-out, width 0.25s ease-out;
+}
+
+.sidebar .list-group-item {
+    border: none;
+    border-radius: 0;
+}
+
+.sidebar .list-group-item:hover {
+    background-color: #e9ecef;
+}
+
+.sidebar .list-group-item.active {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+}
+
+.sidebar .list-group-item.active i {
+    color: white;
+}
+
+.sidebar-section {
+    border-top: 1px solid #dee2e6;
+}
+
+.sidebar-section:first-of-type {
+    border-top: none;
+}
+
+.sidebar-heading {
+    font-size: 0.9rem;
+}
+
+/* Sidebar collapsed state */
+#wrapper.toggled .sidebar {
+    margin-left: -250px;
+}
+
+#page-content-wrapper {
+    min-width: 100vw;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#wrapper.toggled #page-content-wrapper {
+    min-width: 100vw;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        z-index: 1050;
+        height: 100%;
+        margin-left: -250px;
+    }
+
+    #wrapper.toggled .sidebar {
+        margin-left: 0;
+    }
+
+    #page-content-wrapper {
+        min-width: 100vw;
+    }
+}
+
+@media (min-width: 769px) {
+    #page-content-wrapper {
+        min-width: calc(100vw - 250px);
+    }
+
+    #wrapper.toggled #page-content-wrapper {
+        min-width: 100vw;
+    }
+}
+
+/* ==========================================================================
+   Dashboard Cards
+   ========================================================================== */
+
+.metric-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.metric-card .metric-value {
+    font-size: 1.75rem;
+    font-weight: 600;
+}
+
+.metric-card .metric-label {
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.metric-card .metric-icon {
+    font-size: 2.5rem;
+    opacity: 0.3;
+}
+
+/* ==========================================================================
+   Profit/Loss Indicators
+   ========================================================================== */
+
+.text-profit {
+    color: #198754;
+}
+
+.text-loss {
+    color: #dc3545;
+}
+
+.bg-profit-light {
+    background-color: rgba(25, 135, 84, 0.1);
+}
+
+.bg-loss-light {
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+/* ==========================================================================
+   Tables
+   ========================================================================== */
+
+.table-hover tbody tr {
+    cursor: pointer;
+}
+
+.table th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    color: #6c757d;
+}
+
+/* Status Badges */
+.badge-status-unlisted {
+    background-color: #6c757d;
+}
+
+.badge-status-listed {
+    background-color: #0dcaf0;
+    color: #000;
+}
+
+.badge-status-sold {
+    background-color: #198754;
+}
+
+.badge-status-available {
+    background-color: #198754;
+}
+
+.badge-status-reserved {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.badge-status-used {
+    background-color: #6c757d;
+}
+
+/* ==========================================================================
+   Forms
+   ========================================================================== */
+
+.form-label {
+    font-weight: 500;
+}
+
+.required-field::after {
+    content: " *";
+    color: #dc3545;
+}
+
+/* Money Input */
+.input-group-money .form-control {
+    text-align: right;
+}
+
+/* ==========================================================================
+   Alerts & Notifications
+   ========================================================================== */
+
+.alert-deadline {
+    border-left: 4px solid #ffc107;
+}
+
+.alert-overdue {
+    border-left: 4px solid #dc3545;
+}
+
+/* ==========================================================================
+   Charts
+   ========================================================================== */
+
+.chart-container {
+    position: relative;
+    height: 300px;
+}
+
+/* ==========================================================================
+   Storage Location Tree
+   ========================================================================== */
+
+.location-tree {
+    list-style: none;
+    padding-left: 0;
+}
+
+.location-tree ul {
+    list-style: none;
+    padding-left: 1.5rem;
+}
+
+.location-tree li {
+    padding: 0.25rem 0;
+}
+
+.location-tree .location-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.location-tree .location-item:hover {
+    background-color: #f8f9fa;
+}
+
+.location-tree .location-toggle {
+    cursor: pointer;
+    width: 1.5rem;
+}
+
+/* ==========================================================================
+   Empty States
+   ========================================================================== */
+
+.empty-state {
+    padding: 3rem 1rem;
+    text-align: center;
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    color: #dee2e6;
+    margin-bottom: 1rem;
+}
+
+.empty-state-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+.empty-state-text {
+    color: #6c757d;
+    max-width: 400px;
+    margin: 0 auto 1.5rem;
+}
+
+/* ==========================================================================
+   Pagination
+   ========================================================================== */
+
+.pagination-info {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+    .sidebar,
+    .navbar,
+    .btn,
+    .alert-dismissible .btn-close {
+        display: none !important;
+    }
+
+    #page-content-wrapper {
+        min-width: 100% !important;
+    }
+
+    .container-fluid {
+        padding: 0 !important;
+    }
+
+    .metric-card {
+        break-inside: avoid;
+    }
+}
+
+/* ==========================================================================
+   Utility Classes
+   ========================================================================== */
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.min-h-100 {
+    min-height: 100%;
+}
+
+/* Responsive visibility helpers */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+}
+
+@media (max-width: 768px) {
+    #wrapper.toggled .sidebar-overlay {
+        display: block;
+    }
 }
