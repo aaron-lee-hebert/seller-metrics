@@ -30,6 +30,21 @@ public class SellerMetricsDbContext : IdentityDbContext<ApplicationUser>
     /// </summary>
     public DbSet<ComponentItem> ComponentItems => Set<ComponentItem>();
 
+    /// <summary>
+    /// Component types (catalog of part categories).
+    /// </summary>
+    public DbSet<ComponentType> ComponentTypes => Set<ComponentType>();
+
+    /// <summary>
+    /// Component quantity adjustment audit records.
+    /// </summary>
+    public DbSet<ComponentQuantityAdjustment> ComponentQuantityAdjustments => Set<ComponentQuantityAdjustment>();
+
+    /// <summary>
+    /// Service/repair jobs.
+    /// </summary>
+    public DbSet<ServiceJob> ServiceJobs => Set<ServiceJob>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

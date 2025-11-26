@@ -131,28 +131,36 @@ This file tracks all development tasks for the SellerMetrics application.
 
 ### Component Inventory (Computer Repair Parts)
 
-- [ ] Create ComponentType entity (catalog of part types)
-  - [ ] Name (RAM, SSD, HDD, Power Supply, etc.)
-  - [ ] DefaultCategory (for expense tracking if purchased)
-- [ ] Create ComponentItem entity
-  - [ ] ComponentTypeId
-  - [ ] Description (e.g., "8GB DDR4 2666MHz", "500GB Samsung 860 EVO")
-  - [ ] Quantity (track multiples of same component)
-  - [ ] UnitCost
-  - [ ] StorageLocationId
-  - [ ] Status (Available, Reserved, Used, Sold)
-  - [ ] AcquiredDate
-  - [ ] Source (Purchased, Salvaged, Customer-provided)
-  - [ ] Notes
-- [ ] Create ComponentItem use cases:
-  - [ ] CreateComponentItem command
-  - [ ] UpdateComponentItem command
-  - [ ] AdjustQuantity command (add/remove stock)
-  - [ ] MoveComponent command (change location)
-  - [ ] UseComponent command (mark as used in repair)
-  - [ ] GetComponentList query (filter by type, location, status)
-  - [ ] GetLowStockComponents query
-  - [ ] GetComponentValue query (total value of parts inventory)
+- [x] Create ComponentType entity (catalog of part types)
+  - [x] Name (RAM, SSD, HDD, Power Supply, etc.)
+  - [x] DefaultCategory (for expense tracking if purchased)
+  - [x] Predefined seed data for common types (13 types)
+  - [x] Support for user-created custom types
+- [x] Create ComponentItem entity
+  - [x] ComponentTypeId
+  - [x] Description (e.g., "8GB DDR4 2666MHz", "500GB Samsung 860 EVO")
+  - [x] Quantity (track multiples of same component)
+  - [x] UnitCost (Money value object with currency)
+  - [x] StorageLocationId
+  - [x] Status (Available, Reserved, Used, Sold) with enum
+  - [x] AcquiredDate
+  - [x] Source (Purchased, Salvaged, Customer-provided) with enum
+  - [x] Notes
+  - [x] ServiceJobId (link to service job for Reserved components)
+  - [x] Soft delete with 30-day retention period
+- [x] Create ComponentQuantityAdjustment entity (audit trail)
+- [x] Create ServiceJob entity (for reserving components)
+- [x] Create ComponentItem use cases:
+  - [x] CreateComponentItem command
+  - [x] UpdateComponentItem command
+  - [x] AdjustQuantity command (with audit trail)
+  - [x] MoveComponent command (change location)
+  - [x] UseComponent command (mark as used in repair)
+  - [x] DeleteComponentItem command (soft delete)
+  - [x] GetComponentList query (filter by type, location, status)
+  - [x] GetLowStockComponents query
+  - [x] GetComponentValue query (total value of parts inventory)
+  - [x] GetComponentTypes query
 
 ---
 

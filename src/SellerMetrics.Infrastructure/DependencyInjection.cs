@@ -77,6 +77,8 @@ public static class DependencyInjection
         // Register specialized repositories
         services.AddScoped<IStorageLocationRepository, StorageLocationRepository>();
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
+        services.AddScoped<IComponentTypeRepository, ComponentTypeRepository>();
+        services.AddScoped<IComponentItemRepository, ComponentItemRepository>();
 
         // Register Application layer handlers - Storage Locations
         services.AddScoped<Application.StorageLocations.Commands.CreateStorageLocationCommandHandler>();
@@ -96,6 +98,18 @@ public static class DependencyInjection
         services.AddScoped<Application.Inventory.Queries.GetInventoryItemQueryHandler>();
         services.AddScoped<Application.Inventory.Queries.SearchInventoryQueryHandler>();
         services.AddScoped<Application.Inventory.Queries.GetInventoryValueQueryHandler>();
+
+        // Register Application layer handlers - Components
+        services.AddScoped<Application.Components.Commands.CreateComponentItemCommandHandler>();
+        services.AddScoped<Application.Components.Commands.UpdateComponentItemCommandHandler>();
+        services.AddScoped<Application.Components.Commands.AdjustComponentQuantityCommandHandler>();
+        services.AddScoped<Application.Components.Commands.MoveComponentCommandHandler>();
+        services.AddScoped<Application.Components.Commands.UseComponentCommandHandler>();
+        services.AddScoped<Application.Components.Commands.DeleteComponentItemCommandHandler>();
+        services.AddScoped<Application.Components.Queries.GetComponentListQueryHandler>();
+        services.AddScoped<Application.Components.Queries.GetLowStockComponentsQueryHandler>();
+        services.AddScoped<Application.Components.Queries.GetComponentValueQueryHandler>();
+        services.AddScoped<Application.Components.Queries.GetComponentTypesQueryHandler>();
 
         return services;
     }
