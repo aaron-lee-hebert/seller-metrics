@@ -23,12 +23,11 @@ This file tracks all development tasks for the SellerMetrics application.
 - [X] Configure .editorconfig in `src/` for code style consistency
 
 ### Database & Entity Framework Core
-- [ ] Set up SQL Server/Azure SQL Database connection
-- [ ] Configure EF Core with DbContext in Infrastructure layer
-- [ ] Implement Repository pattern with generic repository base
-- [ ] Configure database connection string management (user secrets, env variables)
-- [ ] Create initial migration for database schema
-- [ ] Set up database seeding for development data (sample inventory, locations, expense categories)
+- [X] Set up PostgreSQL database connection
+- [X] Configure EF Core with DbContext in Infrastructure layer
+- [X] Implement Repository pattern with generic repository base
+- [X] Configure database connection string management (user secrets, env variables)
+- [ ] Create initial migration for database schema (after domain entities are created)
 
 ### Development Environment
 - [ ] Configure user secrets for sensitive configuration (eBay API keys, connection strings)
@@ -264,12 +263,12 @@ This file tracks all development tasks for the SellerMetrics application.
 
 ### Azure Infrastructure
 - [ ] Provision Azure App Service (Linux or Windows)
-- [ ] Create Azure SQL Database
+- [ ] Create Azure Database for PostgreSQL
 - [ ] Configure Application Insights for monitoring
 - [ ] Set up Azure Key Vault for secrets management
 - [ ] Configure connection strings in App Service settings
 - [ ] Enable auto-scaling rules if needed
-- [ ] Set up backup policies for Azure SQL
+- [ ] Set up backup policies for Azure Database for PostgreSQL
 
 ### Monitoring & Logging
 - [ ] Configure Application Insights logging
@@ -318,7 +317,7 @@ This file tracks all development tasks for the SellerMetrics application.
 
 ### Integration Tests - Infrastructure Layer
 - [ ] Set up integration tests (SellerMetrics.Tests/Infrastructure/)
-- [ ] Configure TestContainers for SQL Server or use in-memory database
+- [ ] Configure TestContainers for PostgreSQL or use in-memory database
 - [ ] Write integration tests for repositories
   - [ ] Test InventoryRepository CRUD operations
   - [ ] Test OrderRepository with complex queries
