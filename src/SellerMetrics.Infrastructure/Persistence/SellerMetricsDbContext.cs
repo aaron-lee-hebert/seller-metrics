@@ -70,6 +70,11 @@ public class SellerMetricsDbContext : IdentityDbContext<ApplicationUser>
     /// </summary>
     public DbSet<IrsMileageRate> IrsMileageRates => Set<IrsMileageRate>();
 
+    /// <summary>
+    /// Estimated quarterly tax payments.
+    /// </summary>
+    public DbSet<EstimatedTaxPayment> EstimatedTaxPayments => Set<EstimatedTaxPayment>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

@@ -361,17 +361,49 @@ This file tracks all development tasks for the SellerMetrics application.
 
 ## Tax Reporting
 
+### ExpenseCategory Schedule C Alignment
+
+- [x] Update ExpenseCategory enum to match IRS Schedule C line numbers
+  - [x] Line 8: Advertising
+  - [x] Line 9: Car and truck expenses
+  - [x] Line 10: Commissions and fees
+  - [x] Line 11: Contract labor
+  - [x] Line 13: Depreciation
+  - [x] Line 15: Insurance
+  - [x] Line 16: Interest
+  - [x] Line 17: Legal and professional services
+  - [x] Line 18: Office expense
+  - [x] Line 20: Rent or lease
+  - [x] Line 21: Repairs and maintenance
+  - [x] Line 22: Supplies
+  - [x] Line 23: Taxes and licenses
+  - [x] Line 24: Travel
+  - [x] Line 25: Utilities
+  - [x] Line 27: Other expenses
+- [x] Create ScheduleCLineExtensions for line number mapping
+- [x] Update expense DTOs to include Schedule C line information
+
 ### Quarterly Summary
 
-- [ ] Create QuarterlySummary view/report
-  - [ ] Quarter identifier (Q1 2025, Q2 2025, etc.)
-  - [ ] Revenue by source (eBay, Services)
-  - [ ] Total Revenue
-  - [ ] Expenses by category
-  - [ ] Total Expenses
-  - [ ] Mileage deduction
-  - [ ] Net Profit
-- [ ] Create GetQuarterlySummary query
+- [x] Create QuarterlySummary DTOs
+  - [x] Quarter identifier (Q1 2025, Q2 2025, etc.)
+  - [x] Revenue by source (eBay, Services)
+  - [x] Total Revenue
+  - [x] Expenses by category (with Schedule C line numbers)
+  - [x] Total Expenses
+  - [x] Mileage deduction (with proportional allocation for shared)
+  - [x] Net Profit
+- [x] Create GetQuarterlySummary query
+- [x] Create EstimatedTaxPayment entity for tracking quarterly payments
+  - [x] TaxYear, Quarter, DueDate
+  - [x] EstimatedAmount, AmountPaid, IsPaid
+  - [x] PaymentMethod, ConfirmationNumber
+  - [x] IsOverdue computed property
+- [x] Create IEstimatedTaxPaymentRepository with overdue/unpaid queries
+- [x] Create EF Core configuration for EstimatedTaxPayment
+- [x] Create tax payment commands:
+  - [x] CreateEstimatedTaxPayment command
+  - [x] RecordTaxPayment command
 
 ### Annual Summary
 

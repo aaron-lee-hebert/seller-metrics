@@ -1,5 +1,6 @@
 using SellerMetrics.Application.Expenses.DTOs;
 using SellerMetrics.Domain.Entities;
+using SellerMetrics.Domain.Enums;
 using SellerMetrics.Domain.Interfaces;
 
 namespace SellerMetrics.Application.Expenses.Queries;
@@ -45,9 +46,11 @@ public class GetExpenseQueryHandler
             Currency = expense.Amount.Currency,
             AmountFormatted = expense.Amount.ToString(),
             Category = expense.Category,
-            CategoryDisplay = FormatCategoryName(expense.Category),
+            CategoryDisplay = expense.Category.GetDisplayName(),
+            ScheduleCLine = expense.Category.GetScheduleCLine(),
+            ScheduleCLineLabel = expense.Category.GetScheduleCLineLabel(),
             BusinessLine = expense.BusinessLine,
-            BusinessLineDisplay = expense.BusinessLine == Domain.Enums.BusinessLine.eBay
+            BusinessLineDisplay = expense.BusinessLine == BusinessLine.eBay
                 ? "eBay"
                 : expense.BusinessLine.ToString(),
             Vendor = expense.Vendor,
@@ -59,30 +62,6 @@ public class GetExpenseQueryHandler
             ReferenceNumber = expense.ReferenceNumber,
             CreatedAt = expense.CreatedAt,
             UpdatedAt = expense.UpdatedAt
-        };
-    }
-
-    private static string FormatCategoryName(Domain.Enums.ExpenseCategory category)
-    {
-        return category switch
-        {
-            Domain.Enums.ExpenseCategory.ShippingSupplies => "Shipping Supplies",
-            Domain.Enums.ExpenseCategory.OfficeSupplies => "Office Supplies",
-            Domain.Enums.ExpenseCategory.AdvertisingMarketing => "Advertising/Marketing",
-            Domain.Enums.ExpenseCategory.ProfessionalServices => "Professional Services",
-            Domain.Enums.ExpenseCategory.VehicleMileage => "Vehicle/Mileage",
-            Domain.Enums.ExpenseCategory.ToolsEquipment => "Tools & Equipment",
-            Domain.Enums.ExpenseCategory.SoftwareSubscriptions => "Software/Subscriptions",
-            Domain.Enums.ExpenseCategory.PartsMaterials => "Parts & Materials",
-            Domain.Enums.ExpenseCategory.PostageShipping => "Postage & Shipping",
-            Domain.Enums.ExpenseCategory.Insurance => "Insurance",
-            Domain.Enums.ExpenseCategory.Interest => "Interest",
-            Domain.Enums.ExpenseCategory.BankFees => "Bank Fees",
-            Domain.Enums.ExpenseCategory.EducationTraining => "Education/Training",
-            Domain.Enums.ExpenseCategory.Utilities => "Utilities",
-            Domain.Enums.ExpenseCategory.Rent => "Rent",
-            Domain.Enums.ExpenseCategory.Other => "Other",
-            _ => category.ToString()
         };
     }
 }

@@ -46,13 +46,16 @@ public class GetExpenseSummaryQueryHandler
             .Select(g => new ExpenseByCategoryDto
             {
                 Category = g.Key,
-                CategoryDisplay = FormatCategoryName(g.Key),
+                CategoryDisplay = g.Key.GetDisplayName(),
+                ScheduleCLine = g.Key.GetScheduleCLine(),
+                ScheduleCLineLabel = g.Key.GetScheduleCLineLabel(),
+                ScheduleCDescription = g.Key.GetScheduleCDescription(),
                 Total = g.Sum(e => e.Amount.Amount),
                 Currency = query.Currency,
                 TotalFormatted = new Money(g.Sum(e => e.Amount.Amount), query.Currency).ToString(),
                 ExpenseCount = g.Count()
             })
-            .OrderByDescending(c => c.Total)
+            .OrderBy(c => c.ScheduleCLine) // Order by Schedule C line number
             .ToList();
 
         // Group by business line
@@ -80,30 +83,6 @@ public class GetExpenseSummaryQueryHandler
             TotalCount = filteredExpenses.Count,
             ByCategory = byCategory,
             ByBusinessLine = byBusinessLine
-        };
-    }
-
-    private static string FormatCategoryName(ExpenseCategory category)
-    {
-        return category switch
-        {
-            ExpenseCategory.ShippingSupplies => "Shipping Supplies",
-            ExpenseCategory.OfficeSupplies => "Office Supplies",
-            ExpenseCategory.AdvertisingMarketing => "Advertising/Marketing",
-            ExpenseCategory.ProfessionalServices => "Professional Services",
-            ExpenseCategory.VehicleMileage => "Vehicle/Mileage",
-            ExpenseCategory.ToolsEquipment => "Tools & Equipment",
-            ExpenseCategory.SoftwareSubscriptions => "Software/Subscriptions",
-            ExpenseCategory.PartsMaterials => "Parts & Materials",
-            ExpenseCategory.PostageShipping => "Postage & Shipping",
-            ExpenseCategory.Insurance => "Insurance",
-            ExpenseCategory.Interest => "Interest",
-            ExpenseCategory.BankFees => "Bank Fees",
-            ExpenseCategory.EducationTraining => "Education/Training",
-            ExpenseCategory.Utilities => "Utilities",
-            ExpenseCategory.Rent => "Rent",
-            ExpenseCategory.Other => "Other",
-            _ => category.ToString()
         };
     }
 }

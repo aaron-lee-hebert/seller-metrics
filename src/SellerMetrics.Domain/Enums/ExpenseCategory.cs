@@ -2,86 +2,88 @@ namespace SellerMetrics.Domain.Enums;
 
 /// <summary>
 /// IRS Schedule C expense categories for sole proprietorship tax reporting.
+/// Values correspond to Schedule C Part II line numbers where applicable.
 /// </summary>
 public enum ExpenseCategory
 {
     /// <summary>
-    /// Shipping supplies: boxes, tape, bubble wrap, labels, etc.
+    /// Line 8: Advertising and marketing costs (eBay promoted listings, business cards, etc.).
     /// </summary>
-    ShippingSupplies = 1,
+    Advertising = 8,
 
     /// <summary>
-    /// Office supplies: paper, pens, printer ink, etc.
+    /// Line 9: Car and truck expenses (tracked separately in MileageLog for standard mileage method).
     /// </summary>
-    OfficeSupplies = 2,
+    CarAndTruck = 9,
 
     /// <summary>
-    /// Advertising and marketing costs.
+    /// Line 10: Commissions and fees (eBay fees, PayPal fees, platform fees).
     /// </summary>
-    AdvertisingMarketing = 3,
+    CommissionsAndFees = 10,
 
     /// <summary>
-    /// Professional services: accounting, legal, consulting.
+    /// Line 11: Contract labor (freelancers, contractors).
     /// </summary>
-    ProfessionalServices = 4,
+    ContractLabor = 11,
 
     /// <summary>
-    /// Vehicle and mileage expenses (tracked separately in MileageLog).
+    /// Line 13: Depreciation and Section 179 expense (equipment, computers).
     /// </summary>
-    VehicleMileage = 5,
+    Depreciation = 13,
 
     /// <summary>
-    /// Tools and equipment purchases.
+    /// Line 15: Insurance (other than health) - business liability, property insurance.
     /// </summary>
-    ToolsEquipment = 6,
+    Insurance = 15,
 
     /// <summary>
-    /// Software subscriptions and digital services.
+    /// Line 16b: Interest (other) - business credit cards, loans.
     /// </summary>
-    SoftwareSubscriptions = 7,
+    Interest = 16,
 
     /// <summary>
-    /// Parts and materials for repairs/services.
+    /// Line 17: Legal and professional services (accounting, legal fees, tax prep).
     /// </summary>
-    PartsMaterials = 8,
+    LegalAndProfessional = 17,
 
     /// <summary>
-    /// Postage and shipping costs.
+    /// Line 18: Office expense (paper, pens, printer ink, small office items).
     /// </summary>
-    PostageShipping = 9,
+    OfficeExpense = 18,
 
     /// <summary>
-    /// Business insurance premiums.
+    /// Line 20b: Rent or lease (other business property) - storage units, office space.
     /// </summary>
-    Insurance = 10,
+    RentOrLease = 20,
 
     /// <summary>
-    /// Interest on business loans or credit.
+    /// Line 21: Repairs and maintenance (equipment repairs, computer repairs).
     /// </summary>
-    Interest = 11,
+    RepairsAndMaintenance = 21,
 
     /// <summary>
-    /// Bank fees and payment processing fees.
+    /// Line 22: Supplies (shipping supplies, packaging materials, parts for resale repairs).
     /// </summary>
-    BankFees = 12,
+    Supplies = 22,
 
     /// <summary>
-    /// Education, training, and certification costs.
+    /// Line 23: Taxes and licenses (business licenses, sales tax permits).
     /// </summary>
-    EducationTraining = 13,
+    TaxesAndLicenses = 23,
 
     /// <summary>
-    /// Utilities (if home office deduction applies).
+    /// Line 24a: Travel (business travel, lodging for sourcing trips).
     /// </summary>
-    Utilities = 14,
+    Travel = 24,
 
     /// <summary>
-    /// Rent (if applicable for storage or office space).
+    /// Line 25: Utilities (business portion of utilities if home office).
     /// </summary>
-    Rent = 15,
+    Utilities = 25,
 
     /// <summary>
-    /// Other business expenses not categorized above.
+    /// Line 27a: Other expenses - education/training, software subscriptions,
+    /// bank fees, and other deductible business expenses.
     /// </summary>
-    Other = 99
+    OtherExpenses = 27
 }

@@ -15,6 +15,8 @@ public class BusinessExpenseDto
     public string AmountFormatted { get; set; } = string.Empty;
     public ExpenseCategory Category { get; set; }
     public string CategoryDisplay { get; set; } = string.Empty;
+    public int ScheduleCLine { get; set; }
+    public string ScheduleCLineLabel { get; set; } = string.Empty;
     public BusinessLine BusinessLine { get; set; }
     public string BusinessLineDisplay { get; set; } = string.Empty;
     public string? Vendor { get; set; }
@@ -35,6 +37,9 @@ public class ExpenseByCategoryDto
 {
     public ExpenseCategory Category { get; set; }
     public string CategoryDisplay { get; set; } = string.Empty;
+    public int ScheduleCLine { get; set; }
+    public string ScheduleCLineLabel { get; set; } = string.Empty;
+    public string ScheduleCDescription { get; set; } = string.Empty;
     public decimal Total { get; set; }
     public string Currency { get; set; } = "USD";
     public string TotalFormatted { get; set; } = string.Empty;

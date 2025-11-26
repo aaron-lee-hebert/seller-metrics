@@ -84,6 +84,7 @@ public static class DependencyInjection
         services.AddScoped<IBusinessExpenseRepository, BusinessExpenseRepository>();
         services.AddScoped<IMileageEntryRepository, MileageEntryRepository>();
         services.AddScoped<IIrsMileageRateRepository, IrsMileageRateRepository>();
+        services.AddScoped<IEstimatedTaxPaymentRepository, EstimatedTaxPaymentRepository>();
 
         // Register Application layer handlers - Storage Locations
         services.AddScoped<Application.StorageLocations.Commands.CreateStorageLocationCommandHandler>();
@@ -152,6 +153,11 @@ public static class DependencyInjection
         services.AddScoped<Application.Mileage.Queries.GetMileageLogQueryHandler>();
         services.AddScoped<Application.Mileage.Queries.CalculateMileageDeductionQueryHandler>();
         services.AddScoped<Application.Mileage.Queries.GetIrsMileageRatesQueryHandler>();
+
+        // Register Application layer handlers - Tax Reporting
+        services.AddScoped<Application.TaxReporting.Commands.CreateEstimatedTaxPaymentCommandHandler>();
+        services.AddScoped<Application.TaxReporting.Commands.RecordTaxPaymentCommandHandler>();
+        services.AddScoped<Application.TaxReporting.Queries.GetQuarterlySummaryQueryHandler>();
 
         return services;
     }
