@@ -1,0 +1,229 @@
+@model ExpenseListViewModel
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card metric-card h-100 shadow-sm">
+            <div class="card-body">
+                <p class="metric-label text-muted mb-1">Total Expenses</p>
+                <h4 class="metric-value mb-0">@Model.Summary.TotalExpensesFormatted</h4>
+                <small class="text-muted">@Model.Summary.TotalCount expenses</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="card metric-card h-100 shadow-sm">
+            <div class="card-body">
+                <p class="metric-label text-muted mb-1">By Business Line</p>
+                <div class="d-flex gap-3">
+                    @foreach (var line in Model.Summary.ByBusinessLine)
+                    {
+                        <div>
+                            <small class="text-muted d-block">@line.BusinessLineDisplay</small>
+                            <span class="fw-semibold">@line.TotalFormatted</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100 shadow-sm d-flex justify-content-center align-items-center">
+            <a asp-action="Create" class="btn btn-primary btn-lg">
+                <i class="bi bi-plus-circle me-2"></i>Log Expense
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" asp-action="Index" class="row g-3 align-items-end">
+            <div class="col-md-2">
+                <label class="form-label">Start Date</label>
+                <input type="date" name="startDate" class="form-control"
+                       value="@Model.StartDate?.ToString("yyyy-MM-dd")" onchange="this.form.submit()" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">End Date</label>
+                <input type="date" name="endDate" class="form-control"
+                       value="@Model.EndDate?.ToString("yyyy-MM-dd")" onchange="this.form.submit()" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Category</label>
+                <select name="category" class="form-select" onchange="this.form.submit()">
+                    @foreach (var option in Model.CategoryOptions)
+                    {
+                        <option value="@option.Value" selected="@option.Selected">@option.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Business Line</label>
+                <select name="businessLine" class="form-select" onchange="this.form.submit()">
+                    @foreach (var option in Model.BusinessLineOptions)
+                    {
+                        <option value="@option.Value" selected="@option.Selected">@option.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                @if (Model.CategoryFilter.HasValue || Model.BusinessLineFilter.HasValue)
+                {
+                    <a asp-action="Index" asp-route-startDate="@Model.StartDate?.ToString("yyyy-MM-dd")" asp-route-endDate="@Model.EndDate?.ToString("yyyy-MM-dd")"
+                       class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-x-circle me-1"></i>Clear
+                    </a>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Category Summary (collapsible) -->
+@if (Model.Summary.ByCategory.Any())
+{
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <a class="d-flex justify-content-between align-items-center text-decoration-none text-dark"
+               data-bs-toggle="collapse" href="#categorySummary">
+                <h6 class="mb-0">
+                    <i class="bi bi-pie-chart me-2"></i>Expenses by Schedule C Category
+                </h6>
+                <i class="bi bi-chevron-down"></i>
+            </a>
+        </div>
+        <div class="collapse show" id="categorySummary">
+            <div class="card-body">
+                <div class="row g-2">
+                    @foreach (var cat in Model.Summary.ByCategory.OrderBy(c => c.ScheduleCLine))
+                    {
+                        <div class="col-md-4 col-lg-3">
+                            <div class="p-2 border rounded">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <small class="text-muted">Line @cat.ScheduleCLine</small>
+                                        <div class="fw-semibold">@cat.CategoryDisplay</div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-bold">@cat.TotalFormatted</div>
+                                        <small class="text-muted">@cat.ExpenseCount items</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Expenses Table -->
+<div class="card shadow-sm">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="bi bi-receipt-cutoff me-2"></i>Expenses
+        </h5>
+        <span class="text-muted small">
+            Showing @Model.Pagination.StartItem - @Model.Pagination.EndItem of @Model.Pagination.TotalItems
+        </span>
+    </div>
+    <div class="card-body p-0">
+        @if (Model.Expenses.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover data-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Business</th>
+                            <th class="text-end">Amount</th>
+                            <th class="text-center">Deductible</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var expense in Model.Expenses)
+                        {
+                            <tr>
+                                <td>@expense.ExpenseDate.ToString("MMM d, yyyy")</td>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@expense.Id" class="text-decoration-none">
+                                        @expense.Description
+                                    </a>
+                                    @if (!string.IsNullOrEmpty(expense.Vendor))
+                                    {
+                                        <small class="text-muted d-block">@expense.Vendor</small>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark">
+                                        L@(expense.ScheduleCLine): @expense.CategoryDisplay
+                                    </span>
+                                </td>
+                                <td>
+                                    @{
+                                        var lineClass = expense.BusinessLine switch
+                                        {
+                                            BusinessLine.eBay => "bg-primary",
+                                            BusinessLine.ComputerServices => "bg-success",
+                                            BusinessLine.Shared => "bg-info",
+                                            _ => "bg-secondary"
+                                        };
+                                    }
+                                    <span class="badge @lineClass">@expense.BusinessLineDisplay</span>
+                                </td>
+                                <td class="text-end fw-semibold">@expense.AmountFormatted</td>
+                                <td class="text-center">
+                                    @if (expense.IsTaxDeductible)
+                                    {
+                                        <i class="bi bi-check-circle text-success"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-x-circle text-muted"></i>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <a asp-action="Details" asp-route-id="@expense.Id" class="btn btn-outline-primary" title="View">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@expense.Id" class="btn btn-outline-secondary" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            @if (Model.Pagination.TotalPages > 1)
+            {
+                <partial name="_Pagination" model="Model.Pagination" />
+            }
+        }
+        else
+        {
+            <div class="empty-state py-5">
+                <div class="empty-state-icon">
+                    <i class="bi bi-receipt-cutoff"></i>
+                </div>
+                <p class="empty-state-title">No Expenses Found</p>
+                <p class="empty-state-text">
+                    No expenses found for the selected date range and filters.
+                </p>
+                <a asp-action="Create" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Log Expense
+                </a>
+            </div>
+        }
+    </div>
+</div>
