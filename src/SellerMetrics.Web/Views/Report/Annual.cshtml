@@ -1,0 +1,421 @@
+@model AnnualReportViewModel
+
+@{
+    var summary = Model.Summary;
+    var profitClass = summary.NetProfit >= 0 ? "text-success" : "text-danger";
+}
+
+<!-- Header with Navigation -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1">@Model.Year Annual Tax Summary</h4>
+        <small class="text-muted">January 1 - December 31, @Model.Year</small>
+    </div>
+    <div class="d-flex gap-2">
+        <form method="get">
+            <select name="year" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
+                @foreach (var option in Model.YearOptions)
+                {
+                    <option value="@option.Value" selected="@option.Selected">@option.Text</option>
+                }
+            </select>
+        </form>
+        <div class="btn-group">
+            <a asp-action="Export" asp-route-year="@Model.Year" asp-route-format="excel"
+               class="btn btn-sm btn-success">
+                <i class="bi bi-file-earmark-excel me-1"></i>Excel
+            </a>
+            <a asp-action="Export" asp-route-year="@Model.Year" asp-route-format="csv"
+               class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-file-earmark-csv me-1"></i>CSV
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Annual Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-2 col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-currency-dollar text-primary fs-3"></i>
+                <h6 class="text-muted mt-2 mb-1">Gross Revenue</h6>
+                <h5 class="mb-0">@summary.TotalGrossRevenueFormatted</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-dash-circle text-danger fs-3"></i>
+                <h6 class="text-muted mt-2 mb-1">Fees</h6>
+                <h5 class="mb-0 text-danger">-@summary.TotalFeesFormatted</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-wallet2 text-info fs-3"></i>
+                <h6 class="text-muted mt-2 mb-1">Net Revenue</h6>
+                <h5 class="mb-0">@summary.TotalNetRevenueFormatted</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-receipt text-warning fs-3"></i>
+                <h6 class="text-muted mt-2 mb-1">Expenses</h6>
+                <h5 class="mb-0">@summary.TotalExpensesFormatted</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-car-front text-info fs-3"></i>
+                <h6 class="text-muted mt-2 mb-1">Mileage</h6>
+                <h5 class="mb-0">@summary.TotalMileageDeductionFormatted</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4">
+        <div class="card border-0 shadow-sm h-100 @(summary.NetProfit >= 0 ? "border-success" : "border-danger")">
+            <div class="card-body text-center">
+                <i class="bi bi-graph-up-arrow @profitClass fs-3"></i>
+                <h6 class="text-muted mt-2 mb-1">Net Profit</h6>
+                <h5 class="mb-0 @profitClass">@summary.NetProfitFormatted</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quarterly Breakdown -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <h6 class="mb-0"><i class="bi bi-calendar3 me-2"></i>Quarterly Breakdown</h6>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Quarter</th>
+                    <th class="text-end">eBay Revenue</th>
+                    <th class="text-end">Service Revenue</th>
+                    <th class="text-end">Total Revenue</th>
+                    <th class="text-end">Expenses</th>
+                    <th class="text-end">Mileage</th>
+                    <th class="text-end">Net Profit</th>
+                    <th class="text-center">Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var q in summary.QuarterlyBreakdown)
+                {
+                    var qProfitClass = q.NetProfit >= 0 ? "text-success" : "text-danger";
+                    <tr>
+                        <td>
+                            <a asp-action="Quarterly" asp-route-year="@q.Year" asp-route-quarter="@q.Quarter"
+                               class="text-decoration-none fw-semibold">@q.QuarterDisplay</a>
+                        </td>
+                        <td class="text-end">@q.EbayRevenueFormatted</td>
+                        <td class="text-end">@q.ServiceRevenueFormatted</td>
+                        <td class="text-end">@q.TotalRevenueFormatted</td>
+                        <td class="text-end">@q.TotalExpensesFormatted</td>
+                        <td class="text-end">@q.MileageDeductionFormatted</td>
+                        <td class="text-end @qProfitClass fw-semibold">@q.NetProfitFormatted</td>
+                        <td class="text-center">
+                            <a asp-action="Quarterly" asp-route-year="@q.Year" asp-route-quarter="@q.Quarter"
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+                <tr class="table-light fw-bold">
+                    <td>TOTAL</td>
+                    <td class="text-end">@summary.EbayRevenueFormatted</td>
+                    <td class="text-end">@summary.ServiceRevenueFormatted</td>
+                    <td class="text-end">@summary.TotalGrossRevenueFormatted</td>
+                    <td class="text-end">@summary.TotalExpensesFormatted</td>
+                    <td class="text-end">@summary.TotalMileageDeductionFormatted</td>
+                    <td class="text-end @profitClass">@summary.NetProfitFormatted</td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@if (summary.ScheduleC != null)
+{
+    <!-- Schedule C Preview -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h6 class="mb-0"><i class="bi bi-file-earmark-text me-2"></i>Schedule C Preview (Form 1040)</h6>
+            <span class="badge bg-info">For Reference Only</span>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning small mb-4">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                This is a preview only. Consult with a tax professional for official filing.
+            </div>
+
+            <!-- Part I - Income -->
+            <h6 class="border-bottom pb-2 mb-3">Part I - Income</h6>
+            <div class="table-responsive mb-4">
+                <table class="table table-sm mb-0">
+                    <tbody>
+                        <tr>
+                            <td class="w-50">Line 1 - Gross receipts or sales</td>
+                            <td class="text-end">@summary.ScheduleC.Line1Formatted</td>
+                        </tr>
+                        <tr>
+                            <td>Line 3 - Gross receipts minus returns and allowances</td>
+                            <td class="text-end">@summary.ScheduleC.Line3Formatted</td>
+                        </tr>
+                        <tr>
+                            <td>Line 4 - Cost of goods sold (COGS)</td>
+                            <td class="text-end">@summary.ScheduleC.Line4Formatted</td>
+                        </tr>
+                        <tr class="table-light">
+                            <td><strong>Line 5 - Gross profit</strong></td>
+                            <td class="text-end"><strong>@summary.ScheduleC.Line5Formatted</strong></td>
+                        </tr>
+                        <tr class="table-primary">
+                            <td><strong>Line 7 - Gross income</strong></td>
+                            <td class="text-end"><strong>@summary.ScheduleC.Line7Formatted</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Part II - Expenses -->
+            <h6 class="border-bottom pb-2 mb-3">Part II - Expenses</h6>
+            <div class="table-responsive mb-4">
+                <table class="table table-sm mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Line</th>
+                            <th>Description</th>
+                            <th class="text-end">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var line in summary.ScheduleC.ExpenseLines)
+                        {
+                            <tr>
+                                <td>@line.LineLabel</td>
+                                <td>@line.Description</td>
+                                <td class="text-end">@line.AmountFormatted</td>
+                            </tr>
+                        }
+                        <tr class="table-warning">
+                            <td colspan="2"><strong>Line 28 - Total expenses</strong></td>
+                            <td class="text-end"><strong>@summary.ScheduleC.Line28Formatted</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Net Profit -->
+            <h6 class="border-bottom pb-2 mb-3">Net Profit or Loss</h6>
+            <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                    <tbody>
+                        <tr>
+                            <td>Line 29 - Tentative profit (Line 7 minus Line 28)</td>
+                            <td class="text-end">@summary.ScheduleC.Line29Formatted</td>
+                        </tr>
+                        <tr class="@(summary.ScheduleC.Line31_NetProfit >= 0 ? "table-success" : "table-danger")">
+                            <td><strong>Line 31 - Net profit or (loss)</strong></td>
+                            <td class="text-end"><strong>@summary.ScheduleC.Line31Formatted</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Estimated Tax Payments -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <h6 class="mb-0"><i class="bi bi-bank me-2"></i>Estimated Tax Payments</h6>
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Quarter</th>
+                    <th>Due Date</th>
+                    <th class="text-end">Estimated</th>
+                    <th class="text-end">Paid</th>
+                    <th class="text-end">Remaining</th>
+                    <th class="text-center">Status</th>
+                    <th>Confirmation</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (summary.EstimatedTaxPayments.Any())
+                {
+                    @foreach (var payment in summary.EstimatedTaxPayments)
+                    {
+                        <tr>
+                            <td>@payment.QuarterDisplay</td>
+                            <td>@payment.DueDateFormatted</td>
+                            <td class="text-end">@payment.EstimatedAmountFormatted</td>
+                            <td class="text-end text-success">@payment.AmountPaidFormatted</td>
+                            <td class="text-end @(payment.RemainingAmount > 0 ? "text-danger" : "")">@payment.RemainingAmountFormatted</td>
+                            <td class="text-center">
+                                @if (payment.IsPaid)
+                                {
+                                    <span class="badge bg-success">Paid</span>
+                                }
+                                else if (payment.IsOverdue)
+                                {
+                                    <span class="badge bg-danger">OVERDUE</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                }
+                            </td>
+                            <td>@(payment.ConfirmationNumber ?? "-")</td>
+                        </tr>
+                    }
+                    <tr class="table-light fw-bold">
+                        <td colspan="2">TOTAL</td>
+                        <td class="text-end">@(new SellerMetrics.Domain.ValueObjects.Money(summary.EstimatedTaxPayments.Sum(p => p.EstimatedAmount), "USD").ToString())</td>
+                        <td class="text-end">@(new SellerMetrics.Domain.ValueObjects.Money(summary.EstimatedTaxPayments.Sum(p => p.AmountPaid), "USD").ToString())</td>
+                        <td class="text-end">@(new SellerMetrics.Domain.ValueObjects.Money(summary.EstimatedTaxPayments.Sum(p => p.RemainingAmount), "USD").ToString())</td>
+                        <td colspan="2"></td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-3">
+                            No estimated tax payments recorded for @Model.Year.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Revenue Split Visualization -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-pie-chart me-2"></i>Revenue Distribution</h6>
+            </div>
+            <div class="card-body d-flex align-items-center justify-content-center">
+                <div style="max-width: 300px;">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Quarterly Trend</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="quarterlyChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Navigation -->
+<div class="d-flex justify-content-between mt-4">
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Back to Reports
+    </a>
+    <div class="btn-group">
+        <a asp-action="Export" asp-route-year="@Model.Year" asp-route-format="excel"
+           class="btn btn-success">
+            <i class="bi bi-file-earmark-excel me-1"></i>Download Excel
+        </a>
+        <a asp-action="Export" asp-route-year="@Model.Year" asp-route-format="csv"
+           class="btn btn-outline-secondary">
+            <i class="bi bi-file-earmark-csv me-1"></i>Download CSV
+        </a>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Revenue Pie Chart
+        new Chart(document.getElementById('revenueChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['eBay', 'Services'],
+                datasets: [{
+                    data: [@summary.EbayRevenue.ToString("F2"), @summary.ServiceRevenue.ToString("F2")],
+                    backgroundColor: ['#0d6efd', '#0dcaf0'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': $' + context.raw.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Quarterly Trend Chart
+        new Chart(document.getElementById('quarterlyChart'), {
+            type: 'line',
+            data: {
+                labels: [@Html.Raw(string.Join(", ", summary.QuarterlyBreakdown.Select(q => $"'{q.QuarterDisplay}'")))],
+                datasets: [
+                    {
+                        label: 'Revenue',
+                        data: [@string.Join(", ", summary.QuarterlyBreakdown.Select(q => q.TotalRevenue.ToString("F2")))],
+                        borderColor: '#0d6efd',
+                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Net Profit',
+                        data: [@string.Join(", ", summary.QuarterlyBreakdown.Select(q => q.NetProfit.ToString("F2")))],
+                        borderColor: '#198754',
+                        backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) { return '$' + value.toLocaleString(); }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}

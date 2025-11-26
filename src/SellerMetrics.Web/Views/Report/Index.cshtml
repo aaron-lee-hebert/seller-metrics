@@ -1,0 +1,339 @@
+@model ReportIndexViewModel
+
+@{
+    var summary = Model.CurrentYearSummary;
+    var profitClass = summary?.NetProfit >= 0 ? "text-success" : "text-danger";
+}
+
+<!-- Year Selector -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="mb-0">@Model.SelectedYear Overview</h5>
+    <form method="get" class="d-flex gap-2">
+        <select name="year" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
+            @foreach (var option in Model.YearOptions)
+            {
+                <option value="@option.Value" selected="@option.Selected">@option.Text</option>
+            }
+        </select>
+    </form>
+</div>
+
+@if (summary != null)
+{
+    <!-- Annual Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary bg-opacity-10 rounded-3 p-3">
+                                <i class="bi bi-currency-dollar text-primary fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Gross Revenue</h6>
+                            <h4 class="mb-0">@summary.TotalGrossRevenueFormatted</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-warning bg-opacity-10 rounded-3 p-3">
+                                <i class="bi bi-receipt text-warning fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Total Expenses</h6>
+                            <h4 class="mb-0">@summary.TotalExpensesFormatted</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-info bg-opacity-10 rounded-3 p-3">
+                                <i class="bi bi-car-front text-info fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Mileage Deduction</h6>
+                            <h4 class="mb-0">@summary.TotalMileageDeductionFormatted</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="@(summary.NetProfit >= 0 ? "bg-success" : "bg-danger") bg-opacity-10 rounded-3 p-3">
+                                <i class="bi bi-graph-up-arrow @(summary.NetProfit >= 0 ? "text-success" : "text-danger") fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Net Profit</h6>
+                            <h4 class="mb-0 @profitClass">@summary.NetProfitFormatted</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions & Report Links -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="bi bi-file-earmark-text me-2"></i>Reports</h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <a asp-action="Annual" asp-route-year="@Model.SelectedYear"
+                           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="bi bi-calendar4 me-2"></i>@Model.SelectedYear Annual Summary
+                            </span>
+                            <span class="badge bg-primary">Full Year</span>
+                        </a>
+                        @foreach (var q in summary.QuarterlyBreakdown)
+                        {
+                            <a asp-action="Quarterly" asp-route-year="@q.Year" asp-route-quarter="@q.Quarter"
+                               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <span>
+                                    <i class="bi bi-calendar3 me-2"></i>@q.QuarterDisplay Summary
+                                </span>
+                                <span class="@(q.NetProfit >= 0 ? "text-success" : "text-danger")">@q.NetProfitFormatted</span>
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="bi bi-download me-2"></i>Export Reports</h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-3">Download your tax data for record keeping or accountant review.</p>
+                    <div class="d-grid gap-2">
+                        <a asp-action="Export" asp-route-year="@Model.SelectedYear" asp-route-format="excel"
+                           class="btn btn-outline-success">
+                            <i class="bi bi-file-earmark-excel me-2"></i>Export @Model.SelectedYear to Excel
+                        </a>
+                        <a asp-action="Export" asp-route-year="@Model.SelectedYear" asp-route-format="csv"
+                           class="btn btn-outline-secondary">
+                            <i class="bi bi-file-earmark-csv me-2"></i>Export @Model.SelectedYear to CSV
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quarterly Performance Chart -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <h6 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Quarterly Performance</h6>
+        </div>
+        <div class="card-body">
+            <canvas id="quarterlyChart" height="80"></canvas>
+        </div>
+    </div>
+
+    <!-- Revenue Split -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="bi bi-pie-chart me-2"></i>Revenue by Source</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <canvas id="revenueChart" height="200"></canvas>
+                        </div>
+                        <div class="col-md-4 d-flex flex-column justify-content-center">
+                            <div class="mb-3">
+                                <small class="text-muted">eBay</small>
+                                <h5 class="mb-0">@summary.EbayRevenueFormatted</h5>
+                            </div>
+                            <div>
+                                <small class="text-muted">Services</small>
+                                <h5 class="mb-0">@summary.ServiceRevenueFormatted</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="bi bi-calendar-check me-2"></i>Estimated Tax Payments</h6>
+                </div>
+                <div class="card-body">
+                    @if (summary.EstimatedTaxPayments.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Quarter</th>
+                                        <th>Due Date</th>
+                                        <th class="text-end">Amount</th>
+                                        <th class="text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var payment in summary.EstimatedTaxPayments)
+                                    {
+                                        <tr>
+                                            <td>@payment.QuarterDisplay</td>
+                                            <td>@payment.DueDateFormatted</td>
+                                            <td class="text-end">@payment.EstimatedAmountFormatted</td>
+                                            <td class="text-center">
+                                                @if (payment.IsPaid)
+                                                {
+                                                    <span class="badge bg-success">Paid</span>
+                                                }
+                                                else if (payment.IsOverdue)
+                                                {
+                                                    <span class="badge bg-danger">Overdue</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning text-dark">Pending</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No estimated tax payments recorded for @Model.SelectedYear.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Deadlines -->
+    @if (Model.UpcomingDeadlines.Any())
+    {
+        <div class="alert alert-warning d-flex align-items-center" role="alert">
+            <i class="bi bi-exclamation-triangle me-2 fs-5"></i>
+            <div>
+                <strong>Upcoming Tax Deadline:</strong>
+                @{
+                    var nextDeadline = Model.UpcomingDeadlines.First();
+                    var daysUntil = (nextDeadline.DueDate - DateTime.Today).Days;
+                }
+                @nextDeadline.QuarterDisplay estimated tax payment (@nextDeadline.EstimatedAmountFormatted) due @nextDeadline.DueDateFormatted
+                @if (daysUntil <= 30)
+                {
+                    <text> - <strong>@daysUntil days remaining</strong></text>
+                }
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>
+        No data available for @Model.SelectedYear. Start tracking your business activity to see reports.
+    </div>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        @if (summary != null)
+        {
+            <text>
+            // Quarterly Performance Chart
+            new Chart(document.getElementById('quarterlyChart'), {
+                type: 'bar',
+                data: {
+                    labels: [@Html.Raw(string.Join(", ", summary.QuarterlyBreakdown.Select(q => $"'{q.QuarterDisplay}'")))],
+                    datasets: [
+                        {
+                            label: 'Revenue',
+                            data: [@string.Join(", ", summary.QuarterlyBreakdown.Select(q => q.TotalRevenue.ToString("F2")))],
+                            backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                            borderColor: 'rgb(13, 110, 253)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Expenses',
+                            data: [@string.Join(", ", summary.QuarterlyBreakdown.Select(q => q.TotalExpenses.ToString("F2")))],
+                            backgroundColor: 'rgba(255, 193, 7, 0.7)',
+                            borderColor: 'rgb(255, 193, 7)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Net Profit',
+                            data: [@string.Join(", ", summary.QuarterlyBreakdown.Select(q => q.NetProfit.ToString("F2")))],
+                            backgroundColor: 'rgba(25, 135, 84, 0.7)',
+                            borderColor: 'rgb(25, 135, 84)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) { return '$' + value.toLocaleString(); }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Revenue Pie Chart
+            new Chart(document.getElementById('revenueChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['eBay', 'Services'],
+                    datasets: [{
+                        data: [@summary.EbayRevenue.ToString("F2"), @summary.ServiceRevenue.ToString("F2")],
+                        backgroundColor: ['#0d6efd', '#0dcaf0'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+            </text>
+        }
+    </script>
+}
