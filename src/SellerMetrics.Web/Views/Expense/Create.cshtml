@@ -1,0 +1,129 @@
+@model ExpenseFormViewModel
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-plus-circle me-2"></i>@Model.FormTitle
+                </h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post" class="needs-validation" novalidate>
+                    @Html.AntiForgeryToken()
+
+                    <div class="row g-3">
+                        <!-- Date -->
+                        <div class="col-md-4">
+                            <label asp-for="ExpenseDate" class="form-label"></label>
+                            <input asp-for="ExpenseDate" type="date" class="form-control" />
+                            <span asp-validation-for="ExpenseDate" class="text-danger"></span>
+                        </div>
+
+                        <!-- Amount -->
+                        <div class="col-md-4">
+                            <label asp-for="Amount" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input asp-for="Amount" class="form-control money-input" placeholder="0.00" />
+                            </div>
+                            <span asp-validation-for="Amount" class="text-danger"></span>
+                        </div>
+
+                        <!-- Currency -->
+                        <div class="col-md-4">
+                            <label asp-for="Currency" class="form-label"></label>
+                            <select asp-for="Currency" class="form-select">
+                                <option value="USD">USD</option>
+                                <option value="CAD">CAD</option>
+                                <option value="GBP">GBP</option>
+                                <option value="EUR">EUR</option>
+                            </select>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-12">
+                            <label asp-for="Description" class="form-label"></label>
+                            <input asp-for="Description" class="form-control" placeholder="What was this expense for?" />
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <!-- Category -->
+                        <div class="col-md-6">
+                            <label asp-for="Category" class="form-label"></label>
+                            <select asp-for="Category" class="form-select" required>
+                                @foreach (var option in Model.CategoryOptions.Where(o => !string.IsNullOrEmpty(o.Value)))
+                                {
+                                    <option value="@option.Value" selected="@option.Selected">@option.Text</option>
+                                }
+                            </select>
+                            <div class="form-text">IRS Schedule C category for tax reporting</div>
+                            <span asp-validation-for="Category" class="text-danger"></span>
+                        </div>
+
+                        <!-- Business Line -->
+                        <div class="col-md-6">
+                            <label asp-for="BusinessLine" class="form-label"></label>
+                            <select asp-for="BusinessLine" class="form-select" required>
+                                @foreach (var option in Model.BusinessLineOptions.Where(o => !string.IsNullOrEmpty(o.Value)))
+                                {
+                                    <option value="@option.Value" selected="@option.Selected">@option.Text</option>
+                                }
+                            </select>
+                            <div class="form-text">Which business line is this expense for?</div>
+                            <span asp-validation-for="BusinessLine" class="text-danger"></span>
+                        </div>
+
+                        <!-- Vendor -->
+                        <div class="col-md-6">
+                            <label asp-for="Vendor" class="form-label"></label>
+                            <input asp-for="Vendor" class="form-control" placeholder="e.g., Amazon, Staples" />
+                            <span asp-validation-for="Vendor" class="text-danger"></span>
+                        </div>
+
+                        <!-- Reference Number -->
+                        <div class="col-md-6">
+                            <label asp-for="ReferenceNumber" class="form-label"></label>
+                            <input asp-for="ReferenceNumber" class="form-control" placeholder="Order #, receipt #, etc." />
+                            <span asp-validation-for="ReferenceNumber" class="text-danger"></span>
+                        </div>
+
+                        <!-- Tax Deductible -->
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input asp-for="IsTaxDeductible" class="form-check-input" />
+                                <label asp-for="IsTaxDeductible" class="form-check-label">
+                                    Tax Deductible
+                                </label>
+                                <div class="form-text">Uncheck if this is a personal expense or otherwise not deductible</div>
+                            </div>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="col-12">
+                            <label asp-for="Notes" class="form-label"></label>
+                            <textarea asp-for="Notes" class="form-control" rows="2"
+                                      placeholder="Additional notes..."></textarea>
+                            <span asp-validation-for="Notes" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-1"></i>@Model.SubmitButtonText
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
