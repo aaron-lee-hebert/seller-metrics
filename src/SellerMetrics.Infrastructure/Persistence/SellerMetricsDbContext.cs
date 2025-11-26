@@ -45,6 +45,16 @@ public class SellerMetricsDbContext : IdentityDbContext<ApplicationUser>
     /// </summary>
     public DbSet<ServiceJob> ServiceJobs => Set<ServiceJob>();
 
+    /// <summary>
+    /// Revenue entries from eBay and services.
+    /// </summary>
+    public DbSet<RevenueEntry> RevenueEntries => Set<RevenueEntry>();
+
+    /// <summary>
+    /// Fiscal year configuration settings.
+    /// </summary>
+    public DbSet<FiscalYearConfiguration> FiscalYearConfigurations => Set<FiscalYearConfiguration>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

@@ -237,15 +237,31 @@ This file tracks all development tasks for the SellerMetrics application.
 
 ### Revenue Tracking
 
-- [ ] Create RevenueSource enum (eBay, ComputerServices)
-- [ ] Aggregate revenue from:
-  - [ ] eBay: Sum of NetPayout from synced orders
-  - [ ] Services: Sum of paid Wave invoices
-- [ ] Create unified revenue queries:
-  - [ ] GetRevenueBySource query (eBay vs Services breakdown)
-  - [ ] GetMonthlyRevenue query
-  - [ ] GetQuarterlyRevenue query
-  - [ ] GetYearToDateRevenue query
+- [x] Create RevenueSource enum (eBay, ComputerServices)
+- [x] Create RevenueEntryType enum (Manual, EbaySynced, WaveSynced)
+- [x] Create RevenueEntry entity with support for both synced and manual entries
+  - [x] Link to eBay orders via EbayOrderId
+  - [x] Link to Wave invoices via WaveInvoiceNumber
+  - [x] Link to InventoryItem for eBay sales
+  - [x] Link to ServiceJob for service revenue
+  - [x] Money value objects for GrossAmount and Fees
+- [x] Create FiscalYearConfiguration entity for fiscal year settings
+  - [x] Configurable fiscal year start month
+  - [x] Methods for calculating fiscal year, quarter, and date ranges
+- [x] Create IRevenueEntryRepository with specialized queries
+- [x] Create IFiscalYearConfigurationRepository
+- [x] Create EF Core configurations for RevenueEntry and FiscalYearConfiguration
+- [x] Create revenue commands:
+  - [x] CreateRevenueEntry command (with duplicate prevention)
+  - [x] UpdateRevenueEntry command
+  - [x] DeleteRevenueEntry command (soft delete)
+- [x] Create unified revenue queries:
+  - [x] GetRevenueEntry query (single entry)
+  - [x] GetRevenueList query (filtered list)
+  - [x] GetRevenueBySource query (eBay vs Services breakdown)
+  - [x] GetMonthlyRevenue query
+  - [x] GetQuarterlyRevenue query (fiscal year aware)
+  - [x] GetYearToDateRevenue query (fiscal year aware)
 
 ### Profit Calculation
 

@@ -79,6 +79,8 @@ public static class DependencyInjection
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
         services.AddScoped<IComponentTypeRepository, ComponentTypeRepository>();
         services.AddScoped<IComponentItemRepository, ComponentItemRepository>();
+        services.AddScoped<IRevenueEntryRepository, RevenueEntryRepository>();
+        services.AddScoped<IFiscalYearConfigurationRepository, FiscalYearConfigurationRepository>();
 
         // Register Application layer handlers - Storage Locations
         services.AddScoped<Application.StorageLocations.Commands.CreateStorageLocationCommandHandler>();
@@ -110,6 +112,17 @@ public static class DependencyInjection
         services.AddScoped<Application.Components.Queries.GetLowStockComponentsQueryHandler>();
         services.AddScoped<Application.Components.Queries.GetComponentValueQueryHandler>();
         services.AddScoped<Application.Components.Queries.GetComponentTypesQueryHandler>();
+
+        // Register Application layer handlers - Revenue
+        services.AddScoped<Application.Revenue.Commands.CreateRevenueEntryCommandHandler>();
+        services.AddScoped<Application.Revenue.Commands.UpdateRevenueEntryCommandHandler>();
+        services.AddScoped<Application.Revenue.Commands.DeleteRevenueEntryCommandHandler>();
+        services.AddScoped<Application.Revenue.Queries.GetRevenueEntryQueryHandler>();
+        services.AddScoped<Application.Revenue.Queries.GetRevenueListQueryHandler>();
+        services.AddScoped<Application.Revenue.Queries.GetRevenueBySourceQueryHandler>();
+        services.AddScoped<Application.Revenue.Queries.GetMonthlyRevenueQueryHandler>();
+        services.AddScoped<Application.Revenue.Queries.GetQuarterlyRevenueQueryHandler>();
+        services.AddScoped<Application.Revenue.Queries.GetYearToDateRevenueQueryHandler>();
 
         return services;
     }
