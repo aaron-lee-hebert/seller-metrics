@@ -1,0 +1,318 @@
+@model MileageListViewModel
+
+@{
+    var currentYear = DateTime.Today.Year;
+    var rateDisplay = Model.CurrentRate?.StandardRateFormatted ?? "$0.67/mile";
+    var rateYear = Model.CurrentRate?.Year ?? currentYear;
+}
+
+<!-- IRS Rate Banner -->
+<div class="alert alert-info d-flex align-items-center mb-4" role="alert">
+    <i class="bi bi-info-circle me-2 fs-5"></i>
+    <div>
+        <strong>@rateYear IRS Standard Mileage Rate:</strong> @rateDisplay for business use
+        <small class="text-muted ms-2">(Self-employed deduction)</small>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary bg-opacity-10 rounded-3 p-3">
+                            <i class="bi bi-speedometer2 text-primary fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Total Miles</h6>
+                        <h4 class="mb-0">@Model.Deduction.TotalMiles.ToString("N1")</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-success bg-opacity-10 rounded-3 p-3">
+                            <i class="bi bi-cash text-success fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Tax Deduction</h6>
+                        <h4 class="mb-0 text-success">@Model.Deduction.TotalDeductionFormatted</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-info bg-opacity-10 rounded-3 p-3">
+                            <i class="bi bi-geo-alt text-info fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Total Trips</h6>
+                        <h4 class="mb-0">@Model.Deduction.TripCount</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="bg-secondary bg-opacity-10 rounded-3 p-3">
+                            <i class="bi bi-percent text-secondary fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="text-muted mb-1">Rate</h6>
+                        <h4 class="mb-0">@Model.Deduction.ApplicableRateFormatted</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Deduction by Business Line -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <a class="text-decoration-none text-dark d-flex align-items-center justify-content-between"
+           data-bs-toggle="collapse" href="#businessLineBreakdown" role="button" aria-expanded="true">
+            <span><i class="bi bi-pie-chart me-2"></i>Deduction by Business Line</span>
+            <i class="bi bi-chevron-down"></i>
+        </a>
+    </div>
+    <div class="collapse show" id="businessLineBreakdown">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">eBay</span>
+                        <span class="fw-semibold">@Model.Deduction.EbayMiles.ToString("N1") mi</span>
+                    </div>
+                    <div class="progress mb-2" style="height: 6px;">
+                        @{
+                            var ebayPct = Model.Deduction.TotalMiles > 0
+                                ? (Model.Deduction.EbayMiles / Model.Deduction.TotalMiles * 100) : 0;
+                        }
+                        <div class="progress-bar bg-primary" style="width: @ebayPct%"></div>
+                    </div>
+                    <small class="text-success">@Model.Deduction.EbayDeductionFormatted deduction</small>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Computer Services</span>
+                        <span class="fw-semibold">@Model.Deduction.ServiceMiles.ToString("N1") mi</span>
+                    </div>
+                    <div class="progress mb-2" style="height: 6px;">
+                        @{
+                            var servicePct = Model.Deduction.TotalMiles > 0
+                                ? (Model.Deduction.ServiceMiles / Model.Deduction.TotalMiles * 100) : 0;
+                        }
+                        <div class="progress-bar bg-info" style="width: @servicePct%"></div>
+                    </div>
+                    <small class="text-success">@Model.Deduction.ServiceDeductionFormatted deduction</small>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Shared</span>
+                        <span class="fw-semibold">@Model.Deduction.SharedMiles.ToString("N1") mi</span>
+                    </div>
+                    <div class="progress mb-2" style="height: 6px;">
+                        @{
+                            var sharedPct = Model.Deduction.TotalMiles > 0
+                                ? (Model.Deduction.SharedMiles / Model.Deduction.TotalMiles * 100) : 0;
+                        }
+                        <div class="progress-bar bg-secondary" style="width: @sharedPct%"></div>
+                    </div>
+                    <small class="text-success">@Model.Deduction.SharedDeductionFormatted deduction</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters & Actions -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label for="startDate" class="form-label">Start Date</label>
+                <input type="date" class="form-control" id="startDate" name="startDate"
+                       value="@Model.StartDate?.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-md-3">
+                <label for="endDate" class="form-label">End Date</label>
+                <input type="date" class="form-control" id="endDate" name="endDate"
+                       value="@Model.EndDate?.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-md-3">
+                <label for="businessLine" class="form-label">Business Line</label>
+                <select class="form-select" id="businessLine" name="businessLine">
+                    @foreach (var option in Model.BusinessLineOptions)
+                    {
+                        <option value="@option.Value" selected="@option.Selected">@option.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-outline-primary flex-grow-1">
+                    <i class="bi bi-funnel me-1"></i>Filter
+                </button>
+                <a asp-action="Create" class="btn btn-primary flex-grow-1">
+                    <i class="bi bi-plus-lg me-1"></i>Log Trip
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Quick Presets -->
+<div class="mb-3">
+    <span class="me-2 text-muted">Quick filters:</span>
+    @{
+        var today = DateTime.Today;
+        var ytdStart = new DateTime(today.Year, 1, 1);
+        var q1Start = new DateTime(today.Year, 1, 1);
+        var q2Start = new DateTime(today.Year, 4, 1);
+        var q3Start = new DateTime(today.Year, 7, 1);
+        var q4Start = new DateTime(today.Year, 10, 1);
+        var currentQuarterStart = today.Month <= 3 ? q1Start : today.Month <= 6 ? q2Start : today.Month <= 9 ? q3Start : q4Start;
+    }
+    <a href="@Url.Action("Index", new { startDate = ytdStart.ToString("yyyy-MM-dd"), endDate = today.ToString("yyyy-MM-dd") })"
+       class="btn btn-sm btn-outline-secondary me-1">YTD</a>
+    <a href="@Url.Action("Index", new { startDate = currentQuarterStart.ToString("yyyy-MM-dd"), endDate = today.ToString("yyyy-MM-dd") })"
+       class="btn btn-sm btn-outline-secondary me-1">This Quarter</a>
+    <a href="@Url.Action("Index", new { startDate = today.AddMonths(-1).ToString("yyyy-MM-dd"), endDate = today.ToString("yyyy-MM-dd") })"
+       class="btn btn-sm btn-outline-secondary me-1">Last 30 Days</a>
+</div>
+
+<!-- Mileage Log Table -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-list-ul me-2"></i>Trip Log</span>
+        <span class="badge bg-secondary">@Model.Pagination.TotalItems entries</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Date</th>
+                    <th>Purpose</th>
+                    <th>Route</th>
+                    <th class="text-center">Miles</th>
+                    <th>Business</th>
+                    <th class="text-end">Deduction</th>
+                    <th class="text-center" style="width: 80px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Entries.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">
+                            <i class="bi bi-geo-alt fs-1 d-block mb-2"></i>
+                            No trips logged for this period.
+                            <a asp-action="Create" class="d-block mt-2">Log your first trip</a>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var entry in Model.Entries)
+                    {
+                        var estimatedDeduction = entry.TotalMiles * (Model.CurrentRate?.StandardRate ?? 0.67m);
+                        <tr>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@entry.Id" class="text-decoration-none">
+                                    @entry.TripDate.ToString("MMM d, yyyy")
+                                </a>
+                            </td>
+                            <td>
+                                <span class="text-truncate d-inline-block" style="max-width: 200px;" title="@entry.Purpose">
+                                    @entry.Purpose
+                                </span>
+                            </td>
+                            <td>
+                                <small class="text-muted">
+                                    @entry.StartLocation <i class="bi bi-arrow-right mx-1"></i> @entry.Destination
+                                    @if (entry.IsRoundTrip)
+                                    {
+                                        <span class="badge bg-light text-dark ms-1">Round trip</span>
+                                    }
+                                </small>
+                            </td>
+                            <td class="text-center">
+                                <span class="fw-semibold">@entry.TotalMiles.ToString("N1")</span>
+                            </td>
+                            <td>
+                                @{
+                                    var badgeClass = entry.BusinessLine switch
+                                    {
+                                        BusinessLine.eBay => "bg-primary",
+                                        BusinessLine.ComputerServices => "bg-info",
+                                        _ => "bg-secondary"
+                                    };
+                                }
+                                <span class="badge @badgeClass">@entry.BusinessLineDisplay</span>
+                            </td>
+                            <td class="text-end text-success">
+                                $@estimatedDeduction.ToString("N2")
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    <a asp-action="Edit" asp-route-id="@entry.Id" class="btn btn-outline-secondary" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@entry.Id" class="btn btn-outline-secondary" title="Details">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (Model.Pagination.TotalPages > 1)
+    {
+        <div class="card-footer bg-white">
+            <partial name="_PaginationPartial" model="Model.Pagination" />
+        </div>
+    }
+</div>
+
+<!-- Running Total Footer -->
+<div class="card border-0 shadow-sm mt-4">
+    <div class="card-body bg-light">
+        <div class="row text-center">
+            <div class="col-md-4">
+                <h6 class="text-muted mb-1">Period Total</h6>
+                <h5 class="mb-0">@Model.Deduction.TotalMiles.ToString("N1") miles</h5>
+            </div>
+            <div class="col-md-4">
+                <h6 class="text-muted mb-1">Estimated Deduction</h6>
+                <h5 class="mb-0 text-success">@Model.Deduction.TotalDeductionFormatted</h5>
+            </div>
+            <div class="col-md-4">
+                <h6 class="text-muted mb-1">IRS Rate (@Model.Deduction.RateYear)</h6>
+                <h5 class="mb-0">@Model.Deduction.ApplicableRateFormatted</h5>
+            </div>
+        </div>
+    </div>
+</div>
