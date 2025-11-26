@@ -1,8 +1,306 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model DashboardViewModel
+
+<!-- Alerts Section -->
+@if (Model.Alerts.Any())
+{
+    <div class="row mb-4">
+        <div class="col-12">
+            @foreach (var alert in Model.Alerts)
+            {
+                <div class="alert alert-@alert.Type alert-dismissible fade show d-flex align-items-center" role="alert">
+                    <i class="bi @alert.Icon me-2 fs-5"></i>
+                    <div class="flex-grow-1">
+                        <strong>@alert.Title:</strong> @alert.Message
+                    </div>
+                    @if (!string.IsNullOrEmpty(alert.ActionUrl))
+                    {
+                        <a href="@alert.ActionUrl" class="btn btn-sm btn-outline-@alert.Type ms-3">@alert.ActionText</a>
+                    }
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+    </div>
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!-- Key Metrics Cards -->
+<div class="row g-4 mb-4">
+    <!-- eBay Inventory Value -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card metric-card h-100 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="metric-label text-muted mb-1">eBay Inventory</p>
+                        <h3 class="metric-value mb-0">@Model.EbayInventoryValueFormatted</h3>
+                        <small class="text-muted">@Model.EbayInventoryCount items</small>
+                    </div>
+                    <div class="metric-icon text-primary">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0 pt-0">
+                <a asp-controller="Inventory" asp-action="Index" class="text-decoration-none small">
+                    View inventory <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Component Inventory Value -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card metric-card h-100 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="metric-label text-muted mb-1">Components</p>
+                        <h3 class="metric-value mb-0">@Model.ComponentInventoryValueFormatted</h3>
+                        <small class="text-muted">@Model.ComponentInventoryCount items</small>
+                    </div>
+                    <div class="metric-icon text-info">
+                        <i class="bi bi-cpu"></i>
+                    </div>
+                </div>
+                @if (Model.LowStockComponentCount > 0)
+                {
+                    <div class="mt-2">
+                        <span class="badge bg-warning text-dark">
+                            <i class="bi bi-exclamation-triangle me-1"></i>@Model.LowStockComponentCount low stock
+                        </span>
+                    </div>
+                }
+            </div>
+            <div class="card-footer bg-transparent border-0 pt-0">
+                <a asp-controller="Component" asp-action="Index" class="text-decoration-none small">
+                    View components <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- QTD Revenue -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card metric-card h-100 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="metric-label text-muted mb-1">@Model.CurrentQuarterDisplay Revenue</p>
+                        <h3 class="metric-value mb-0">@Model.QtdRevenueFormatted</h3>
+                        <small class="text-muted">
+                            eBay: @Model.QtdEbayRevenueFormatted | Services: @Model.QtdServiceRevenueFormatted
+                        </small>
+                    </div>
+                    <div class="metric-icon text-success">
+                        <i class="bi bi-currency-dollar"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0 pt-0">
+                <a asp-controller="Report" asp-action="Quarterly" class="text-decoration-none small">
+                    View details <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- QTD Profit -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card metric-card h-100 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="metric-label text-muted mb-1">@Model.CurrentQuarterDisplay Profit</p>
+                        <h3 class="metric-value mb-0 @(Model.QtdProfitIsPositive ? "text-profit" : "text-loss")">
+                            @Model.QtdProfitFormatted
+                        </h3>
+                        <small class="text-muted">Net after expenses</small>
+                    </div>
+                    <div class="metric-icon @(Model.QtdProfitIsPositive ? "text-success" : "text-danger")">
+                        <i class="bi @(Model.QtdProfitIsPositive ? "bi-graph-up-arrow" : "bi-graph-down-arrow")"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0 pt-0">
+                <a asp-controller="Report" asp-action="Quarterly" class="text-decoration-none small">
+                    View report <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- YTD Summary Row -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card metric-card h-100 shadow-sm bg-light">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="metric-label text-muted mb-1">Year-to-Date Revenue (@Model.CurrentYear)</p>
+                        <h3 class="metric-value mb-0">@Model.YtdRevenueFormatted</h3>
+                    </div>
+                    <div class="metric-icon text-primary">
+                        <i class="bi bi-calendar-range"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card metric-card h-100 shadow-sm bg-light">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="metric-label text-muted mb-1">Year-to-Date Profit (@Model.CurrentYear)</p>
+                        <h3 class="metric-value mb-0 @(Model.YtdProfitIsPositive ? "text-profit" : "text-loss")">
+                            @Model.YtdProfitFormatted
+                        </h3>
+                    </div>
+                    <div class="metric-icon @(Model.YtdProfitIsPositive ? "text-success" : "text-danger")">
+                        <i class="bi @(Model.YtdProfitIsPositive ? "bi-graph-up-arrow" : "bi-graph-down-arrow")"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Revenue Chart and Recent Activity -->
+<div class="row g-4">
+    <!-- Revenue Trend Chart -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-bar-chart me-2"></i>Monthly Revenue Trend
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-clock-history me-2"></i>Recent Activity
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.RecentOrders.Any() || Model.RecentInvoices.Any())
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var order in Model.RecentOrders.Take(3))
+                        {
+                            <li class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <span class="badge bg-primary me-2">eBay</span>
+                                        <small class="text-muted">@order.OrderDate.ToString("MMM d")</small>
+                                        <div class="text-truncate-2 small mt-1">@order.ItemTitle</div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="@(order.ProfitIsPositive ? "text-profit" : "text-loss") fw-semibold">
+                                            @order.ProfitFormatted
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                        @foreach (var invoice in Model.RecentInvoices.Take(2))
+                        {
+                            <li class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <span class="badge bg-success me-2">Service</span>
+                                        <small class="text-muted">@invoice.InvoiceDate.ToString("MMM d")</small>
+                                        <div class="text-truncate-2 small mt-1">@invoice.CustomerName</div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-semibold">@invoice.TotalAmountFormatted</div>
+                                        <span class="badge @(invoice.IsPaid ? "bg-success" : "bg-warning text-dark")">
+                                            @invoice.Status
+                                        </span>
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <div class="empty-state py-4">
+                        <div class="empty-state-icon">
+                            <i class="bi bi-inbox"></i>
+                        </div>
+                        <p class="empty-state-title">No Recent Activity</p>
+                        <p class="empty-state-text">
+                            Orders and invoices will appear here once synced.
+                        </p>
+                    </div>
+                }
+            </div>
+            <div class="card-footer bg-white">
+                <div class="d-flex justify-content-between">
+                    <a asp-controller="Order" asp-action="Index" class="text-decoration-none small">
+                        eBay Orders <i class="bi bi-arrow-right"></i>
+                    </a>
+                    <a asp-controller="Invoice" asp-action="Index" class="text-decoration-none small">
+                        Invoices <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-lightning me-2"></i>Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap gap-2">
+                    <a asp-controller="Inventory" asp-action="Create" class="btn btn-outline-primary">
+                        <i class="bi bi-plus-circle me-1"></i>Add Inventory
+                    </a>
+                    <a asp-controller="Component" asp-action="Create" class="btn btn-outline-primary">
+                        <i class="bi bi-plus-circle me-1"></i>Add Component
+                    </a>
+                    <a asp-controller="Expense" asp-action="Create" class="btn btn-outline-primary">
+                        <i class="bi bi-plus-circle me-1"></i>Log Expense
+                    </a>
+                    <a asp-controller="Mileage" asp-action="Create" class="btn btn-outline-primary">
+                        <i class="bi bi-plus-circle me-1"></i>Log Mileage
+                    </a>
+                    <a asp-controller="Report" asp-action="Annual" class="btn btn-outline-secondary">
+                        <i class="bi bi-file-earmark-text me-1"></i>Annual Report
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script>
+        // Revenue Chart Data from Server
+        const chartLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ChartData.Labels));
+        const ebayData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ChartData.EbayRevenue));
+        const serviceData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ChartData.ServiceRevenue));
+
+        // Initialize Chart
+        ChartHelper.createRevenueChart('revenueChart', chartLabels, ebayData, serviceData);
+    </script>
+}
