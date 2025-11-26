@@ -158,6 +158,7 @@ public static class DependencyInjection
         services.AddScoped<Application.TaxReporting.Commands.CreateEstimatedTaxPaymentCommandHandler>();
         services.AddScoped<Application.TaxReporting.Commands.RecordTaxPaymentCommandHandler>();
         services.AddScoped<Application.TaxReporting.Queries.GetQuarterlySummaryQueryHandler>();
+        services.AddScoped<Application.TaxReporting.Queries.GetAnnualSummaryQueryHandler>();
 
         return services;
     }

@@ -407,12 +407,23 @@ This file tracks all development tasks for the SellerMetrics application.
 
 ### Annual Summary
 
-- [ ] Create AnnualSummary view/report
-  - [ ] Year
-  - [ ] Quarterly breakdown
-  - [ ] Annual totals
-  - [ ] Schedule C preview (categorized for tax filing)
-- [ ] Create GetAnnualSummary query
+- [x] Create AnnualSummary DTOs (in TaxReportingDto.cs)
+  - [x] Year (calendar year for IRS)
+  - [x] Quarterly breakdown
+  - [x] Annual totals (revenue, expenses, mileage deduction, profit)
+  - [x] Schedule C preview (ScheduleCSummaryDto)
+    - [x] Line 1: Gross receipts
+    - [x] Line 4: Cost of goods sold (from sold inventory COGS)
+    - [x] Line 5: Gross profit
+    - [x] Line 7: Gross income
+    - [x] Lines 8-27: Expenses by Schedule C line number
+    - [x] Line 28: Total expenses
+    - [x] Line 31: Net profit
+- [x] Create GetAnnualSummary query
+  - [x] Aggregates quarterly data
+  - [x] Calculates COGS from sold inventory items
+  - [x] Builds Schedule C format summary
+  - [x] Includes estimated tax payment status
 - [ ] Create ExportTaxReport command (CSV/Excel for accountant)
 
 ---
