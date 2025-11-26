@@ -157,6 +157,7 @@ public static class DependencyInjection
         // Register Application layer handlers - Tax Reporting
         services.AddScoped<Application.TaxReporting.Commands.CreateEstimatedTaxPaymentCommandHandler>();
         services.AddScoped<Application.TaxReporting.Commands.RecordTaxPaymentCommandHandler>();
+        services.AddScoped<Application.TaxReporting.Commands.ExportTaxReportCommandHandler>();
         services.AddScoped<Application.TaxReporting.Queries.GetQuarterlySummaryQueryHandler>();
         services.AddScoped<Application.TaxReporting.Queries.GetAnnualSummaryQueryHandler>();
 

@@ -424,7 +424,14 @@ This file tracks all development tasks for the SellerMetrics application.
   - [x] Calculates COGS from sold inventory items
   - [x] Builds Schedule C format summary
   - [x] Includes estimated tax payment status
-- [ ] Create ExportTaxReport command (CSV/Excel for accountant)
+- [x] Create ExportTaxReport command (CSV/Excel for accountant)
+  - [x] Add ClosedXML NuGet package for Excel generation
+  - [x] CSV export with annual summary, quarterly breakdown, Schedule C, tax payments
+  - [x] Excel export with multiple sheets:
+    - [x] Summary sheet with annual totals
+    - [x] Quarterly breakdown sheet with formulas
+    - [x] Schedule C sheet matching IRS form layout
+    - [x] Estimated Tax Payments sheet with status tracking
 
 ---
 
