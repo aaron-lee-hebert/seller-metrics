@@ -439,111 +439,111 @@ This file tracks all development tasks for the SellerMetrics application.
 
 ### Layout & Navigation
 
-- [ ] Create \_Layout.cshtml with Bootstrap 5
-- [ ] Implement responsive sidebar navigation:
-  - [ ] Dashboard
-  - [ ] Inventory (eBay Items)
-  - [ ] Components (Repair Parts)
-  - [ ] eBay Orders
-  - [ ] Service Invoices (Wave)
-  - [ ] Expenses
-  - [ ] Mileage Log
-  - [ ] Reports
-  - [ ] Settings
-- [ ] Mobile-responsive design
-- [ ] Add user info and logout in header (Microsoft Identity)
+- [x] Create \_Layout.cshtml with Bootstrap 5
+- [x] Implement responsive sidebar navigation:
+  - [x] Dashboard
+  - [x] Inventory (eBay Items)
+  - [x] Components (Repair Parts)
+  - [x] eBay Orders
+  - [x] Service Invoices (Wave)
+  - [x] Expenses
+  - [x] Mileage Log
+  - [x] Reports
+  - [x] Settings
+- [x] Mobile-responsive design
+- [x] Add user info and logout in header (Microsoft Identity)
 
 ### Dashboard
 
-- [ ] Key metrics cards:
-  - [ ] eBay Inventory Value (total COGS of unsold items)
-  - [ ] Component Inventory Value
-  - [ ] Quarter-to-Date Revenue (eBay + Services)
-  - [ ] Quarter-to-Date Profit
-  - [ ] Year-to-Date Revenue
-  - [ ] Year-to-Date Profit
-- [ ] Recent activity:
-  - [ ] Last 5 eBay orders
-  - [ ] Last 5 Service invoices (from Wave)
-- [ ] Alerts:
-  - [ ] Unpaid invoices count
-  - [ ] Next quarterly tax deadline
-- [ ] Simple chart: Monthly revenue trend (eBay vs Services)
+- [x] Key metrics cards:
+  - [x] eBay Inventory Value (total COGS of unsold items)
+  - [x] Component Inventory Value
+  - [x] Quarter-to-Date Revenue (eBay + Services)
+  - [x] Quarter-to-Date Profit
+  - [x] Year-to-Date Revenue
+  - [x] Year-to-Date Profit
+- [x] Recent activity:
+  - [x] Last 5 eBay orders
+  - [x] Last 5 Service invoices (from Wave)
+- [x] Alerts:
+  - [x] Unpaid invoices count
+  - [x] Next quarterly tax deadline
+- [x] Simple chart: Monthly revenue trend (eBay vs Services)
 
 ### Inventory UI (eBay Items)
 
-- [ ] List view with DataTables (search, filter, sort)
-- [ ] Filter by: Status, Location
-- [ ] Add/Edit inventory form
-  - [ ] Storage location dropdown (hierarchical)
-- [ ] Quick "Find Item" search (for when order comes in)
-- [ ] Inventory detail view
-- [ ] Status badges (Unlisted, Listed, Sold)
+- [x] List view with Bootstrap 5 tables and server-side pagination
+- [x] Filter by: Status, Location
+- [x] Add/Edit inventory form
+  - [x] Storage location dropdown (hierarchical)
+- [x] Quick "Find Item" search (for when order comes in)
+- [x] Inventory detail view
+- [x] Status badges (Unlisted, Listed, Sold)
 
 ### Components UI (Repair Parts)
 
-- [ ] List view with DataTables
-- [ ] Filter by: Type, Location, Status
-- [ ] Add/Edit component form
-- [ ] Quantity adjustment (+/-)
-- [ ] Low stock alert indicator
-- [ ] Component detail view
+- [x] List view with Bootstrap 5 tables and server-side pagination
+- [x] Filter by: Type, Location, Status
+- [x] Add/Edit component form
+- [x] Quantity adjustment (+/-)
+- [x] Low stock alert indicator
+- [x] Component detail view
 
 ### eBay Orders UI
 
-- [ ] List view with profit calculations
-- [ ] Filter by date range
-- [ ] Order detail view:
-  - [ ] Gross sale, fees, net payout
-  - [ ] Link to inventory item (COGS)
-  - [ ] Actual shipping cost entry
-  - [ ] Calculated profit
-- [ ] Manual "Sync Now" button
+- [x] List view with profit calculations
+- [x] Filter by date range
+- [x] Order detail view:
+  - [x] Gross sale, fees, net payout
+  - [x] Link to inventory item (COGS)
+  - [x] Actual shipping cost entry
+  - [x] Calculated profit
+- [x] Manual "Sync Now" button
 
 ### Service Invoices UI (Wave Data)
 
-- [ ] List view (read-only from Wave)
-- [ ] Filter by status, date range
-- [ ] Invoice detail view
-- [ ] Payment history
-- [ ] Manual "Sync Now" button
-- [ ] Link to Wave for editing (external link)
+- [x] List view (read-only from Wave)
+- [x] Filter by status, date range
+- [x] Invoice detail view
+- [x] Payment history
+- [x] Manual "Sync Now" button
+- [x] Link to Wave for editing (external link)
 
 ### Expenses UI
 
-- [ ] List view with category grouping
-- [ ] Add/Edit expense form
-  - [ ] Category dropdown
-  - [ ] Business line selector
-- [ ] Filter by category, business line, date range
-- [ ] Summary totals by category
+- [x] List view with category grouping
+- [x] Add/Edit expense form
+  - [x] Category dropdown (Schedule C categories)
+  - [x] Business line selector
+- [x] Filter by category, business line, date range
+- [x] Summary totals by category
 
 ### Mileage Log UI
 
-- [ ] List view with running total
-- [ ] Add/Edit mileage entry form
-- [ ] Filter by business line, date range
-- [ ] Display current IRS rate
-- [ ] Show calculated deduction total
+- [x] List view with running total
+- [x] Add/Edit mileage entry form
+- [x] Filter by business line, date range
+- [x] Display current IRS rate
+- [x] Show calculated deduction total
 
 ### Reports UI
 
-- [ ] Quarterly summary page
-  - [ ] Select quarter
-  - [ ] Revenue breakdown (eBay vs Services)
-  - [ ] Expense breakdown by category
-  - [ ] Mileage deduction
-  - [ ] Net profit
-- [ ] Annual summary page
-  - [ ] Full year view
-  - [ ] Schedule C preview format
-- [ ] Export to CSV/Excel button
+- [x] Quarterly summary page
+  - [x] Select quarter
+  - [x] Revenue breakdown (eBay vs Services)
+  - [x] Expense breakdown by category
+  - [x] Mileage deduction
+  - [x] Net profit
+- [x] Annual summary page
+  - [x] Full year view
+  - [x] Schedule C preview format
+- [x] Export to CSV/Excel button
 
 ### Storage Locations UI
 
-- [ ] Tree view of locations
-- [ ] Add/Edit location form
-- [ ] View items at location
+- [x] Tree view of locations (recursive partial view)
+- [x] Add/Edit location form
+- [x] View items at location
 
 ---
 
