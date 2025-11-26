@@ -30,9 +30,9 @@ public interface IComponentItemRepository : IRepository<ComponentItem>
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets components reserved for a specific service job.
+    /// Gets components linked to a specific service job (reserved or used).
     /// </summary>
-    Task<IReadOnlyList<ComponentItem>> GetByServiceJobAsync(
+    Task<IReadOnlyList<ComponentItem>> GetByServiceJobIdAsync(
         int serviceJobId,
         CancellationToken cancellationToken = default);
 

@@ -45,6 +45,36 @@ public class SellerMetricsDbContext : IdentityDbContext<ApplicationUser>
     /// </summary>
     public DbSet<ServiceJob> ServiceJobs => Set<ServiceJob>();
 
+    /// <summary>
+    /// Revenue entries from eBay and services.
+    /// </summary>
+    public DbSet<RevenueEntry> RevenueEntries => Set<RevenueEntry>();
+
+    /// <summary>
+    /// Fiscal year configuration settings.
+    /// </summary>
+    public DbSet<FiscalYearConfiguration> FiscalYearConfigurations => Set<FiscalYearConfiguration>();
+
+    /// <summary>
+    /// Business expenses for tax reporting.
+    /// </summary>
+    public DbSet<BusinessExpense> BusinessExpenses => Set<BusinessExpense>();
+
+    /// <summary>
+    /// Mileage log entries for tax deductions.
+    /// </summary>
+    public DbSet<MileageEntry> MileageEntries => Set<MileageEntry>();
+
+    /// <summary>
+    /// IRS mileage rates by year.
+    /// </summary>
+    public DbSet<IrsMileageRate> IrsMileageRates => Set<IrsMileageRate>();
+
+    /// <summary>
+    /// Estimated quarterly tax payments.
+    /// </summary>
+    public DbSet<EstimatedTaxPayment> EstimatedTaxPayments => Set<EstimatedTaxPayment>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

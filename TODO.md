@@ -237,93 +237,201 @@ This file tracks all development tasks for the SellerMetrics application.
 
 ### Revenue Tracking
 
-- [ ] Create RevenueSource enum (eBay, ComputerServices)
-- [ ] Aggregate revenue from:
-  - [ ] eBay: Sum of NetPayout from synced orders
-  - [ ] Services: Sum of paid Wave invoices
-- [ ] Create unified revenue queries:
-  - [ ] GetRevenueBySource query (eBay vs Services breakdown)
-  - [ ] GetMonthlyRevenue query
-  - [ ] GetQuarterlyRevenue query
-  - [ ] GetYearToDateRevenue query
+- [x] Create RevenueSource enum (eBay, ComputerServices)
+- [x] Create RevenueEntryType enum (Manual, EbaySynced, WaveSynced)
+- [x] Create RevenueEntry entity with support for both synced and manual entries
+  - [x] Link to eBay orders via EbayOrderId
+  - [x] Link to Wave invoices via WaveInvoiceNumber
+  - [x] Link to InventoryItem for eBay sales
+  - [x] Link to ServiceJob for service revenue
+  - [x] Money value objects for GrossAmount and Fees
+- [x] Create FiscalYearConfiguration entity for fiscal year settings
+  - [x] Configurable fiscal year start month
+  - [x] Methods for calculating fiscal year, quarter, and date ranges
+- [x] Create IRevenueEntryRepository with specialized queries
+- [x] Create IFiscalYearConfigurationRepository
+- [x] Create EF Core configurations for RevenueEntry and FiscalYearConfiguration
+- [x] Create revenue commands:
+  - [x] CreateRevenueEntry command (with duplicate prevention)
+  - [x] UpdateRevenueEntry command
+  - [x] DeleteRevenueEntry command (soft delete)
+- [x] Create unified revenue queries:
+  - [x] GetRevenueEntry query (single entry)
+  - [x] GetRevenueList query (filtered list)
+  - [x] GetRevenueBySource query (eBay vs Services breakdown)
+  - [x] GetMonthlyRevenue query
+  - [x] GetQuarterlyRevenue query (fiscal year aware)
+  - [x] GetYearToDateRevenue query (fiscal year aware)
 
 ### Profit Calculation
 
-- [ ] eBay Profit = NetPayout - COGS - ActualShipping
-- [ ] Service Profit = Invoice Amount - Related Expenses (optional tracking)
-- [ ] Combined profit view for tax reporting
+- [x] eBay Profit = NetRevenue - COGS (calculated from linked inventory items)
+- [x] Service Profit = NetRevenue - Component Costs - Expenses (linked to service jobs)
+- [x] Combined profit view for tax reporting
+- [x] Create profit DTOs:
+  - [x] ProfitBySourceDto
+  - [x] CombinedProfitDto
+  - [x] MonthlyProfitDto
+  - [x] QuarterlyProfitDto
+  - [x] ServiceJobProfitDto
+  - [x] TaxReportProfitDto (Schedule C format)
+- [x] Create profit queries:
+  - [x] GetProfitBySource query (eBay vs Services breakdown)
+  - [x] GetCombinedProfit query (unified view)
+  - [x] GetQuarterlyProfit query (fiscal year aware)
+  - [x] GetServiceJobProfit query (per-job profit calculation)
+  - [x] GetTaxReportProfit query (Schedule C format with quarterly breakdown)
 
 ### Business Expenses
 
-- [ ] Create BusinessExpense entity
-  - [ ] Date
-  - [ ] Description
-  - [ ] Amount
-  - [ ] Category (IRS Schedule C categories)
-  - [ ] BusinessLine (eBay, Services, Shared)
-  - [ ] ReceiptPath (optional photo)
-  - [ ] Notes
-- [ ] IRS Schedule C expense categories:
-  - [ ] Shipping Supplies
-  - [ ] Office Supplies
-  - [ ] Advertising/Marketing
-  - [ ] Professional Services
-  - [ ] Vehicle/Mileage
-  - [ ] Tools & Equipment
-  - [ ] Software/Subscriptions
-  - [ ] Parts & Materials
-  - [ ] Other
-- [ ] Create expense use cases:
-  - [ ] CreateExpense command
-  - [ ] UpdateExpense command
-  - [ ] DeleteExpense command
-  - [ ] GetExpensesByCategory query
-  - [ ] GetExpensesByBusinessLine query
-  - [ ] GetExpensesByDateRange query
+- [x] Create BusinessExpense entity
+  - [x] ExpenseDate
+  - [x] Description
+  - [x] Amount (Money value object)
+  - [x] Category (ExpenseCategory enum)
+  - [x] BusinessLine (single line: eBay, ComputerServices, Shared)
+  - [x] Vendor
+  - [x] ReceiptPath (file path for future upload)
+  - [x] Notes
+  - [x] ServiceJobId (link expenses to service jobs)
+  - [x] IsTaxDeductible flag
+  - [x] ReferenceNumber
+  - [x] Soft delete with 30-day retention
+- [x] Create ExpenseCategory enum (IRS Schedule C categories):
+  - [x] Shipping Supplies
+  - [x] Office Supplies
+  - [x] Advertising/Marketing
+  - [x] Professional Services
+  - [x] Vehicle/Mileage
+  - [x] Tools & Equipment
+  - [x] Software/Subscriptions
+  - [x] Parts & Materials
+  - [x] Postage & Shipping
+  - [x] Insurance, Interest, Bank Fees
+  - [x] Education/Training
+  - [x] Utilities, Rent
+  - [x] Other
+- [x] Create BusinessLine enum (eBay, ComputerServices, Shared)
+- [x] Create IBusinessExpenseRepository with specialized queries
+- [x] Create EF Core configuration for BusinessExpense
+- [x] Create expense commands:
+  - [x] CreateExpense command
+  - [x] UpdateExpense command
+  - [x] DeleteExpense command (soft delete)
+- [x] Create expense queries:
+  - [x] GetExpense query (single expense)
+  - [x] GetExpensesByCategory query
+  - [x] GetExpensesByBusinessLine query
+  - [x] GetExpensesByDateRange query
+  - [x] GetExpenseSummary query (with category and business line breakdown)
 
 ### Mileage Log
 
-- [ ] Create MileageEntry entity
-  - [ ] Date
-  - [ ] Purpose (e.g., "Post office - ship orders", "Client visit - Smith residence")
-  - [ ] StartLocation
-  - [ ] Destination
-  - [ ] Miles
-  - [ ] BusinessLine (eBay, Services)
-  - [ ] Notes
-- [ ] Store current IRS mileage rate (configurable)
-- [ ] Create mileage use cases:
-  - [ ] CreateMileageEntry command
-  - [ ] UpdateMileageEntry command
-  - [ ] DeleteMileageEntry command
-  - [ ] GetMileageLog query (by date range, business line)
-  - [ ] CalculateMileageDeduction query
+- [x] Create MileageEntry entity
+  - [x] TripDate
+  - [x] Purpose (IRS-compliant description)
+  - [x] StartLocation
+  - [x] Destination
+  - [x] Miles (one-way distance)
+  - [x] IsRoundTrip flag (doubles miles for deduction)
+  - [x] TotalMiles (computed: Miles * 2 if round trip)
+  - [x] BusinessLine (eBay, ComputerServices, Shared)
+  - [x] Notes
+  - [x] ServiceJobId (link to service jobs)
+  - [x] OdometerStart/OdometerEnd (optional detailed tracking)
+  - [x] Soft delete with 30-day retention
+- [x] Create IrsMileageRate entity with historical rates:
+  - [x] Year, StandardRate, MedicalRate, CharitableRate
+  - [x] EffectiveDate (supports mid-year rate changes)
+  - [x] Seed data: 2024 ($0.67), 2025 ($0.70)
+- [x] Create IMileageEntryRepository with specialized queries
+- [x] Create IIrsMileageRateRepository with date-based rate lookup
+- [x] Create EF Core configurations with indexes and seed data
+- [x] Create mileage commands:
+  - [x] CreateMileageEntry command
+  - [x] UpdateMileageEntry command
+  - [x] DeleteMileageEntry command (soft delete)
+- [x] Create mileage queries:
+  - [x] GetMileageEntry query (single entry)
+  - [x] GetMileageLog query (filter by date range, business line)
+  - [x] CalculateMileageDeduction query (with IRS rate lookup)
+  - [x] GetIrsMileageRates query (list all rates)
 
 ---
 
 ## Tax Reporting
 
+### ExpenseCategory Schedule C Alignment
+
+- [x] Update ExpenseCategory enum to match IRS Schedule C line numbers
+  - [x] Line 8: Advertising
+  - [x] Line 9: Car and truck expenses
+  - [x] Line 10: Commissions and fees
+  - [x] Line 11: Contract labor
+  - [x] Line 13: Depreciation
+  - [x] Line 15: Insurance
+  - [x] Line 16: Interest
+  - [x] Line 17: Legal and professional services
+  - [x] Line 18: Office expense
+  - [x] Line 20: Rent or lease
+  - [x] Line 21: Repairs and maintenance
+  - [x] Line 22: Supplies
+  - [x] Line 23: Taxes and licenses
+  - [x] Line 24: Travel
+  - [x] Line 25: Utilities
+  - [x] Line 27: Other expenses
+- [x] Create ScheduleCLineExtensions for line number mapping
+- [x] Update expense DTOs to include Schedule C line information
+
 ### Quarterly Summary
 
-- [ ] Create QuarterlySummary view/report
-  - [ ] Quarter identifier (Q1 2025, Q2 2025, etc.)
-  - [ ] Revenue by source (eBay, Services)
-  - [ ] Total Revenue
-  - [ ] Expenses by category
-  - [ ] Total Expenses
-  - [ ] Mileage deduction
-  - [ ] Net Profit
-- [ ] Create GetQuarterlySummary query
+- [x] Create QuarterlySummary DTOs
+  - [x] Quarter identifier (Q1 2025, Q2 2025, etc.)
+  - [x] Revenue by source (eBay, Services)
+  - [x] Total Revenue
+  - [x] Expenses by category (with Schedule C line numbers)
+  - [x] Total Expenses
+  - [x] Mileage deduction (with proportional allocation for shared)
+  - [x] Net Profit
+- [x] Create GetQuarterlySummary query
+- [x] Create EstimatedTaxPayment entity for tracking quarterly payments
+  - [x] TaxYear, Quarter, DueDate
+  - [x] EstimatedAmount, AmountPaid, IsPaid
+  - [x] PaymentMethod, ConfirmationNumber
+  - [x] IsOverdue computed property
+- [x] Create IEstimatedTaxPaymentRepository with overdue/unpaid queries
+- [x] Create EF Core configuration for EstimatedTaxPayment
+- [x] Create tax payment commands:
+  - [x] CreateEstimatedTaxPayment command
+  - [x] RecordTaxPayment command
 
 ### Annual Summary
 
-- [ ] Create AnnualSummary view/report
-  - [ ] Year
-  - [ ] Quarterly breakdown
-  - [ ] Annual totals
-  - [ ] Schedule C preview (categorized for tax filing)
-- [ ] Create GetAnnualSummary query
-- [ ] Create ExportTaxReport command (CSV/Excel for accountant)
+- [x] Create AnnualSummary DTOs (in TaxReportingDto.cs)
+  - [x] Year (calendar year for IRS)
+  - [x] Quarterly breakdown
+  - [x] Annual totals (revenue, expenses, mileage deduction, profit)
+  - [x] Schedule C preview (ScheduleCSummaryDto)
+    - [x] Line 1: Gross receipts
+    - [x] Line 4: Cost of goods sold (from sold inventory COGS)
+    - [x] Line 5: Gross profit
+    - [x] Line 7: Gross income
+    - [x] Lines 8-27: Expenses by Schedule C line number
+    - [x] Line 28: Total expenses
+    - [x] Line 31: Net profit
+- [x] Create GetAnnualSummary query
+  - [x] Aggregates quarterly data
+  - [x] Calculates COGS from sold inventory items
+  - [x] Builds Schedule C format summary
+  - [x] Includes estimated tax payment status
+- [x] Create ExportTaxReport command (CSV/Excel for accountant)
+  - [x] Add ClosedXML NuGet package for Excel generation
+  - [x] CSV export with annual summary, quarterly breakdown, Schedule C, tax payments
+  - [x] Excel export with multiple sheets:
+    - [x] Summary sheet with annual totals
+    - [x] Quarterly breakdown sheet with formulas
+    - [x] Schedule C sheet matching IRS form layout
+    - [x] Estimated Tax Payments sheet with status tracking
 
 ---
 

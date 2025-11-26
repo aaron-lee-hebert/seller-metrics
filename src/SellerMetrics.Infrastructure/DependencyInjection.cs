@@ -79,6 +79,12 @@ public static class DependencyInjection
         services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
         services.AddScoped<IComponentTypeRepository, ComponentTypeRepository>();
         services.AddScoped<IComponentItemRepository, ComponentItemRepository>();
+        services.AddScoped<IRevenueEntryRepository, RevenueEntryRepository>();
+        services.AddScoped<IFiscalYearConfigurationRepository, FiscalYearConfigurationRepository>();
+        services.AddScoped<IBusinessExpenseRepository, BusinessExpenseRepository>();
+        services.AddScoped<IMileageEntryRepository, MileageEntryRepository>();
+        services.AddScoped<IIrsMileageRateRepository, IrsMileageRateRepository>();
+        services.AddScoped<IEstimatedTaxPaymentRepository, EstimatedTaxPaymentRepository>();
 
         // Register Application layer handlers - Storage Locations
         services.AddScoped<Application.StorageLocations.Commands.CreateStorageLocationCommandHandler>();
@@ -110,6 +116,50 @@ public static class DependencyInjection
         services.AddScoped<Application.Components.Queries.GetLowStockComponentsQueryHandler>();
         services.AddScoped<Application.Components.Queries.GetComponentValueQueryHandler>();
         services.AddScoped<Application.Components.Queries.GetComponentTypesQueryHandler>();
+
+        // Register Application layer handlers - Revenue
+        services.AddScoped<Application.Revenue.Commands.CreateRevenueEntryCommandHandler>();
+        services.AddScoped<Application.Revenue.Commands.UpdateRevenueEntryCommandHandler>();
+        services.AddScoped<Application.Revenue.Commands.DeleteRevenueEntryCommandHandler>();
+        services.AddScoped<Application.Revenue.Queries.GetRevenueEntryQueryHandler>();
+        services.AddScoped<Application.Revenue.Queries.GetRevenueListQueryHandler>();
+        services.AddScoped<Application.Revenue.Queries.GetRevenueBySourceQueryHandler>();
+        services.AddScoped<Application.Revenue.Queries.GetMonthlyRevenueQueryHandler>();
+        services.AddScoped<Application.Revenue.Queries.GetQuarterlyRevenueQueryHandler>();
+        services.AddScoped<Application.Revenue.Queries.GetYearToDateRevenueQueryHandler>();
+
+        // Register Application layer handlers - Profit
+        services.AddScoped<Application.Profit.Queries.GetProfitBySourceQueryHandler>();
+        services.AddScoped<Application.Profit.Queries.GetCombinedProfitQueryHandler>();
+        services.AddScoped<Application.Profit.Queries.GetQuarterlyProfitQueryHandler>();
+        services.AddScoped<Application.Profit.Queries.GetServiceJobProfitQueryHandler>();
+        services.AddScoped<Application.Profit.Queries.GetTaxReportProfitQueryHandler>();
+
+        // Register Application layer handlers - Expenses
+        services.AddScoped<Application.Expenses.Commands.CreateExpenseCommandHandler>();
+        services.AddScoped<Application.Expenses.Commands.UpdateExpenseCommandHandler>();
+        services.AddScoped<Application.Expenses.Commands.DeleteExpenseCommandHandler>();
+        services.AddScoped<Application.Expenses.Queries.GetExpenseQueryHandler>();
+        services.AddScoped<Application.Expenses.Queries.GetExpensesByCategoryQueryHandler>();
+        services.AddScoped<Application.Expenses.Queries.GetExpensesByBusinessLineQueryHandler>();
+        services.AddScoped<Application.Expenses.Queries.GetExpensesByDateRangeQueryHandler>();
+        services.AddScoped<Application.Expenses.Queries.GetExpenseSummaryQueryHandler>();
+
+        // Register Application layer handlers - Mileage
+        services.AddScoped<Application.Mileage.Commands.CreateMileageEntryCommandHandler>();
+        services.AddScoped<Application.Mileage.Commands.UpdateMileageEntryCommandHandler>();
+        services.AddScoped<Application.Mileage.Commands.DeleteMileageEntryCommandHandler>();
+        services.AddScoped<Application.Mileage.Queries.GetMileageEntryQueryHandler>();
+        services.AddScoped<Application.Mileage.Queries.GetMileageLogQueryHandler>();
+        services.AddScoped<Application.Mileage.Queries.CalculateMileageDeductionQueryHandler>();
+        services.AddScoped<Application.Mileage.Queries.GetIrsMileageRatesQueryHandler>();
+
+        // Register Application layer handlers - Tax Reporting
+        services.AddScoped<Application.TaxReporting.Commands.CreateEstimatedTaxPaymentCommandHandler>();
+        services.AddScoped<Application.TaxReporting.Commands.RecordTaxPaymentCommandHandler>();
+        services.AddScoped<Application.TaxReporting.Commands.ExportTaxReportCommandHandler>();
+        services.AddScoped<Application.TaxReporting.Queries.GetQuarterlySummaryQueryHandler>();
+        services.AddScoped<Application.TaxReporting.Queries.GetAnnualSummaryQueryHandler>();
 
         return services;
     }
