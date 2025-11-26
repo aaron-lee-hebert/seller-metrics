@@ -1,9 +1,13 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SellerMetrics.Domain.Entities;
 using SellerMetrics.Domain.Interfaces;
 using SellerMetrics.Infrastructure.Persistence;
 using SellerMetrics.Infrastructure.Persistence.Repositories;
+using SellerMetrics.Infrastructure.Services;
 
 namespace SellerMetrics.Infrastructure;
 
@@ -35,11 +39,77 @@ public static class DependencyInjection
                         errorCodesToAdd: null);
                 }));
 
+        // Configure ASP.NET Core Identity
+        services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
+                // Password requirements
+                options.Password.RequiredLength = 8;
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireNonAlphanumeric = true;
+
+                // Lockout settings
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+
+                // User settings
+                options.User.RequireUniqueEmail = true;
+
+                // Sign-in settings
+                options.SignIn.RequireConfirmedEmail = true;
+                options.SignIn.RequireConfirmedAccount = true;
+            })
+            .AddEntityFrameworkStores<SellerMetricsDbContext>()
+            .AddDefaultTokenProviders();
+
+        // Configure SendGrid email service
+        services.Configure<SendGridOptions>(configuration.GetSection(SendGridOptions.SectionName));
+        services.AddTransient<IEmailSender, SendGridEmailSender>();
+
         // Register Unit of Work
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // Register generic repository
         services.AddScoped(typeof(IRepository<>), typeof(RepositoryBase<>));
+
+        // Register specialized repositories
+        services.AddScoped<IStorageLocationRepository, StorageLocationRepository>();
+        services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
+        services.AddScoped<IComponentTypeRepository, ComponentTypeRepository>();
+        services.AddScoped<IComponentItemRepository, ComponentItemRepository>();
+
+        // Register Application layer handlers - Storage Locations
+        services.AddScoped<Application.StorageLocations.Commands.CreateStorageLocationCommandHandler>();
+        services.AddScoped<Application.StorageLocations.Commands.UpdateStorageLocationCommandHandler>();
+        services.AddScoped<Application.StorageLocations.Commands.DeleteStorageLocationCommandHandler>();
+        services.AddScoped<Application.StorageLocations.Queries.GetStorageLocationHierarchyQueryHandler>();
+        services.AddScoped<Application.StorageLocations.Queries.GetStorageLocationQueryHandler>();
+        services.AddScoped<Application.StorageLocations.Queries.GetAllStorageLocationsQueryHandler>();
+
+        // Register Application layer handlers - Inventory
+        services.AddScoped<Application.Inventory.Commands.CreateInventoryItemCommandHandler>();
+        services.AddScoped<Application.Inventory.Commands.UpdateInventoryItemCommandHandler>();
+        services.AddScoped<Application.Inventory.Commands.MoveInventoryItemCommandHandler>();
+        services.AddScoped<Application.Inventory.Commands.MarkInventoryItemAsSoldCommandHandler>();
+        services.AddScoped<Application.Inventory.Commands.DeleteInventoryItemCommandHandler>();
+        services.AddScoped<Application.Inventory.Queries.GetInventoryListQueryHandler>();
+        services.AddScoped<Application.Inventory.Queries.GetInventoryItemQueryHandler>();
+        services.AddScoped<Application.Inventory.Queries.SearchInventoryQueryHandler>();
+        services.AddScoped<Application.Inventory.Queries.GetInventoryValueQueryHandler>();
+
+        // Register Application layer handlers - Components
+        services.AddScoped<Application.Components.Commands.CreateComponentItemCommandHandler>();
+        services.AddScoped<Application.Components.Commands.UpdateComponentItemCommandHandler>();
+        services.AddScoped<Application.Components.Commands.AdjustComponentQuantityCommandHandler>();
+        services.AddScoped<Application.Components.Commands.MoveComponentCommandHandler>();
+        services.AddScoped<Application.Components.Commands.UseComponentCommandHandler>();
+        services.AddScoped<Application.Components.Commands.DeleteComponentItemCommandHandler>();
+        services.AddScoped<Application.Components.Queries.GetComponentListQueryHandler>();
+        services.AddScoped<Application.Components.Queries.GetLowStockComponentsQueryHandler>();
+        services.AddScoped<Application.Components.Queries.GetComponentValueQueryHandler>();
+        services.AddScoped<Application.Components.Queries.GetComponentTypesQueryHandler>();
 
         return services;
     }
