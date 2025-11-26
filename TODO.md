@@ -3,16 +3,19 @@
 This file tracks all development tasks for the SellerMetrics application.
 
 **Business Context:** This application supports a sole proprietorship with two revenue streams:
+
 1. **eBay Reselling** - Track inventory, COGS, storage locations, profit from synced orders
 2. **Computer Support Services** - Track component inventory, view invoices/payments from Wave
 
 **Key Integration Points:**
+
 - **eBay API** - Sync orders and fees (listings/shipping done directly in eBay Seller Hub)
 - **Wave API** - Pull invoices and payments for visibility (invoicing done directly in Wave)
 
 **Hosting:** Self-hosted on VPS or home server (public-facing with Microsoft Identity authentication)
 
 **Primary Goals:**
+
 - Know where inventory is stored in my home (eBay items + repair components)
 - See combined revenue and profit across both business lines
 - Track expenses and mileage for tax reporting (Schedule C)
@@ -22,53 +25,56 @@ This file tracks all development tasks for the SellerMetrics application.
 ## Project Setup & Infrastructure
 
 ### Solution Structure
-- [X] Create `src/` directory in repository root
-- [X] Create .NET 9 solution file: `src/SellerMetrics.sln`
-- [X] Create Clean Architecture projects in `src/`:
-  - [X] SellerMetrics.Domain (Core domain entities, value objects, interfaces)
-  - [X] SellerMetrics.Application (Use cases, DTOs, business logic, CQRS handlers)
-  - [X] SellerMetrics.Infrastructure (EF Core, eBay API client, external services)
-  - [X] SellerMetrics.Web (ASP.NET Core MVC, Bootstrap 5 UI)
-- [X] Create NUnit test project in `src/`:
-  - [X] SellerMetrics.Tests (tests for all layers - Domain, Application, Infrastructure)
-- [X] Add all projects to solution file
-- [X] Configure solution dependencies (Domain ← Application ← Infrastructure/Web)
-- [X] Configure test project references (Tests → Domain, Application, Infrastructure, Web)
-- [X] Set up Directory.Build.props in `src/` for shared project settings
-- [X] Configure .editorconfig in `src/` for code style consistency
+
+- [x] Create `src/` directory in repository root
+- [x] Create .NET 9 solution file: `src/SellerMetrics.sln`
+- [x] Create Clean Architecture projects in `src/`:
+  - [x] SellerMetrics.Domain (Core domain entities, value objects, interfaces)
+  - [x] SellerMetrics.Application (Use cases, DTOs, business logic, CQRS handlers)
+  - [x] SellerMetrics.Infrastructure (EF Core, eBay API client, external services)
+  - [x] SellerMetrics.Web (ASP.NET Core MVC, Bootstrap 5 UI)
+- [x] Create NUnit test project in `src/`:
+  - [x] SellerMetrics.Tests (tests for all layers - Domain, Application, Infrastructure)
+- [x] Add all projects to solution file
+- [x] Configure solution dependencies (Domain ← Application ← Infrastructure/Web)
+- [x] Configure test project references (Tests → Domain, Application, Infrastructure, Web)
+- [x] Set up Directory.Build.props in `src/` for shared project settings
+- [x] Configure .editorconfig in `src/` for code style consistency
 
 ### Database & Entity Framework Core
-- [X] Set up PostgreSQL database connection
-- [X] Configure EF Core with DbContext in Infrastructure layer
-- [X] Implement Repository pattern with generic repository base
-- [X] Configure database connection string management (user secrets, env variables)
+
+- [x] Set up PostgreSQL database connection
+- [x] Configure EF Core with DbContext in Infrastructure layer
+- [x] Implement Repository pattern with generic repository base
+- [x] Configure database connection string management (user secrets, env variables)
 - [ ] Create initial migration for database schema (after domain entities are created)
 
 ### Development Environment
-- [X] Configure user secrets for sensitive configuration (eBay API keys, connection strings)
-- [X] Set up appsettings.json structure (Development, Staging, Production)
-- [X] Configure logging providers (Console, Debug) - Sentry.io deferred for later
-- [X] Set up development SSL certificate (using default ASP.NET Core dev certificate)
+
+- [x] Configure user secrets for sensitive configuration (eBay API keys, connection strings)
+- [x] Set up appsettings.json structure (Development, Staging, Production)
+- [x] Configure logging providers (Console, Debug) - Sentry.io deferred for later
+- [x] Set up development SSL certificate (using default ASP.NET Core dev certificate)
 
 ---
 
-## Authentication & Security (Microsoft Identity)
-
-### Microsoft Entra ID (Azure AD) Setup
-- [ ] Register application in Microsoft Entra ID (Azure Portal)
-- [ ] Configure redirect URIs for your domain
-- [ ] Set up client ID and tenant ID
-- [ ] Configure supported account types (single tenant for personal use)
+## Authentication & Security (ASP.NET Core Identity)
 
 ### ASP.NET Core Identity Integration
-- [ ] Install Microsoft.Identity.Web packages
-- [ ] Configure authentication in Program.cs
-- [ ] Set up authorization policies
-- [ ] Implement [Authorize] on controllers
-- [ ] Configure secure cookie settings
-- [ ] Add login/logout UI flow
+
+- [x] Install ASP.NET Core Identity packages (Identity.EntityFrameworkCore, Identity.UI)
+- [x] Create ApplicationUser entity extending IdentityUser
+- [x] Update DbContext to inherit from IdentityDbContext
+- [x] Configure Identity services with password/lockout requirements
+- [x] Configure authentication in Program.cs
+- [x] Implement [Authorize] on controllers
+- [x] Configure secure cookie settings
+- [x] Add login/logout UI flow (via Identity.UI default pages)
+- [x] Configure Twilio SendGrid for transactional emails
+- [ ] Set up authorization policies (deferred until roles needed)
 
 ### Security Hardening (Public-Facing)
+
 - [ ] Configure HTTPS with Let's Encrypt certificate
 - [ ] Set up HSTS headers
 - [ ] Implement CSRF protection on all forms
@@ -84,6 +90,7 @@ This file tracks all development tasks for the SellerMetrics application.
 ## Inventory Management (eBay + Components)
 
 ### Storage Location Tracking
+
 - [ ] Create StorageLocation entity
   - [ ] Hierarchical structure: Room > Unit > Bin/Shelf
   - [ ] Examples: "Garage > Shelf A > Bin 3", "Office > Closet > Top Shelf"
@@ -96,6 +103,7 @@ This file tracks all development tasks for the SellerMetrics application.
   - [ ] GetItemsByLocation query
 
 ### eBay Inventory
+
 - [ ] Create InventoryItem entity
   - [ ] SKU (optional - for items with eBay SKU)
   - [ ] Title/Description
@@ -117,6 +125,7 @@ This file tracks all development tasks for the SellerMetrics application.
   - [ ] GetInventoryValue query (total COGS of unsold items)
 
 ### Component Inventory (Computer Repair Parts)
+
 - [ ] Create ComponentType entity (catalog of part types)
   - [ ] Name (RAM, SSD, HDD, Power Supply, etc.)
   - [ ] DefaultCategory (for expense tracking if purchased)
@@ -145,6 +154,7 @@ This file tracks all development tasks for the SellerMetrics application.
 ## eBay Integration (Order Sync)
 
 ### eBay API Client
+
 - [ ] Create IEbayApiClient interface
 - [ ] Implement OAuth 2.0 authentication
 - [ ] Implement GetOrders API call (sync sold items)
@@ -152,6 +162,7 @@ This file tracks all development tasks for the SellerMetrics application.
 - [ ] Handle API errors gracefully
 
 ### Order Sync
+
 - [ ] Create EbayOrder entity
   - [ ] EbayOrderId
   - [ ] OrderDate
@@ -175,12 +186,14 @@ This file tracks all development tasks for the SellerMetrics application.
 ## Wave Integration (Read-Only Sync)
 
 ### Wave API Client
+
 - [ ] Research Wave API (GraphQL-based)
 - [ ] Create IWaveApiClient interface
 - [ ] Implement authentication (OAuth or API token)
 - [ ] Handle API errors and rate limiting
 
 ### Invoice/Payment Sync (Read-Only)
+
 - [ ] Create WaveInvoice entity (local cache of Wave data)
   - [ ] WaveInvoiceId
   - [ ] InvoiceNumber
@@ -210,6 +223,7 @@ This file tracks all development tasks for the SellerMetrics application.
 ## Financial Tracking
 
 ### Revenue Tracking
+
 - [ ] Create RevenueSource enum (eBay, ComputerServices)
 - [ ] Aggregate revenue from:
   - [ ] eBay: Sum of NetPayout from synced orders
@@ -221,11 +235,13 @@ This file tracks all development tasks for the SellerMetrics application.
   - [ ] GetYearToDateRevenue query
 
 ### Profit Calculation
+
 - [ ] eBay Profit = NetPayout - COGS - ActualShipping
 - [ ] Service Profit = Invoice Amount - Related Expenses (optional tracking)
 - [ ] Combined profit view for tax reporting
 
 ### Business Expenses
+
 - [ ] Create BusinessExpense entity
   - [ ] Date
   - [ ] Description
@@ -253,6 +269,7 @@ This file tracks all development tasks for the SellerMetrics application.
   - [ ] GetExpensesByDateRange query
 
 ### Mileage Log
+
 - [ ] Create MileageEntry entity
   - [ ] Date
   - [ ] Purpose (e.g., "Post office - ship orders", "Client visit - Smith residence")
@@ -274,6 +291,7 @@ This file tracks all development tasks for the SellerMetrics application.
 ## Tax Reporting
 
 ### Quarterly Summary
+
 - [ ] Create QuarterlySummary view/report
   - [ ] Quarter identifier (Q1 2025, Q2 2025, etc.)
   - [ ] Revenue by source (eBay, Services)
@@ -285,6 +303,7 @@ This file tracks all development tasks for the SellerMetrics application.
 - [ ] Create GetQuarterlySummary query
 
 ### Annual Summary
+
 - [ ] Create AnnualSummary view/report
   - [ ] Year
   - [ ] Quarterly breakdown
@@ -298,7 +317,8 @@ This file tracks all development tasks for the SellerMetrics application.
 ## Web Layer (MVC + Bootstrap 5)
 
 ### Layout & Navigation
-- [ ] Create _Layout.cshtml with Bootstrap 5
+
+- [ ] Create \_Layout.cshtml with Bootstrap 5
 - [ ] Implement responsive sidebar navigation:
   - [ ] Dashboard
   - [ ] Inventory (eBay Items)
@@ -313,6 +333,7 @@ This file tracks all development tasks for the SellerMetrics application.
 - [ ] Add user info and logout in header (Microsoft Identity)
 
 ### Dashboard
+
 - [ ] Key metrics cards:
   - [ ] eBay Inventory Value (total COGS of unsold items)
   - [ ] Component Inventory Value
@@ -329,6 +350,7 @@ This file tracks all development tasks for the SellerMetrics application.
 - [ ] Simple chart: Monthly revenue trend (eBay vs Services)
 
 ### Inventory UI (eBay Items)
+
 - [ ] List view with DataTables (search, filter, sort)
 - [ ] Filter by: Status, Location
 - [ ] Add/Edit inventory form
@@ -338,6 +360,7 @@ This file tracks all development tasks for the SellerMetrics application.
 - [ ] Status badges (Unlisted, Listed, Sold)
 
 ### Components UI (Repair Parts)
+
 - [ ] List view with DataTables
 - [ ] Filter by: Type, Location, Status
 - [ ] Add/Edit component form
@@ -346,6 +369,7 @@ This file tracks all development tasks for the SellerMetrics application.
 - [ ] Component detail view
 
 ### eBay Orders UI
+
 - [ ] List view with profit calculations
 - [ ] Filter by date range
 - [ ] Order detail view:
@@ -356,6 +380,7 @@ This file tracks all development tasks for the SellerMetrics application.
 - [ ] Manual "Sync Now" button
 
 ### Service Invoices UI (Wave Data)
+
 - [ ] List view (read-only from Wave)
 - [ ] Filter by status, date range
 - [ ] Invoice detail view
@@ -364,6 +389,7 @@ This file tracks all development tasks for the SellerMetrics application.
 - [ ] Link to Wave for editing (external link)
 
 ### Expenses UI
+
 - [ ] List view with category grouping
 - [ ] Add/Edit expense form
   - [ ] Category dropdown
@@ -372,6 +398,7 @@ This file tracks all development tasks for the SellerMetrics application.
 - [ ] Summary totals by category
 
 ### Mileage Log UI
+
 - [ ] List view with running total
 - [ ] Add/Edit mileage entry form
 - [ ] Filter by business line, date range
@@ -379,6 +406,7 @@ This file tracks all development tasks for the SellerMetrics application.
 - [ ] Show calculated deduction total
 
 ### Reports UI
+
 - [ ] Quarterly summary page
   - [ ] Select quarter
   - [ ] Revenue breakdown (eBay vs Services)
@@ -391,6 +419,7 @@ This file tracks all development tasks for the SellerMetrics application.
 - [ ] Export to CSV/Excel button
 
 ### Storage Locations UI
+
 - [ ] Tree view of locations
 - [ ] Add/Edit location form
 - [ ] View items at location
@@ -400,6 +429,7 @@ This file tracks all development tasks for the SellerMetrics application.
 ## CI/CD & DevOps
 
 ### GitHub Actions
+
 - [ ] Create CI workflow for build and test on PR
 - [ ] Set up automated testing in pipeline
 - [ ] Configure code coverage reporting
@@ -409,6 +439,7 @@ This file tracks all development tasks for the SellerMetrics application.
 - [ ] Set up GitHub Secrets for VPS credentials and connection strings
 
 ### Monitoring & Logging
+
 - [ ] Configure Sentry logging
 - [ ] Set up custom metrics for eBay API usage
 - [ ] Create alerts for application errors
@@ -420,6 +451,7 @@ This file tracks all development tasks for the SellerMetrics application.
 ## Testing
 
 ### Test Project Setup (SellerMetrics.Tests)
+
 - [ ] Set up NUnit test project (src/SellerMetrics.Tests)
 - [ ] Add NuGet packages:
   - [ ] NUnit
@@ -435,6 +467,7 @@ This file tracks all development tasks for the SellerMetrics application.
   - [ ] Helpers/ (test utilities, builders, fixtures)
 
 ### Unit Tests - Domain Layer
+
 - [ ] Write unit tests for domain entities and business rules (SellerMetrics.Tests/Domain/)
   - [ ] Test Inventory entity validation
   - [ ] Test StorageLocation hierarchy
@@ -445,6 +478,7 @@ This file tracks all development tasks for the SellerMetrics application.
   - [ ] Test business expense categorization
 
 ### Unit Tests - Application Layer
+
 - [ ] Write unit tests for command/query handlers (SellerMetrics.Tests/Application/)
   - [ ] Test CreateInventoryItem command handler
   - [ ] Test SyncOrdersFromEbay command handler
@@ -454,6 +488,7 @@ This file tracks all development tasks for the SellerMetrics application.
 - [ ] Achieve minimum 80% code coverage for business logic
 
 ### Integration Tests - Infrastructure Layer
+
 - [ ] Set up integration tests (SellerMetrics.Tests/Infrastructure/)
 - [ ] Configure TestContainers for PostgreSQL or use in-memory database
 - [ ] Write integration tests for repositories
@@ -465,9 +500,11 @@ This file tracks all development tasks for the SellerMetrics application.
 - [ ] Test quarterly summary calculations with real data
 
 ### UI Tests (Optional)
+
 - [ ] Consider Playwright or Selenium for critical user flows
 - [ ] Test inventory creation workflow
 - [ ] Test order sync and display
+
 ## Background Jobs
 
 - [ ] Set up Hangfire (with SQL Server storage)
@@ -480,6 +517,7 @@ This file tracks all development tasks for the SellerMetrics application.
 ## Deployment (Self-Hosted VPS/Home Server)
 
 ### Server Setup
+
 - [ ] Provision VPS or configure home server
 - [ ] Install .NET 9 runtime
 - [ ] Install SQL Server Express or configure remote SQL Server
@@ -487,12 +525,14 @@ This file tracks all development tasks for the SellerMetrics application.
 - [ ] Set up reverse proxy (nginx or Caddy recommended)
 
 ### SSL/TLS Configuration
+
 - [ ] Register domain name (or use dynamic DNS for home server)
 - [ ] Install Certbot for Let's Encrypt
 - [ ] Configure automatic certificate renewal
 - [ ] Set up HTTPS redirect
 
 ### Application Deployment
+
 - [ ] Create systemd service file for ASP.NET Core app
 - [ ] Configure environment variables for production
   - [ ] Connection strings
@@ -503,11 +543,13 @@ This file tracks all development tasks for the SellerMetrics application.
 - [ ] Configure Kestrel for production
 
 ### Database Deployment
+
 - [ ] Run EF Core migrations on production database
 - [ ] Set up database backup schedule
 - [ ] Configure backup retention policy
 
 ### Monitoring & Maintenance
+
 - [ ] Set up health check endpoint
 - [ ] Configure uptime monitoring (UptimeRobot, Healthchecks.io)
 - [ ] Set up log aggregation (optional: Seq, Loki)
@@ -515,6 +557,7 @@ This file tracks all development tasks for the SellerMetrics application.
 - [ ] Document manual backup/restore procedures
 
 ### CI/CD (GitHub Actions)
+
 - [ ] Create CI workflow (build, test on PR)
 - [ ] Create CD workflow for deployment:
   - [ ] Build and publish application
@@ -527,6 +570,7 @@ This file tracks all development tasks for the SellerMetrics application.
 ### Security
 
 #### Identity & Authentication (Microsoft Identity)
+
 - [ ] Add Microsoft.AspNetCore.Identity.EntityFrameworkCore package to Infrastructure project
 - [ ] Add Microsoft.AspNetCore.Identity.UI package to Web project
 - [ ] Create ApplicationUser entity inheriting from IdentityUser in Domain layer
@@ -558,17 +602,18 @@ This file tracks all development tasks for the SellerMetrics application.
   - [ ] Policy for Admin-only actions (user management, system settings)
   - [ ] Policy for financial data access (reports, expenses)
   - [ ] Policy for inventory management
-- [ ] Update _Layout.cshtml to show login/logout links and user info
+- [ ] Update \_Layout.cshtml to show login/logout links and user info
 - [ ] Create Account management area in Web project
   - [ ] Change password functionality
   - [ ] Update profile functionality
   - [ ] Email confirmation workflow (optional)
-- [ ] Implement role-based menu navigation in _Layout.cshtml
+- [ ] Implement role-based menu navigation in \_Layout.cshtml
 - [ ] Add user audit fields to domain entities (CreatedBy, UpdatedBy)
 - [ ] Implement ICurrentUserService in Infrastructure to get current user ID
 - [ ] Update DbContext SaveChanges to automatically populate audit fields
 
 #### Additional Security Measures
+
 - [ ] Secure eBay API credentials (Key Vault, user secrets)
 - [ ] Implement CSRF protection on forms (enabled by default in ASP.NET Core)
 - [ ] Add input sanitization and XSS prevention
@@ -580,15 +625,18 @@ This file tracks all development tasks for the SellerMetrics application.
 ## Testing
 
 ### Test Project Setup
+
 - [ ] Set up NUnit test project
 - [ ] Add packages: NUnit, Moq/NSubstitute, FluentAssertions
 - [ ] Create folder structure (Domain/, Application/, Infrastructure/)
 
 ### Unit Tests
+
 - [ ] Domain entity tests (profit calculations, validations)
 - [ ] Handler tests with mocked dependencies
 
 ### Integration Tests
+
 - [ ] Repository tests with in-memory database
 - [ ] API client tests with mocked HTTP responses
 

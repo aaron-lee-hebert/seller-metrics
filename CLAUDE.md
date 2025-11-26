@@ -25,11 +25,12 @@ The application provides a single dashboard to see combined revenue and profit a
 - Entity Framework Core
 - PostgreSQL / Azure Database for PostgreSQL
 - Bootstrap 5
-- Microsoft Identity (Entra ID) for authentication
+- ASP.NET Core Identity for authentication (with 2FA required)
+- Twilio SendGrid for transactional emails
 - eBay API integration for order synchronization
 - Wave API integration for invoice/payment visibility (read-only)
 
-**Hosting:** Self-hosted on VPS or home server (public-facing with Microsoft Identity authentication)
+**Hosting:** Self-hosted on VPS or home server (public-facing with ASP.NET Core Identity authentication)
 
 **Core Features:**
 - Unified inventory management (eBay items + computer repair components)
@@ -145,7 +146,7 @@ seller-metrics/
 - MVC Controllers (secured with [Authorize])
 - Razor Views with Bootstrap 5
 - ViewModels (presentation-specific models)
-- Microsoft Identity configuration (Entra ID)
+- ASP.NET Core Identity configuration and UI customization
 - Middleware (security headers, error handling)
 - Filters and Action Filters
 - Startup/Program configuration
@@ -153,7 +154,7 @@ seller-metrics/
 
 **Rules:**
 - Controllers are thin - delegate to Application layer handlers
-- All controllers require authentication (Microsoft Identity)
+- All controllers require authentication (ASP.NET Core Identity)
 - ViewModels for presentation concerns only
 - No business logic in controllers or views
 - Dependency injection wires up Application/Infrastructure
@@ -349,19 +350,29 @@ public class InventoryConfiguration : IEntityTypeConfiguration<Inventory>
 - Validate and sanitize all user input
 - Use parameterized queries (EF Core does this automatically)
 - Implement CSRF protection on forms
-- Use HTTPS everywhere (Let's Encrypt + HSTS headers)
-- Implement proper authentication (Microsoft Identity/Entra ID)
+- Use HTTPS everywhere (reverse proxy handles SSL termination)
+- Implement proper authentication (ASP.NET Core Identity)
 - Follow principle of least privilege for database permissions
 
-**Microsoft Identity (Entra ID) Configuration:**
-- Register app in Microsoft Entra ID (Azure Portal)
-- Configure single-tenant for personal use
-- Use Microsoft.Identity.Web NuGet packages
+**ASP.NET Core Identity Configuration (REQUIRED):**
+- Use ASP.NET Core Identity with Entity Framework Core (PostgreSQL)
+- Open registration is enabled (anyone can create an account)
+- Email confirmation is required before login
+- Two-Factor Authentication (2FA) is REQUIRED for all users
+- Use Twilio SendGrid for transactional emails (confirmation, password reset, 2FA)
 - All controllers require [Authorize] attribute
 - Configure secure cookie settings for production
+- Password requirements: minimum 8 characters, require uppercase, lowercase, digit, special character
+- Account lockout: 5 failed attempts, 15 minute lockout duration
+
+**Email Service (Twilio SendGrid):**
+- Use SendGrid for all transactional emails in development and production
+- Email types: account confirmation, password reset, 2FA codes
+- Store SendGrid API key in user secrets (dev) or environment variables (prod)
+- Configure sender email address and display name
 
 **Security Headers (Required for public-facing):**
-- Strict-Transport-Security (HSTS)
+- Strict-Transport-Security (HSTS) - handled by reverse proxy
 - Content-Security-Policy (CSP)
 - X-Content-Type-Options: nosniff
 - X-Frame-Options: DENY
@@ -370,7 +381,8 @@ public class InventoryConfiguration : IEntityTypeConfiguration<Inventory>
 
 **Rate Limiting:**
 - Implement rate limiting middleware to prevent abuse
-- Consider IP-based throttling for login attempts
+- Default: 100 requests/minute per IP for general endpoints
+- Login attempts: 5 attempts per 15 minutes per IP
 
 ## Sole Proprietorship Tax Compliance
 
@@ -623,7 +635,7 @@ namespace SellerMetrics.Tests.Infrastructure
 **Secrets Management:**
 - Store in GitHub Secrets for CI/CD
 - Use environment variables on server (not in config files)
-- API credentials: eBay, Wave, Microsoft Identity
+- API credentials: eBay, Wave, SendGrid
 
 ## Performance Optimization
 

@@ -1,9 +1,13 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SellerMetrics.Domain.Entities;
 using SellerMetrics.Domain.Interfaces;
 using SellerMetrics.Infrastructure.Persistence;
 using SellerMetrics.Infrastructure.Persistence.Repositories;
+using SellerMetrics.Infrastructure.Services;
 
 namespace SellerMetrics.Infrastructure;
 
@@ -34,6 +38,35 @@ public static class DependencyInjection
                         maxRetryDelay: TimeSpan.FromSeconds(30),
                         errorCodesToAdd: null);
                 }));
+
+        // Configure ASP.NET Core Identity
+        services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
+                // Password requirements
+                options.Password.RequiredLength = 8;
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireNonAlphanumeric = true;
+
+                // Lockout settings
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+
+                // User settings
+                options.User.RequireUniqueEmail = true;
+
+                // Sign-in settings
+                options.SignIn.RequireConfirmedEmail = true;
+                options.SignIn.RequireConfirmedAccount = true;
+            })
+            .AddEntityFrameworkStores<SellerMetricsDbContext>()
+            .AddDefaultTokenProviders();
+
+        // Configure SendGrid email service
+        services.Configure<SendGridOptions>(configuration.GetSection(SendGridOptions.SectionName));
+        services.AddTransient<IEmailSender, SendGridEmailSender>();
 
         // Register Unit of Work
         services.AddScoped<IUnitOfWork, UnitOfWork>();
