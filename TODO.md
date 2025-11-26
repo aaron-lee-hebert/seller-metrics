@@ -106,25 +106,28 @@ This file tracks all development tasks for the SellerMetrics application.
 
 ### eBay Inventory
 
-- [ ] Create InventoryItem entity
-  - [ ] SKU (optional - for items with eBay SKU)
-  - [ ] Title/Description
-  - [ ] COGS (cost of goods sold)
-  - [ ] PurchaseDate
-  - [ ] StorageLocationId (where it's stored)
-  - [ ] Status (Unlisted, Listed, Sold)
-  - [ ] Condition
-  - [ ] Notes
-  - [ ] PhotoPath (optional)
-- [ ] Create InventoryItem use cases:
-  - [ ] CreateInventoryItem command
-  - [ ] UpdateInventoryItem command
-  - [ ] MoveInventoryItem command (change location)
-  - [ ] MarkAsSold command (link to order when synced)
-  - [ ] GetInventoryList query (filter by status, location)
-  - [ ] GetInventoryDetails query
-  - [ ] SearchInventory query (find item by title, SKU, location)
-  - [ ] GetInventoryValue query (total COGS of unsold items)
+- [x] Create InventoryItem entity
+  - [x] InternalSku (auto-generated, format: INV-YYYYMMDD-XXXX)
+  - [x] EbaySku (optional - for items with eBay SKU)
+  - [x] Title/Description
+  - [x] COGS (Money value object with currency support)
+  - [x] PurchaseDate
+  - [x] StorageLocationId (where it's stored)
+  - [x] Status (Unlisted, Listed, Sold) with enum
+  - [x] Condition (EbayCondition enum matching eBay's values)
+  - [x] Notes
+  - [x] PhotoPath (string for future upload feature)
+  - [x] Soft delete with 30-day retention period
+- [x] Create InventoryItem use cases:
+  - [x] CreateInventoryItem command (with SKU auto-generation)
+  - [x] UpdateInventoryItem command
+  - [x] MoveInventoryItem command (change location)
+  - [x] MarkAsSold command
+  - [x] DeleteInventoryItem command (soft delete)
+  - [x] GetInventoryList query (filter by status, location)
+  - [x] GetInventoryItem query (single item details)
+  - [x] SearchInventory query (find item by title, SKU, notes)
+  - [x] GetInventoryValue query (total COGS of unsold items)
 
 ### Component Inventory (Computer Repair Parts)
 

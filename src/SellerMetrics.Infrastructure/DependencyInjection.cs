@@ -76,14 +76,26 @@ public static class DependencyInjection
 
         // Register specialized repositories
         services.AddScoped<IStorageLocationRepository, StorageLocationRepository>();
+        services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
 
-        // Register Application layer handlers
+        // Register Application layer handlers - Storage Locations
         services.AddScoped<Application.StorageLocations.Commands.CreateStorageLocationCommandHandler>();
         services.AddScoped<Application.StorageLocations.Commands.UpdateStorageLocationCommandHandler>();
         services.AddScoped<Application.StorageLocations.Commands.DeleteStorageLocationCommandHandler>();
         services.AddScoped<Application.StorageLocations.Queries.GetStorageLocationHierarchyQueryHandler>();
         services.AddScoped<Application.StorageLocations.Queries.GetStorageLocationQueryHandler>();
         services.AddScoped<Application.StorageLocations.Queries.GetAllStorageLocationsQueryHandler>();
+
+        // Register Application layer handlers - Inventory
+        services.AddScoped<Application.Inventory.Commands.CreateInventoryItemCommandHandler>();
+        services.AddScoped<Application.Inventory.Commands.UpdateInventoryItemCommandHandler>();
+        services.AddScoped<Application.Inventory.Commands.MoveInventoryItemCommandHandler>();
+        services.AddScoped<Application.Inventory.Commands.MarkInventoryItemAsSoldCommandHandler>();
+        services.AddScoped<Application.Inventory.Commands.DeleteInventoryItemCommandHandler>();
+        services.AddScoped<Application.Inventory.Queries.GetInventoryListQueryHandler>();
+        services.AddScoped<Application.Inventory.Queries.GetInventoryItemQueryHandler>();
+        services.AddScoped<Application.Inventory.Queries.SearchInventoryQueryHandler>();
+        services.AddScoped<Application.Inventory.Queries.GetInventoryValueQueryHandler>();
 
         return services;
     }
