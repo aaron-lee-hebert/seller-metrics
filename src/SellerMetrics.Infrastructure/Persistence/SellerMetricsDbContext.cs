@@ -55,6 +55,11 @@ public class SellerMetricsDbContext : IdentityDbContext<ApplicationUser>
     /// </summary>
     public DbSet<FiscalYearConfiguration> FiscalYearConfigurations => Set<FiscalYearConfiguration>();
 
+    /// <summary>
+    /// Business expenses for tax reporting.
+    /// </summary>
+    public DbSet<BusinessExpense> BusinessExpenses => Set<BusinessExpense>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

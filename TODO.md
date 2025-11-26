@@ -284,31 +284,46 @@ This file tracks all development tasks for the SellerMetrics application.
 
 ### Business Expenses
 
-- [ ] Create BusinessExpense entity
-  - [ ] Date
-  - [ ] Description
-  - [ ] Amount
-  - [ ] Category (IRS Schedule C categories)
-  - [ ] BusinessLine (eBay, Services, Shared)
-  - [ ] ReceiptPath (optional photo)
-  - [ ] Notes
-- [ ] IRS Schedule C expense categories:
-  - [ ] Shipping Supplies
-  - [ ] Office Supplies
-  - [ ] Advertising/Marketing
-  - [ ] Professional Services
-  - [ ] Vehicle/Mileage
-  - [ ] Tools & Equipment
-  - [ ] Software/Subscriptions
-  - [ ] Parts & Materials
-  - [ ] Other
-- [ ] Create expense use cases:
-  - [ ] CreateExpense command
-  - [ ] UpdateExpense command
-  - [ ] DeleteExpense command
-  - [ ] GetExpensesByCategory query
-  - [ ] GetExpensesByBusinessLine query
-  - [ ] GetExpensesByDateRange query
+- [x] Create BusinessExpense entity
+  - [x] ExpenseDate
+  - [x] Description
+  - [x] Amount (Money value object)
+  - [x] Category (ExpenseCategory enum)
+  - [x] BusinessLine (single line: eBay, ComputerServices, Shared)
+  - [x] Vendor
+  - [x] ReceiptPath (file path for future upload)
+  - [x] Notes
+  - [x] ServiceJobId (link expenses to service jobs)
+  - [x] IsTaxDeductible flag
+  - [x] ReferenceNumber
+  - [x] Soft delete with 30-day retention
+- [x] Create ExpenseCategory enum (IRS Schedule C categories):
+  - [x] Shipping Supplies
+  - [x] Office Supplies
+  - [x] Advertising/Marketing
+  - [x] Professional Services
+  - [x] Vehicle/Mileage
+  - [x] Tools & Equipment
+  - [x] Software/Subscriptions
+  - [x] Parts & Materials
+  - [x] Postage & Shipping
+  - [x] Insurance, Interest, Bank Fees
+  - [x] Education/Training
+  - [x] Utilities, Rent
+  - [x] Other
+- [x] Create BusinessLine enum (eBay, ComputerServices, Shared)
+- [x] Create IBusinessExpenseRepository with specialized queries
+- [x] Create EF Core configuration for BusinessExpense
+- [x] Create expense commands:
+  - [x] CreateExpense command
+  - [x] UpdateExpense command
+  - [x] DeleteExpense command (soft delete)
+- [x] Create expense queries:
+  - [x] GetExpense query (single expense)
+  - [x] GetExpensesByCategory query
+  - [x] GetExpensesByBusinessLine query
+  - [x] GetExpensesByDateRange query
+  - [x] GetExpenseSummary query (with category and business line breakdown)
 
 ### Mileage Log
 

@@ -81,6 +81,7 @@ public static class DependencyInjection
         services.AddScoped<IComponentItemRepository, ComponentItemRepository>();
         services.AddScoped<IRevenueEntryRepository, RevenueEntryRepository>();
         services.AddScoped<IFiscalYearConfigurationRepository, FiscalYearConfigurationRepository>();
+        services.AddScoped<IBusinessExpenseRepository, BusinessExpenseRepository>();
 
         // Register Application layer handlers - Storage Locations
         services.AddScoped<Application.StorageLocations.Commands.CreateStorageLocationCommandHandler>();
@@ -130,6 +131,16 @@ public static class DependencyInjection
         services.AddScoped<Application.Profit.Queries.GetQuarterlyProfitQueryHandler>();
         services.AddScoped<Application.Profit.Queries.GetServiceJobProfitQueryHandler>();
         services.AddScoped<Application.Profit.Queries.GetTaxReportProfitQueryHandler>();
+
+        // Register Application layer handlers - Expenses
+        services.AddScoped<Application.Expenses.Commands.CreateExpenseCommandHandler>();
+        services.AddScoped<Application.Expenses.Commands.UpdateExpenseCommandHandler>();
+        services.AddScoped<Application.Expenses.Commands.DeleteExpenseCommandHandler>();
+        services.AddScoped<Application.Expenses.Queries.GetExpenseQueryHandler>();
+        services.AddScoped<Application.Expenses.Queries.GetExpensesByCategoryQueryHandler>();
+        services.AddScoped<Application.Expenses.Queries.GetExpensesByBusinessLineQueryHandler>();
+        services.AddScoped<Application.Expenses.Queries.GetExpensesByDateRangeQueryHandler>();
+        services.AddScoped<Application.Expenses.Queries.GetExpenseSummaryQueryHandler>();
 
         return services;
     }
