@@ -1,0 +1,145 @@
+@model ManualOrderFormViewModel
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="alert alert-info mb-4">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>Manual Entry:</strong> This order will be marked as manually entered. When eBay sync is configured, synced orders will be automatically imported.
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-plus-circle me-2"></i>@Model.FormTitle
+                </h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post" class="needs-validation" novalidate>
+                    @Html.AntiForgeryToken()
+
+                    <div class="row g-3">
+                        <!-- eBay Order ID -->
+                        <div class="col-md-6">
+                            <label asp-for="EbayOrderId" class="form-label"></label>
+                            <input asp-for="EbayOrderId" class="form-control" placeholder="e.g., 12-12345-67890" />
+                            <div class="form-text">Enter the eBay order number</div>
+                            <span asp-validation-for="EbayOrderId" class="text-danger"></span>
+                        </div>
+
+                        <!-- Transaction Date -->
+                        <div class="col-md-6">
+                            <label asp-for="TransactionDate" class="form-label"></label>
+                            <input asp-for="TransactionDate" type="date" class="form-control" />
+                            <span asp-validation-for="TransactionDate" class="text-danger"></span>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-12">
+                            <label asp-for="Description" class="form-label"></label>
+                            <input asp-for="Description" class="form-control" placeholder="Item sold description" />
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <!-- Gross Amount -->
+                        <div class="col-md-4">
+                            <label asp-for="GrossAmount" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input asp-for="GrossAmount" class="form-control money-input" placeholder="0.00" />
+                            </div>
+                            <div class="form-text">Sale price + shipping paid by buyer</div>
+                            <span asp-validation-for="GrossAmount" class="text-danger"></span>
+                        </div>
+
+                        <!-- Fees -->
+                        <div class="col-md-4">
+                            <label asp-for="FeesAmount" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input asp-for="FeesAmount" class="form-control money-input" placeholder="0.00" />
+                            </div>
+                            <div class="form-text">eBay fees + payment processing</div>
+                            <span asp-validation-for="FeesAmount" class="text-danger"></span>
+                        </div>
+
+                        <!-- Currency -->
+                        <div class="col-md-4">
+                            <label asp-for="Currency" class="form-label"></label>
+                            <select asp-for="Currency" class="form-select">
+                                <option value="USD">USD - US Dollar</option>
+                                <option value="CAD">CAD - Canadian Dollar</option>
+                                <option value="GBP">GBP - British Pound</option>
+                                <option value="EUR">EUR - Euro</option>
+                            </select>
+                        </div>
+
+                        <!-- Net Amount Display -->
+                        <div class="col-12">
+                            <div class="bg-light p-3 rounded">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <small class="text-muted">Net Payout (calculated)</small>
+                                    </div>
+                                    <div class="col-auto">
+                                        <span class="fs-5 fw-semibold text-success" id="netAmount">$0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Linked Inventory Item -->
+                        <div class="col-md-12">
+                            <label asp-for="InventoryItemId" class="form-label"></label>
+                            <select asp-for="InventoryItemId" class="form-select">
+                                @foreach (var option in Model.InventoryOptions)
+                                {
+                                    <option value="@option.Value" selected="@option.Selected">@option.Text</option>
+                                }
+                            </select>
+                            <div class="form-text">Link to an inventory item for profit calculations</div>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="col-12">
+                            <label asp-for="Notes" class="form-label"></label>
+                            <textarea asp-for="Notes" class="form-control" rows="2"
+                                      placeholder="Additional notes..."></textarea>
+                            <span asp-validation-for="Notes" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-1"></i>@Model.SubmitButtonText
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Calculate net amount on input change
+        function updateNetAmount() {
+            const gross = parseFloat(document.getElementById('GrossAmount').value) || 0;
+            const fees = parseFloat(document.getElementById('FeesAmount').value) || 0;
+            const net = gross - fees;
+            document.getElementById('netAmount').textContent = '$' + net.toFixed(2);
+            document.getElementById('netAmount').className = net >= 0 ? 'fs-5 fw-semibold text-success' : 'fs-5 fw-semibold text-danger';
+        }
+
+        document.getElementById('GrossAmount').addEventListener('input', updateNetAmount);
+        document.getElementById('FeesAmount').addEventListener('input', updateNetAmount);
+
+        // Initialize on load
+        updateNetAmount();
+    </script>
+}
