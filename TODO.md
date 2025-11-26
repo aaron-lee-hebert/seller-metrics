@@ -327,21 +327,35 @@ This file tracks all development tasks for the SellerMetrics application.
 
 ### Mileage Log
 
-- [ ] Create MileageEntry entity
-  - [ ] Date
-  - [ ] Purpose (e.g., "Post office - ship orders", "Client visit - Smith residence")
-  - [ ] StartLocation
-  - [ ] Destination
-  - [ ] Miles
-  - [ ] BusinessLine (eBay, Services)
-  - [ ] Notes
-- [ ] Store current IRS mileage rate (configurable)
-- [ ] Create mileage use cases:
-  - [ ] CreateMileageEntry command
-  - [ ] UpdateMileageEntry command
-  - [ ] DeleteMileageEntry command
-  - [ ] GetMileageLog query (by date range, business line)
-  - [ ] CalculateMileageDeduction query
+- [x] Create MileageEntry entity
+  - [x] TripDate
+  - [x] Purpose (IRS-compliant description)
+  - [x] StartLocation
+  - [x] Destination
+  - [x] Miles (one-way distance)
+  - [x] IsRoundTrip flag (doubles miles for deduction)
+  - [x] TotalMiles (computed: Miles * 2 if round trip)
+  - [x] BusinessLine (eBay, ComputerServices, Shared)
+  - [x] Notes
+  - [x] ServiceJobId (link to service jobs)
+  - [x] OdometerStart/OdometerEnd (optional detailed tracking)
+  - [x] Soft delete with 30-day retention
+- [x] Create IrsMileageRate entity with historical rates:
+  - [x] Year, StandardRate, MedicalRate, CharitableRate
+  - [x] EffectiveDate (supports mid-year rate changes)
+  - [x] Seed data: 2024 ($0.67), 2025 ($0.70)
+- [x] Create IMileageEntryRepository with specialized queries
+- [x] Create IIrsMileageRateRepository with date-based rate lookup
+- [x] Create EF Core configurations with indexes and seed data
+- [x] Create mileage commands:
+  - [x] CreateMileageEntry command
+  - [x] UpdateMileageEntry command
+  - [x] DeleteMileageEntry command (soft delete)
+- [x] Create mileage queries:
+  - [x] GetMileageEntry query (single entry)
+  - [x] GetMileageLog query (filter by date range, business line)
+  - [x] CalculateMileageDeduction query (with IRS rate lookup)
+  - [x] GetIrsMileageRates query (list all rates)
 
 ---
 

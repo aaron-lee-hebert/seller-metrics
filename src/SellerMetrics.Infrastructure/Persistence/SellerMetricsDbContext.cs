@@ -60,6 +60,16 @@ public class SellerMetricsDbContext : IdentityDbContext<ApplicationUser>
     /// </summary>
     public DbSet<BusinessExpense> BusinessExpenses => Set<BusinessExpense>();
 
+    /// <summary>
+    /// Mileage log entries for tax deductions.
+    /// </summary>
+    public DbSet<MileageEntry> MileageEntries => Set<MileageEntry>();
+
+    /// <summary>
+    /// IRS mileage rates by year.
+    /// </summary>
+    public DbSet<IrsMileageRate> IrsMileageRates => Set<IrsMileageRate>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
