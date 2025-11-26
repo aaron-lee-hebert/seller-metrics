@@ -1,0 +1,120 @@
+@model ComponentFormViewModel
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-plus-circle me-2"></i>@Model.FormTitle
+                </h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post" class="needs-validation" novalidate>
+                    @Html.AntiForgeryToken()
+
+                    <div class="row g-3">
+                        <!-- Component Type -->
+                        <div class="col-md-6">
+                            <label asp-for="ComponentTypeId" class="form-label"></label>
+                            <select asp-for="ComponentTypeId" class="form-select" required>
+                                <option value="">Select type...</option>
+                                @foreach (var option in Model.TypeOptions.Where(o => !string.IsNullOrEmpty(o.Value)))
+                                {
+                                    <option value="@option.Value" selected="@option.Selected">@option.Text</option>
+                                }
+                            </select>
+                            <span asp-validation-for="ComponentTypeId" class="text-danger"></span>
+                        </div>
+
+                        <!-- Source -->
+                        <div class="col-md-6">
+                            <label asp-for="Source" class="form-label"></label>
+                            <select asp-for="Source" class="form-select">
+                                @foreach (var option in Model.SourceOptions)
+                                {
+                                    <option value="@option.Value" selected="@option.Selected">@option.Text</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-12">
+                            <label asp-for="Description" class="form-label"></label>
+                            <input asp-for="Description" class="form-control" placeholder="e.g., Samsung DDR4 8GB RAM" />
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <!-- Quantity -->
+                        <div class="col-md-4">
+                            <label asp-for="Quantity" class="form-label"></label>
+                            <input asp-for="Quantity" type="number" min="1" class="form-control" />
+                            <span asp-validation-for="Quantity" class="text-danger"></span>
+                        </div>
+
+                        <!-- Unit Cost -->
+                        <div class="col-md-4">
+                            <label asp-for="UnitCostAmount" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input asp-for="UnitCostAmount" class="form-control money-input" placeholder="0.00" />
+                            </div>
+                            <span asp-validation-for="UnitCostAmount" class="text-danger"></span>
+                        </div>
+
+                        <!-- Currency -->
+                        <div class="col-md-4">
+                            <label asp-for="UnitCostCurrency" class="form-label"></label>
+                            <select asp-for="UnitCostCurrency" class="form-select">
+                                <option value="USD">USD</option>
+                                <option value="CAD">CAD</option>
+                                <option value="GBP">GBP</option>
+                                <option value="EUR">EUR</option>
+                            </select>
+                        </div>
+
+                        <!-- Acquired Date -->
+                        <div class="col-md-6">
+                            <label asp-for="AcquiredDate" class="form-label"></label>
+                            <input asp-for="AcquiredDate" type="date" class="form-control" />
+                            <span asp-validation-for="AcquiredDate" class="text-danger"></span>
+                        </div>
+
+                        <!-- Storage Location -->
+                        <div class="col-md-6">
+                            <label asp-for="StorageLocationId" class="form-label"></label>
+                            <select asp-for="StorageLocationId" class="form-select">
+                                @foreach (var option in Model.LocationOptions)
+                                {
+                                    <option value="@option.Value" selected="@option.Selected">@option.Text</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="col-12">
+                            <label asp-for="Notes" class="form-label"></label>
+                            <textarea asp-for="Notes" class="form-control" rows="2"
+                                      placeholder="Additional notes..."></textarea>
+                            <span asp-validation-for="Notes" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-1"></i>@Model.SubmitButtonText
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
