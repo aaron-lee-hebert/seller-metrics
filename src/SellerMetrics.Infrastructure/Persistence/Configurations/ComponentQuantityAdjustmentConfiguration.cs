@@ -28,6 +28,10 @@ public class ComponentQuantityAdjustmentConfiguration : IEntityTypeConfiguration
             .HasForeignKey(a => a.ComponentItemId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // Global query filter to match ComponentItem's soft delete filter
+        // This prevents orphaned adjustment records from appearing when the component is soft-deleted
+        builder.HasQueryFilter(a => !a.ComponentItem.IsDeleted);
+
         // Indexes
         builder.HasIndex(a => a.ComponentItemId);
         builder.HasIndex(a => a.AdjustedAt);

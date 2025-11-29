@@ -16,10 +16,14 @@ public class RevenueEntryDto
     public string Description { get; set; } = string.Empty;
     public decimal GrossAmount { get; set; }
     public decimal FeesAmount { get; set; }
+    public decimal ShippingAmount { get; set; }
+    public decimal TaxesCollectedAmount { get; set; }
     public decimal NetAmount { get; set; }
     public string Currency { get; set; } = "USD";
     public string GrossFormatted { get; set; } = string.Empty;
     public string FeesFormatted { get; set; } = string.Empty;
+    public string ShippingFormatted { get; set; } = string.Empty;
+    public string TaxesCollectedFormatted { get; set; } = string.Empty;
     public string NetFormatted { get; set; } = string.Empty;
     public string? EbayOrderId { get; set; }
     public string? WaveInvoiceNumber { get; set; }
@@ -42,10 +46,12 @@ public class RevenueBySourceDto
     public string SourceDisplay { get; set; } = string.Empty;
     public decimal GrossTotal { get; set; }
     public decimal FeesTotal { get; set; }
+    public decimal ShippingTotal { get; set; }
     public decimal NetTotal { get; set; }
     public string Currency { get; set; } = "USD";
     public string GrossFormatted { get; set; } = string.Empty;
     public string FeesFormatted { get; set; } = string.Empty;
+    public string ShippingFormatted { get; set; } = string.Empty;
     public string NetFormatted { get; set; } = string.Empty;
     public int TransactionCount { get; set; }
 }

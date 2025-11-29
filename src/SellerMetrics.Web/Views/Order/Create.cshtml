@@ -16,6 +16,7 @@
             <div class="card-body">
                 <form asp-action="Create" method="post" class="needs-validation" novalidate>
                     @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
                     <div class="row g-3">
                         <!-- eBay Order ID -->
@@ -52,7 +53,7 @@
                         </div>
 
                         <!-- Fees -->
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label asp-for="FeesAmount" class="form-label"></label>
                             <div class="input-group">
                                 <span class="input-group-text">$</span>
@@ -62,8 +63,19 @@
                             <span asp-validation-for="FeesAmount" class="text-danger"></span>
                         </div>
 
+                        <!-- Shipping -->
+                        <div class="col-md-3">
+                            <label asp-for="ShippingAmount" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input asp-for="ShippingAmount" class="form-control money-input" placeholder="0.00" />
+                            </div>
+                            <div class="form-text">Actual shipping cost paid</div>
+                            <span asp-validation-for="ShippingAmount" class="text-danger"></span>
+                        </div>
+
                         <!-- Currency -->
-                        <div class="col-md-4">
+                        <div class="col-md-2">
                             <label asp-for="Currency" class="form-label"></label>
                             <select asp-for="Currency" class="form-select">
                                 <option value="USD">USD - US Dollar</option>
@@ -131,13 +143,15 @@
         function updateNetAmount() {
             const gross = parseFloat(document.getElementById('GrossAmount').value) || 0;
             const fees = parseFloat(document.getElementById('FeesAmount').value) || 0;
-            const net = gross - fees;
+            const shipping = parseFloat(document.getElementById('ShippingAmount').value) || 0;
+            const net = gross - fees - shipping;
             document.getElementById('netAmount').textContent = '$' + net.toFixed(2);
             document.getElementById('netAmount').className = net >= 0 ? 'fs-5 fw-semibold text-success' : 'fs-5 fw-semibold text-danger';
         }
 
         document.getElementById('GrossAmount').addEventListener('input', updateNetAmount);
         document.getElementById('FeesAmount').addEventListener('input', updateNetAmount);
+        document.getElementById('ShippingAmount').addEventListener('input', updateNetAmount);
 
         // Initialize on load
         updateNetAmount();

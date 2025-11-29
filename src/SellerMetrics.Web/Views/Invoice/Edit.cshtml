@@ -12,6 +12,7 @@
                 <form asp-action="Edit" asp-route-id="@Model.Id" method="post" class="needs-validation" novalidate>
                     @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="Id" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
                     <div class="row g-3">
                         <!-- Invoice Number -->
@@ -36,17 +37,29 @@
                         </div>
 
                         <!-- Amount -->
-                        <div class="col-md-8">
+                        <div class="col-md-5">
                             <label asp-for="GrossAmount" class="form-label"></label>
                             <div class="input-group">
                                 <span class="input-group-text">$</span>
-                                <input asp-for="GrossAmount" class="form-control money-input" />
+                                <input asp-for="GrossAmount" class="form-control money-input" placeholder="0.00" id="GrossAmount" />
                             </div>
+                            <div class="form-text">Total invoice amount (including tax)</div>
                             <span asp-validation-for="GrossAmount" class="text-danger"></span>
                         </div>
 
-                        <!-- Currency -->
+                        <!-- Sales Tax Collected -->
                         <div class="col-md-4">
+                            <label asp-for="TaxesCollectedAmount" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input asp-for="TaxesCollectedAmount" class="form-control money-input" placeholder="0.00" id="TaxesCollectedAmount" />
+                            </div>
+                            <div class="form-text">Tax collected from customer</div>
+                            <span asp-validation-for="TaxesCollectedAmount" class="text-danger"></span>
+                        </div>
+
+                        <!-- Currency -->
+                        <div class="col-md-3">
                             <label asp-for="Currency" class="form-label"></label>
                             <select asp-for="Currency" class="form-select">
                                 <option value="USD">USD</option>
@@ -54,6 +67,20 @@
                                 <option value="GBP">GBP</option>
                                 <option value="EUR">EUR</option>
                             </select>
+                        </div>
+
+                        <!-- Tax Info Display -->
+                        <div class="col-12">
+                            <div class="bg-light p-3 rounded">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <small class="text-muted" id="taxInfoLabel">Tax Status</small>
+                                    </div>
+                                    <div class="col-auto">
+                                        <span class="fw-semibold" id="taxInfo">-</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Notes -->
@@ -82,4 +109,29 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function updateTaxInfo() {
+            const grossAmount = parseFloat(document.getElementById('GrossAmount').value) || 0;
+            const taxesCollected = parseFloat(document.getElementById('TaxesCollectedAmount').value) || 0;
+            const subtotal = grossAmount - taxesCollected;
+            const taxLiability = taxesCollected > 0 ? 0 : subtotal * 0.0825;
+
+            const taxInfoLabel = document.getElementById('taxInfoLabel');
+            const taxInfo = document.getElementById('taxInfo');
+
+            if (taxesCollected > 0) {
+                taxInfoLabel.textContent = 'Sales tax collected from customer';
+                taxInfo.textContent = '$' + taxesCollected.toFixed(2);
+                taxInfo.className = 'fw-semibold text-success';
+            } else {
+                taxInfoLabel.textContent = 'Estimated tax liability (8.25% of subtotal)';
+                taxInfo.textContent = '$' + taxLiability.toFixed(2);
+                taxInfo.className = 'fw-semibold text-warning';
+            }
+        }
+
+        document.getElementById('GrossAmount').addEventListener('input', updateTaxInfo);
+        document.getElementById('TaxesCollectedAmount').addEventListener('input', updateTaxInfo);
+        updateTaxInfo();
+    </script>
 }

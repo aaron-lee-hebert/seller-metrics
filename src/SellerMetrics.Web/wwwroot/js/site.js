@@ -17,11 +17,37 @@
             wrapper.classList.add('toggled');
         }
 
+        // Initialize tooltips function
+        function initializeTooltips() {
+            const tooltipTriggerList = document.querySelectorAll('[title]');
+            tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                // Only enable tooltips when sidebar is collapsed
+                if (wrapper.classList.contains('toggled') && tooltipTriggerEl.closest('.sidebar')) {
+                    new bootstrap.Tooltip(tooltipTriggerEl, {
+                        placement: 'right',
+                        trigger: 'hover'
+                    });
+                }
+            });
+        }
+
+        // Initialize tooltips on page load
+        initializeTooltips();
+
         sidebarToggle.addEventListener('click', function (e) {
             e.preventDefault();
             wrapper.classList.toggle('toggled');
             // Save state to localStorage
             localStorage.setItem('sidebarToggled', wrapper.classList.contains('toggled'));
+
+            // Dispose all tooltips
+            const tooltips = document.querySelectorAll('.tooltip');
+            tooltips.forEach(function (tooltip) {
+                tooltip.remove();
+            });
+
+            // Reinitialize tooltips after toggle
+            setTimeout(initializeTooltips, 100);
         });
 
         // Close sidebar on mobile when clicking outside

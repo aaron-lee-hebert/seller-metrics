@@ -65,12 +65,15 @@ public class GetAnnualSummaryQueryHandler
         var totalMileageDeduction = quarterlyBreakdown.Sum(q => q.MileageDeduction);
         var netProfit = quarterlyBreakdown.Sum(q => q.NetProfit);
 
-        // Calculate fees from revenue entries
+        // Calculate fees and shipping from revenue entries (Schedule C deductions)
         var revenues = await _revenueRepository.GetByDateRangeAsync(startDate, endDate, cancellationToken);
         var totalFees = revenues
             .Where(r => r.Fees.Currency == query.Currency)
             .Sum(r => r.Fees.Amount);
-        var totalNetRevenue = totalGrossRevenue - totalFees;
+        var totalShipping = revenues
+            .Where(r => r.Shipping.Currency == query.Currency)
+            .Sum(r => r.Shipping.Amount);
+        var totalNetRevenue = totalGrossRevenue - totalFees - totalShipping;
 
         // Get estimated tax payments
         var taxPayments = await _taxPaymentRepository.GetByTaxYearAsync(query.Year, cancellationToken);
@@ -81,6 +84,7 @@ public class GetAnnualSummaryQueryHandler
             query.Year,
             totalGrossRevenue,
             totalFees,
+            totalShipping,
             totalExpenses,
             totalMileageDeduction,
             netProfit,
@@ -92,6 +96,7 @@ public class GetAnnualSummaryQueryHandler
             Year = query.Year,
             TotalGrossRevenue = totalGrossRevenue,
             TotalFees = totalFees,
+            TotalShipping = totalShipping,
             TotalNetRevenue = totalNetRevenue,
             EbayRevenue = ebayRevenue,
             ServiceRevenue = serviceRevenue,
@@ -104,6 +109,7 @@ public class GetAnnualSummaryQueryHandler
             Currency = query.Currency,
             TotalGrossRevenueFormatted = new Money(totalGrossRevenue, query.Currency).ToString(),
             TotalFeesFormatted = new Money(totalFees, query.Currency).ToString(),
+            TotalShippingFormatted = new Money(totalShipping, query.Currency).ToString(),
             TotalNetRevenueFormatted = new Money(totalNetRevenue, query.Currency).ToString(),
             EbayRevenueFormatted = new Money(ebayRevenue, query.Currency).ToString(),
             ServiceRevenueFormatted = new Money(serviceRevenue, query.Currency).ToString(),
@@ -134,6 +140,10 @@ public class GetAnnualSummaryQueryHandler
             .Where(r => r.Source == RevenueSource.ComputerServices)
             .Sum(r => r.GrossAmount.Amount);
         var totalRevenue = ebayRevenue + serviceRevenue;
+
+        // Calculate fees and shipping (Schedule C deductions)
+        var totalFees = filteredRevenues.Sum(r => r.Fees.Amount);
+        var totalShipping = filteredRevenues.Sum(r => r.Shipping.Amount);
 
         // Get expense data
         var expenses = await _expenseRepository.GetByDateRangeAsync(startDate, endDate, cancellationToken);
@@ -170,7 +180,8 @@ public class GetAnnualSummaryQueryHandler
         // Get tax payment
         var taxPayment = await _taxPaymentRepository.GetByQuarterAsync(year, quarter, cancellationToken);
 
-        var netProfit = totalRevenue - totalExpenses - mileageDeduction;
+        // Calculate net profit (Revenue - Fees - Shipping - Expenses - Mileage Deduction)
+        var netProfit = totalRevenue - totalFees - totalShipping - totalExpenses - mileageDeduction;
 
         return new QuarterlySummaryDto
         {
@@ -182,6 +193,8 @@ public class GetAnnualSummaryQueryHandler
             EbayRevenue = ebayRevenue,
             ServiceRevenue = serviceRevenue,
             TotalRevenue = totalRevenue,
+            TotalFees = totalFees,
+            TotalShipping = totalShipping,
             TotalExpenses = totalExpenses,
             ExpensesByCategory = expensesByCategory,
             TotalMiles = totalMiles,
@@ -192,6 +205,8 @@ public class GetAnnualSummaryQueryHandler
             EbayRevenueFormatted = new Money(ebayRevenue, currency).ToString(),
             ServiceRevenueFormatted = new Money(serviceRevenue, currency).ToString(),
             TotalRevenueFormatted = new Money(totalRevenue, currency).ToString(),
+            TotalFeesFormatted = new Money(totalFees, currency).ToString(),
+            TotalShippingFormatted = new Money(totalShipping, currency).ToString(),
             TotalExpensesFormatted = new Money(totalExpenses, currency).ToString(),
             MileageDeductionFormatted = new Money(mileageDeduction, currency).ToString(),
             NetProfitFormatted = new Money(netProfit, currency).ToString()
@@ -202,6 +217,7 @@ public class GetAnnualSummaryQueryHandler
         int year,
         decimal grossReceipts,
         decimal fees,
+        decimal shipping,
         decimal totalExpenses,
         decimal mileageDeduction,
         decimal netProfit,
@@ -228,6 +244,18 @@ public class GetAnnualSummaryQueryHandler
                 if (category == ExpenseCategory.CarAndTruck)
                 {
                     total += mileageDeduction;
+                }
+
+                // Special handling for Commissions and fees (Line 10) - add eBay/payment processing fees from revenue entries
+                if (category == ExpenseCategory.CommissionsAndFees)
+                {
+                    total += fees;
+                }
+
+                // Special handling for Supplies (Line 22) - add shipping costs from revenue entries
+                if (category == ExpenseCategory.Supplies)
+                {
+                    total += shipping;
                 }
 
                 return new ScheduleCLineItemDto

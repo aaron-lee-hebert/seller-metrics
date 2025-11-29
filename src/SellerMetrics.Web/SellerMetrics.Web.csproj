@@ -12,6 +12,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" />
     <PackageReference Include="AspNetCoreRateLimit" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" />
   </ItemGroup>
 
   <PropertyGroup>

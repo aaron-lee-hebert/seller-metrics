@@ -58,19 +58,25 @@
             </div>
             <div class="card-body">
                 <div class="row g-3">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="p-3 bg-light rounded text-center">
                             <small class="text-muted d-block">Gross Sale</small>
                             <span class="fs-4 fw-semibold">@Model.Order.GrossFormatted</span>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="p-3 bg-light rounded text-center">
                             <small class="text-muted d-block">eBay Fees</small>
                             <span class="fs-4 fw-semibold text-danger">-@Model.Order.FeesFormatted</span>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
+                        <div class="p-3 bg-light rounded text-center">
+                            <small class="text-muted d-block">Shipping Cost</small>
+                            <span class="fs-4 fw-semibold text-danger">-@Model.Order.ShippingFormatted</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
                         <div class="p-3 bg-success bg-opacity-10 rounded text-center">
                             <small class="text-muted d-block">Net Payout</small>
                             <span class="fs-4 fw-bold text-success">@Model.Order.NetFormatted</span>

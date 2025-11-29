@@ -17,12 +17,12 @@
 
 <!-- Summary Cards -->
 <div class="row g-3 mb-4">
-    <div class="col-md-3">
+    <div class="col-md-2">
         <div class="card metric-card h-100 shadow-sm">
             <div class="card-body">
                 <p class="metric-label text-muted mb-1">Total Orders</p>
                 <h4 class="metric-value mb-0">@Model.Summary.TotalOrders</h4>
-                <small class="text-muted">in selected period</small>
+                <small class="text-muted">in period</small>
             </div>
         </div>
     </div>
@@ -31,16 +31,25 @@
             <div class="card-body">
                 <p class="metric-label text-muted mb-1">Gross Sales</p>
                 <h4 class="metric-value mb-0">@Model.Summary.TotalGrossFormatted</h4>
-                <small class="text-muted">before fees</small>
+                <small class="text-muted">before deductions</small>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-2">
         <div class="card metric-card h-100 shadow-sm">
             <div class="card-body">
-                <p class="metric-label text-muted mb-1">eBay Fees</p>
+                <p class="metric-label text-muted mb-1">Fees</p>
                 <h4 class="metric-value mb-0 text-danger">-@Model.Summary.TotalFeesFormatted</h4>
-                <small class="text-muted">platform fees</small>
+                <small class="text-muted">eBay fees</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card metric-card h-100 shadow-sm">
+            <div class="card-body">
+                <p class="metric-label text-muted mb-1">Shipping</p>
+                <h4 class="metric-value mb-0 text-danger">-@Model.Summary.TotalShippingFormatted</h4>
+                <small class="text-muted">shipping cost</small>
             </div>
         </div>
     </div>
@@ -49,7 +58,7 @@
             <div class="card-body">
                 <p class="metric-label text-muted mb-1">Net Revenue</p>
                 <h4 class="metric-value mb-0 text-success">@Model.Summary.TotalNetFormatted</h4>
-                <small class="text-muted">after fees</small>
+                <small class="text-muted">after deductions</small>
             </div>
         </div>
     </div>
@@ -113,6 +122,7 @@
                             <th>Description</th>
                             <th class="text-end">Gross</th>
                             <th class="text-end">Fees</th>
+                            <th class="text-end">Shipping</th>
                             <th class="text-end">Net</th>
                             <th>Type</th>
                             <th class="text-end">Actions</th>
@@ -133,6 +143,7 @@
                                 </td>
                                 <td class="text-end">@order.GrossFormatted</td>
                                 <td class="text-end text-danger">-@order.FeesFormatted</td>
+                                <td class="text-end text-danger">-@order.ShippingFormatted</td>
                                 <td class="text-end fw-semibold text-success">@order.NetFormatted</td>
                                 <td>
                                     @if (order.EntryType == RevenueEntryType.Manual)
@@ -147,12 +158,12 @@
                                 <td class="text-end">
                                     <div class="btn-group btn-group-sm">
                                         <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-outline-primary" title="View Details">
-                                            <i class="bi bi-eye"></i>
+                                            <i class="bi bi-eye"></i><span class="d-none d-md-inline ms-1">View</span>
                                         </a>
                                         @if (order.EntryType == RevenueEntryType.Manual)
                                         {
                                             <a asp-action="Edit" asp-route-id="@order.Id" class="btn btn-outline-secondary" title="Edit">
-                                                <i class="bi bi-pencil"></i>
+                                                <i class="bi bi-pencil"></i><span class="d-none d-lg-inline ms-1">Edit</span>
                                             </a>
                                         }
                                     </div>

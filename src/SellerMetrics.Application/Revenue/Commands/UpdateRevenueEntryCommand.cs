@@ -14,6 +14,8 @@ public record UpdateRevenueEntryCommand(
     string Description,
     decimal GrossAmount,
     decimal FeesAmount,
+    decimal ShippingAmount,
+    decimal TaxesCollectedAmount,
     string Currency = "USD",
     string? EbayOrderId = null,
     string? WaveInvoiceNumber = null,
@@ -72,6 +74,8 @@ public class UpdateRevenueEntryCommandHandler
         entry.Description = command.Description;
         entry.GrossAmount = new Money(command.GrossAmount, command.Currency);
         entry.Fees = new Money(command.FeesAmount, command.Currency);
+        entry.Shipping = new Money(command.ShippingAmount, command.Currency);
+        entry.TaxesCollected = new Money(command.TaxesCollectedAmount, command.Currency);
         entry.EbayOrderId = command.EbayOrderId;
         entry.WaveInvoiceNumber = command.WaveInvoiceNumber;
         entry.InventoryItemId = command.InventoryItemId;

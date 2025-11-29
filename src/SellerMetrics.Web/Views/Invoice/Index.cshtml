@@ -99,6 +99,7 @@
                             <th>Invoice #</th>
                             <th>Customer/Description</th>
                             <th class="text-end">Amount</th>
+                            <th class="text-end">Tax</th>
                             <th>Type</th>
                             <th class="text-end">Actions</th>
                         </tr>
@@ -117,6 +118,17 @@
                                     @invoice.Description
                                 </td>
                                 <td class="text-end fw-semibold text-success">@invoice.GrossFormatted</td>
+                                <td class="text-end">
+                                    @if (invoice.TaxesCollectedAmount > 0)
+                                    {
+                                        <span class="text-info" title="Tax collected from customer">@invoice.TaxesCollectedFormatted</span>
+                                    }
+                                    else
+                                    {
+                                        var taxLiability = invoice.GrossAmount * 0.0825m;
+                                        <span class="text-warning" title="Estimated tax liability (8.25%)">@taxLiability.ToString("C2")</span>
+                                    }
+                                </td>
                                 <td>
                                     @if (invoice.EntryType == RevenueEntryType.Manual)
                                     {
@@ -130,12 +142,12 @@
                                 <td class="text-end">
                                     <div class="btn-group btn-group-sm">
                                         <a asp-action="Details" asp-route-id="@invoice.Id" class="btn btn-outline-primary" title="View Details">
-                                            <i class="bi bi-eye"></i>
+                                            <i class="bi bi-eye"></i><span class="d-none d-md-inline ms-1">View</span>
                                         </a>
                                         @if (invoice.EntryType == RevenueEntryType.Manual)
                                         {
                                             <a asp-action="Edit" asp-route-id="@invoice.Id" class="btn btn-outline-secondary" title="Edit">
-                                                <i class="bi bi-pencil"></i>
+                                                <i class="bi bi-pencil"></i><span class="d-none d-lg-inline ms-1">Edit</span>
                                             </a>
                                         }
                                     </div>
