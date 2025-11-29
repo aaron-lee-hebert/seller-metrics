@@ -79,11 +79,71 @@ body {
 
 .sidebar-heading {
     font-size: 0.9rem;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
 }
 
-/* Sidebar collapsed state */
+/* Top navbar - match sidebar heading height */
+.navbar {
+    min-height: 60px;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+/* Ensure navbar container has equal padding */
+.navbar .container-fluid {
+    padding-left: 0.5rem !important;
+    padding-right: 1.5rem !important;
+}
+
+/* Sidebar collapsed state - show icon-only sidebar */
 #wrapper.toggled .sidebar {
-    margin-left: -250px;
+    margin-left: 0;
+    width: 70px;
+    min-width: 70px;
+}
+
+/* Hide text in collapsed sidebar heading */
+#wrapper.toggled .sidebar-heading {
+    justify-content: center;
+}
+
+#wrapper.toggled .sidebar-heading a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#wrapper.toggled .sidebar-heading a i {
+    margin-right: 0 !important;
+}
+
+#wrapper.toggled .sidebar-heading a span {
+    display: none;
+}
+
+/* Center icons and hide text in menu items */
+#wrapper.toggled .list-group-item {
+    text-align: center;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#wrapper.toggled .list-group-item i {
+    margin-right: 0 !important;
+}
+
+#wrapper.toggled .list-group-item span {
+    display: none;
+}
+
+/* Hide section headers when collapsed */
+#wrapper.toggled .sidebar-section small {
+    display: none !important;
 }
 
 #page-content-wrapper {
@@ -95,6 +155,12 @@ body {
 
 #wrapper.toggled #page-content-wrapper {
     min-width: 100vw;
+}
+
+/* Main content area padding (below navbar) */
+#page-content-wrapper > .container-fluid {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
 }
 
 /* Mobile responsive */
@@ -113,6 +179,11 @@ body {
     #page-content-wrapper {
         min-width: 100vw;
     }
+
+    #page-content-wrapper > .container-fluid {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
 }
 
 @media (min-width: 769px) {
@@ -121,7 +192,7 @@ body {
     }
 
     #wrapper.toggled #page-content-wrapper {
-        min-width: 100vw;
+        min-width: calc(100vw - 70px);
     }
 }
 

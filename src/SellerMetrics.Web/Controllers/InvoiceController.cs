@@ -155,6 +155,8 @@ public class InvoiceController : Controller
                 model.Description,
                 model.GrossAmount,
                 0, // No fees for service invoices
+                0, // No shipping for service invoices
+                model.TaxesCollectedAmount,
                 model.Currency,
                 null, // EbayOrderId
                 model.WaveInvoiceNumber,
@@ -200,6 +202,7 @@ public class InvoiceController : Controller
                 TransactionDate = invoice.TransactionDate,
                 Description = invoice.Description,
                 GrossAmount = invoice.GrossAmount,
+                TaxesCollectedAmount = invoice.TaxesCollectedAmount,
                 Currency = invoice.Currency,
                 Notes = invoice.Notes
             };
@@ -239,6 +242,8 @@ public class InvoiceController : Controller
                 model.Description,
                 model.GrossAmount,
                 0, // No fees
+                0, // No shipping
+                model.TaxesCollectedAmount,
                 model.Currency,
                 null, // EbayOrderId
                 model.WaveInvoiceNumber,

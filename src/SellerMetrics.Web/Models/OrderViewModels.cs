@@ -34,6 +34,8 @@ public class OrderSummaryViewModel
     public string TotalGrossFormatted { get; set; } = "$0.00";
     public decimal TotalFees { get; set; }
     public string TotalFeesFormatted { get; set; } = "$0.00";
+    public decimal TotalShipping { get; set; }
+    public string TotalShippingFormatted { get; set; } = "$0.00";
     public decimal TotalNet { get; set; }
     public string TotalNetFormatted { get; set; } = "$0.00";
 }
@@ -90,6 +92,12 @@ public class ManualOrderFormViewModel
     [DataType(DataType.Currency)]
     public decimal FeesAmount { get; set; }
 
+    [Required]
+    [Display(Name = "Shipping Cost")]
+    [Range(0, 999999.99)]
+    [DataType(DataType.Currency)]
+    public decimal ShippingAmount { get; set; }
+
     [Display(Name = "Currency")]
     public string Currency { get; set; } = "USD";
 
@@ -103,7 +111,7 @@ public class ManualOrderFormViewModel
     // Dropdown options
     public List<SelectListItem> InventoryOptions { get; set; } = new();
 
-    public decimal NetAmount => GrossAmount - FeesAmount;
+    public decimal NetAmount => GrossAmount - FeesAmount - ShippingAmount;
     public bool IsEdit => Id.HasValue;
     public string FormTitle => IsEdit ? "Edit Order" : "Add Manual Order";
     public string SubmitButtonText => IsEdit ? "Save Changes" : "Add Order";

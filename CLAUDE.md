@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 You are acting as a **Senior .NET Engineer** specializing in:
 - **ASP.NET Core MVC** pattern and best practices
 - **Clean Architecture** with SOLID principles
-- **PostgreSQL** and **Azure Database for PostgreSQL** optimization
+- **SQL Server** and **Azure SQL Database** optimization
 - **Bootstrap 5** front-end development
 - **CI/CD** best practices with GitHub Actions and Azure DevOps
 
@@ -23,7 +23,7 @@ The application provides a single dashboard to see combined revenue and profit a
 - .NET 9
 - ASP.NET Core MVC
 - Entity Framework Core
-- PostgreSQL / Azure Database for PostgreSQL
+- SQL Server / Azure SQL Database
 - Bootstrap 5
 - ASP.NET Core Identity for authentication (with 2FA required)
 - Twilio SendGrid for transactional emails
@@ -355,7 +355,7 @@ public class InventoryConfiguration : IEntityTypeConfiguration<Inventory>
 - Follow principle of least privilege for database permissions
 
 **ASP.NET Core Identity Configuration (REQUIRED):**
-- Use ASP.NET Core Identity with Entity Framework Core (PostgreSQL)
+- Use ASP.NET Core Identity with Entity Framework Core (SQL Server)
 - Open registration is enabled (anyone can create an account)
 - Email confirmation is required before login
 - Two-Factor Authentication (2FA) is REQUIRED for all users
@@ -626,11 +626,11 @@ namespace SellerMetrics.Tests.Infrastructure
 - Run health check
 
 **Self-Hosted Infrastructure:**
-- VPS or home server (Linux recommended)
-- PostgreSQL (local) or PostgreSQL server
-- nginx or Caddy as reverse proxy
+- VPS or home server (Linux or Windows recommended)
+- SQL Server (local) or Azure SQL Database
+- nginx or Caddy as reverse proxy (Linux) or IIS (Windows)
 - Let's Encrypt for SSL certificates
-- systemd for service management
+- systemd for service management (Linux) or Windows Service (Windows)
 
 **Secrets Management:**
 - Store in GitHub Secrets for CI/CD
@@ -642,7 +642,7 @@ namespace SellerMetrics.Tests.Infrastructure
 - Use caching for frequently accessed, rarely changed data (IMemoryCache or IDistributedCache)
 - Implement pagination on all list endpoints (Page size: 20-50 items)
 - Use database indexes strategically (avoid over-indexing)
-- Profile slow queries with EF Core logging or PostgreSQL EXPLAIN ANALYZE
+- Profile slow queries with EF Core logging or SQL Server Query Store / Execution Plans
 - Use async/await for all I/O operations
 - Consider read replicas for reporting queries (if needed at scale)
 - Use projection queries (`.Select()`) instead of loading full entities when possible

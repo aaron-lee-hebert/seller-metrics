@@ -34,10 +34,10 @@ public class SecurityHeadersMiddleware
         // Content Security Policy - restrict resource loading
         // Adjust as needed based on your application's requirements
         var csp = "default-src 'self'; " +
-                  "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-                  "style-src 'self' 'unsafe-inline'; " +
+                  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; " +
+                  "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
                   "img-src 'self' data:; " +
-                  "font-src 'self'; " +
+                  "font-src 'self' https://cdn.jsdelivr.net; " +
                   "form-action 'self'; " +
                   "frame-ancestors 'none'; " +
                   "base-uri 'self';";

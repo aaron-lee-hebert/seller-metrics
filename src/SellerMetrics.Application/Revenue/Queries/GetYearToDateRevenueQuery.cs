@@ -56,11 +56,11 @@ public class GetYearToDateRevenueQueryHandler
 
         var ebayRevenue = filteredEntries
             .Where(e => e.Source == RevenueSource.eBay)
-            .Sum(e => e.GrossAmount.Amount - e.Fees.Amount);
+            .Sum(e => e.NetAmount.Amount);
 
         var serviceRevenue = filteredEntries
             .Where(e => e.Source == RevenueSource.ComputerServices)
-            .Sum(e => e.GrossAmount.Amount - e.Fees.Amount);
+            .Sum(e => e.NetAmount.Amount);
 
         // Calculate monthly breakdown
         var monthlyBreakdown = filteredEntries
@@ -69,11 +69,11 @@ public class GetYearToDateRevenueQueryHandler
             {
                 var monthEbay = g
                     .Where(e => e.Source == RevenueSource.eBay)
-                    .Sum(e => e.GrossAmount.Amount - e.Fees.Amount);
+                    .Sum(e => e.NetAmount.Amount);
 
                 var monthService = g
                     .Where(e => e.Source == RevenueSource.ComputerServices)
-                    .Sum(e => e.GrossAmount.Amount - e.Fees.Amount);
+                    .Sum(e => e.NetAmount.Amount);
 
                 return new MonthlyRevenueDto
                 {
