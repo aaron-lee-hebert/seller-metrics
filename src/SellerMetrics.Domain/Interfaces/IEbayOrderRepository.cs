@@ -146,4 +146,17 @@ public interface IEbayOrderRepository : IRepository<EbayOrder>
         string ebayOrderId,
         string userId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Checks if an eBay order was previously deleted (soft-deleted).
+    /// Used during sync to avoid re-creating deleted orders.
+    /// </summary>
+    /// <param name="ebayOrderId">The eBay order ID.</param>
+    /// <param name="userId">The user ID.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>True if the order was previously deleted.</returns>
+    Task<bool> WasDeletedAsync(
+        string ebayOrderId,
+        string userId,
+        CancellationToken cancellationToken = default);
 }

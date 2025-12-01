@@ -161,6 +161,16 @@ public class EbayOrderRepository : RepositoryBase<EbayOrder>, IEbayOrderReposito
             .AnyAsync(o => o.EbayOrderId == ebayOrderId && o.UserId == userId, cancellationToken);
     }
 
+    public async Task<bool> WasDeletedAsync(
+        string ebayOrderId,
+        string userId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .IgnoreQueryFilters()
+            .AnyAsync(o => o.EbayOrderId == ebayOrderId && o.UserId == userId && o.IsDeleted, cancellationToken);
+    }
+
     public override async Task<EbayOrder?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _dbSet

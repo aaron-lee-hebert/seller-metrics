@@ -24,6 +24,7 @@ public class SyncOrdersResult
     public int OrdersCreated { get; set; }
     public int OrdersUpdated { get; set; }
     public int OrdersLinked { get; set; }
+    public int OrdersSkipped { get; set; }
     public List<string> Errors { get; set; } = new();
     public bool Success => Errors.Count == 0;
 }
@@ -166,6 +167,15 @@ public class SyncOrdersFromEbayCommandHandler
         }
         else
         {
+            // Check if order was previously deleted - skip if so
+            var wasDeleted = await _orderRepository.WasDeletedAsync(ebayOrder.OrderId, userId, cancellationToken);
+            if (wasDeleted)
+            {
+                // Skip this order - user deleted it previously
+                result.OrdersSkipped++;
+                return;
+            }
+
             // Create new order
             var newOrder = await CreateNewOrderAsync(ebayOrder, userId, result, cancellationToken);
             result.OrdersCreated++;
