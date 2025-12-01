@@ -1,0 +1,198 @@
+@model SellerMetrics.Application.Wave.DTOs.WaveInvoiceDetailDto
+@using SellerMetrics.Domain.Enums
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Invoice Details Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-receipt me-2"></i>Invoice Details
+                </h5>
+                @switch (Model.Status)
+                {
+                    case WaveInvoiceStatus.Paid:
+                        <span class="badge bg-success">Paid</span>
+                        break;
+                    case WaveInvoiceStatus.Sent:
+                        if (Model.IsOverdue)
+                        {
+                            <span class="badge bg-danger">Overdue</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-info">Sent</span>
+                        }
+                        break;
+                    case WaveInvoiceStatus.Viewed:
+                        if (Model.IsOverdue)
+                        {
+                            <span class="badge bg-danger">Overdue</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-primary">Viewed</span>
+                        }
+                        break;
+                    case WaveInvoiceStatus.PartiallyPaid:
+                        <span class="badge bg-warning text-dark">Partial Payment</span>
+                        break;
+                    case WaveInvoiceStatus.Draft:
+                        <span class="badge bg-secondary">Draft</span>
+                        break;
+                    case WaveInvoiceStatus.Voided:
+                        <span class="badge bg-dark">Voided</span>
+                        break;
+                    default:
+                        <span class="badge bg-secondary">@Model.Status</span>
+                        break;
+                }
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Invoice Number</label>
+                        <p class="mb-0 fw-semibold fs-5">@Model.InvoiceNumber</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Customer</label>
+                        <p class="mb-0 fw-semibold">@Model.CustomerName</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Invoice Date</label>
+                        <p class="mb-0">@Model.InvoiceDate.ToString("MMMM d, yyyy")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Due Date</label>
+                        <p class="mb-0 @(Model.IsOverdue ? "text-danger fw-semibold" : "")">
+                            @Model.DueDate.ToString("MMMM d, yyyy")
+                            @if (Model.IsOverdue)
+                            {
+                                <span class="badge bg-danger ms-2">Overdue</span>
+                            }
+                        </p>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Memo))
+                    {
+                        <div class="col-12">
+                            <label class="form-label text-muted small">Memo</label>
+                            <p class="mb-0">@Model.Memo</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Payments Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-credit-card me-2"></i>Payments
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.Payments.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Method</th>
+                                    <th class="text-end">Amount</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var payment in Model.Payments.OrderByDescending(p => p.PaymentDate))
+                                {
+                                    <tr>
+                                        <td>@payment.PaymentDate.ToString("MMM d, yyyy")</td>
+                                        <td>@(payment.PaymentMethod ?? "Unknown")</td>
+                                        <td class="text-end fw-semibold text-success">
+                                            $@payment.Amount.ToString("N2") @payment.Currency
+                                        </td>
+                                        <td class="text-muted">@(payment.Notes ?? "-")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="p-4 text-center text-muted">
+                        <i class="bi bi-credit-card fs-1 d-block mb-2"></i>
+                        <p class="mb-0">No payments recorded for this invoice.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Amount Summary Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Amount Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Total Amount</span>
+                    <span class="fw-semibold">$@Model.TotalAmount.ToString("N2")</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Amount Paid</span>
+                    <span class="text-success">$@Model.AmountPaid.ToString("N2")</span>
+                </div>
+                <hr />
+                <div class="d-flex justify-content-between">
+                    <span class="fw-semibold">Amount Due</span>
+                    <span class="fw-bold @(Model.AmountDue > 0 ? "text-warning" : "text-success") fs-5">
+                        $@Model.AmountDue.ToString("N2")
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    @if (!string.IsNullOrEmpty(Model.ViewUrl))
+                    {
+                        <a href="@Model.ViewUrl" target="_blank" rel="noopener" class="btn btn-primary">
+                            <i class="bi bi-box-arrow-up-right me-2"></i>View in Wave
+                        </a>
+                    }
+                    <a href="https://my.waveapps.com" target="_blank" rel="noopener" class="btn btn-outline-secondary">
+                        <i class="bi bi-water me-2"></i>Open Wave Dashboard
+                    </a>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Invoices
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sync Info Card -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Sync Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <label class="form-label text-muted small mb-0">Wave Invoice ID</label>
+                    <p class="mb-0 small font-monospace">@Model.WaveInvoiceId</p>
+                </div>
+                <div>
+                    <label class="form-label text-muted small mb-0">Last Synced</label>
+                    <p class="mb-0 small">@Model.LastSyncedAt.ToString("MMM d, yyyy h:mm tt")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

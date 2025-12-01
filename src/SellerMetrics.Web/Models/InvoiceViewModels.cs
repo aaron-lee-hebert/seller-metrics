@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SellerMetrics.Application.Revenue.DTOs;
+using SellerMetrics.Application.Wave.DTOs;
 
 namespace SellerMetrics.Web.Models;
 
@@ -9,15 +10,23 @@ namespace SellerMetrics.Web.Models;
 /// </summary>
 public class InvoiceListViewModel
 {
+    // Manual revenue entries (when Wave not connected)
     public List<RevenueEntryDto> Invoices { get; set; } = new();
+
+    // Wave invoices (when connected)
+    public List<WaveInvoiceListItemDto> WaveInvoices { get; set; } = new();
+
     public PaginationViewModel Pagination { get; set; } = new();
 
     // Filters
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
 
-    // Summary
+    // Summary for manual entries
     public InvoiceSummaryViewModel Summary { get; set; } = new();
+
+    // Summary for Wave invoices
+    public WaveInvoiceSummaryViewModel WaveSummary { get; set; } = new();
 
     // Sync status
     public bool IsWaveSyncConfigured { get; set; }
@@ -25,13 +34,28 @@ public class InvoiceListViewModel
 }
 
 /// <summary>
-/// Summary statistics for service invoices.
+/// Summary statistics for manual service invoices.
 /// </summary>
 public class InvoiceSummaryViewModel
 {
     public int TotalInvoices { get; set; }
     public decimal TotalRevenue { get; set; }
     public string TotalRevenueFormatted { get; set; } = "$0.00";
+}
+
+/// <summary>
+/// Summary statistics for Wave invoices.
+/// </summary>
+public class WaveInvoiceSummaryViewModel
+{
+    public int TotalInvoices { get; set; }
+    public int PaidInvoices { get; set; }
+    public int UnpaidInvoices { get; set; }
+    public int OverdueInvoices { get; set; }
+    public decimal TotalRevenue { get; set; }
+    public string TotalRevenueFormatted { get; set; } = "$0.00";
+    public decimal TotalOutstanding { get; set; }
+    public string TotalOutstandingFormatted { get; set; } = "$0.00";
 }
 
 /// <summary>

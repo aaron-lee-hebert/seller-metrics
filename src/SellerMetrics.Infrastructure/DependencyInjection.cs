@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SellerMetrics.Application.Common.Interfaces;
+using SellerMetrics.Application.Wave.Interfaces;
 using SellerMetrics.Domain.Entities;
 using SellerMetrics.Domain.Interfaces;
 using SellerMetrics.Infrastructure.Persistence;
@@ -160,6 +162,27 @@ public static class DependencyInjection
         services.AddScoped<Application.TaxReporting.Commands.ExportTaxReportCommandHandler>();
         services.AddScoped<Application.TaxReporting.Queries.GetQuarterlySummaryQueryHandler>();
         services.AddScoped<Application.TaxReporting.Queries.GetAnnualSummaryQueryHandler>();
+
+        // Register Wave repositories
+        services.AddScoped<IWaveUserCredentialRepository, WaveUserCredentialRepository>();
+        services.AddScoped<IWaveInvoiceRepository, WaveInvoiceRepository>();
+        services.AddScoped<IWavePaymentRepository, WavePaymentRepository>();
+
+        // Register token encryption service
+        services.AddScoped<ITokenEncryptionService, TokenEncryptionService>();
+
+        // Register Wave API client with HttpClient
+        services.AddHttpClient<IWaveApiClient, WaveApiClient>();
+
+        // Register Application layer handlers - Wave
+        services.AddScoped<Application.Wave.Commands.ConnectWaveAccountCommandHandler>();
+        services.AddScoped<Application.Wave.Commands.DisconnectWaveAccountCommandHandler>();
+        services.AddScoped<Application.Wave.Commands.SyncInvoicesFromWaveCommandHandler>();
+        services.AddScoped<Application.Wave.Queries.GetWaveConnectionStatusQueryHandler>();
+        services.AddScoped<Application.Wave.Queries.GetWaveBusinessesQueryHandler>();
+        services.AddScoped<Application.Wave.Queries.GetWaveInvoiceListQueryHandler>();
+        services.AddScoped<Application.Wave.Queries.GetWaveInvoiceQueryHandler>();
+        services.AddScoped<Application.Wave.Queries.GetWaveInvoiceStatsQueryHandler>();
 
         return services;
     }

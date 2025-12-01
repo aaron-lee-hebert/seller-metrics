@@ -1,0 +1,313 @@
+@model SettingsViewModel
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Wave Connection Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-water me-2"></i>Wave Integration
+                </h5>
+                @if (Model.WaveConnection.IsConnected)
+                {
+                    <span class="badge bg-success">
+                        <i class="bi bi-check-circle me-1"></i>Connected
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">
+                        <i class="bi bi-x-circle me-1"></i>Not Connected
+                    </span>
+                }
+            </div>
+            <div class="card-body">
+                @if (Model.WaveConnection.IsConnected)
+                {
+                    <!-- Connected State -->
+                    <div class="mb-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small">Connected Business</label>
+                                <p class="mb-0 fw-semibold">@Model.WaveConnection.BusinessName</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small">Connected Since</label>
+                                <p class="mb-0">@Model.WaveConnection.ConnectedAt?.ToString("MMM d, yyyy h:mm tt")</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small">Last Synced</label>
+                                <p class="mb-0">
+                                    @if (Model.WaveConnection.LastSyncedAt.HasValue)
+                                    {
+                                        @Model.WaveConnection.LastSyncedAt.Value.ToString("MMM d, yyyy h:mm tt")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Never</span>
+                                    }
+                                </p>
+                            </div>
+                            @if (!string.IsNullOrEmpty(Model.WaveConnection.LastSyncError))
+                            {
+                                <div class="col-12">
+                                    <div class="alert alert-warning mb-0">
+                                        <i class="bi bi-exclamation-triangle me-2"></i>
+                                        <strong>Last Sync Error:</strong> @Model.WaveConnection.LastSyncError
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <form asp-action="SyncWaveNow" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-arrow-repeat me-2"></i>Sync Now
+                            </button>
+                        </form>
+                        <form asp-action="DisconnectWave" method="post" class="d-inline"
+                              onsubmit="return confirm('Are you sure you want to disconnect your Wave account? Synced invoice data will remain in the system.');">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-danger">
+                                <i class="bi bi-x-circle me-2"></i>Disconnect
+                            </button>
+                        </form>
+                    </div>
+                }
+                else
+                {
+                    <!-- Not Connected State -->
+                    <p class="text-muted mb-4">
+                        Connect your Wave account to automatically sync invoices and payments. You'll need a
+                        <strong>Full Access Token</strong> from Wave.
+                    </p>
+
+                    <div class="alert alert-info mb-4">
+                        <h6 class="alert-heading"><i class="bi bi-info-circle me-2"></i>How to get your Wave Full Access Token:</h6>
+                        <ol class="mb-0 ps-3">
+                            <li>Log in to your Wave account at <a href="https://my.waveapps.com" target="_blank" rel="noopener">my.waveapps.com</a></li>
+                            <li>Go to <strong>Settings</strong> > <strong>Integrations</strong> > <strong>Developer API</strong></li>
+                            <li>Click <strong>Create Full Access Token</strong></li>
+                            <li>Copy the token and paste it below</li>
+                        </ol>
+                    </div>
+
+                    <form id="waveConnectForm">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label for="accessToken" class="form-label">Wave Full Access Token</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="accessToken" name="accessToken"
+                                       placeholder="Paste your token here" required>
+                                <button class="btn btn-outline-secondary" type="button" id="toggleTokenVisibility">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="businessSelection" class="mb-3" style="display: none;">
+                            <label for="businessId" class="form-label">Select Business</label>
+                            <select class="form-select" id="businessId" name="businessId" required disabled>
+                                <option value="">Loading businesses...</option>
+                            </select>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-secondary" id="validateTokenBtn">
+                                <i class="bi bi-check2 me-2"></i>Validate Token
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="connectBtn" disabled>
+                                <i class="bi bi-link-45deg me-2"></i>Connect
+                            </button>
+                        </div>
+
+                        <div id="validationResult" class="mt-3" style="display: none;"></div>
+                    </form>
+                }
+            </div>
+        </div>
+
+        <!-- Future: eBay Connection Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-cart3 me-2"></i>eBay Integration
+                </h5>
+                <span class="badge bg-secondary">
+                    <i class="bi bi-clock me-1"></i>Coming Soon
+                </span>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-0">
+                    eBay integration will allow automatic syncing of orders and sales data.
+                    This feature is under development.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Help Card -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-question-circle me-2"></i>Need Help?</h5>
+            </div>
+            <div class="card-body">
+                <h6>Wave Integration</h6>
+                <p class="small text-muted">
+                    Wave invoices are synced automatically every 15 minutes. Only invoices from the
+                    last 30 days are imported on each sync.
+                </p>
+                <p class="small text-muted mb-0">
+                    <strong>Note:</strong> This integration is read-only. To create or edit invoices,
+                    use Wave directly at <a href="https://my.waveapps.com" target="_blank" rel="noopener">my.waveapps.com</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const accessTokenInput = document.getElementById('accessToken');
+        const toggleBtn = document.getElementById('toggleTokenVisibility');
+        const validateBtn = document.getElementById('validateTokenBtn');
+        const connectBtn = document.getElementById('connectBtn');
+        const businessSelect = document.getElementById('businessId');
+        const businessSection = document.getElementById('businessSelection');
+        const validationResult = document.getElementById('validationResult');
+        const form = document.getElementById('waveConnectForm');
+
+        let selectedBusinessName = '';
+
+        // Toggle token visibility
+        toggleBtn.addEventListener('click', function () {
+            const type = accessTokenInput.type === 'password' ? 'text' : 'password';
+            accessTokenInput.type = type;
+            toggleBtn.innerHTML = type === 'password' ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>';
+        });
+
+        // Validate token
+        validateBtn.addEventListener('click', async function () {
+            const token = accessTokenInput.value.trim();
+            if (!token) {
+                showValidationResult('error', 'Please enter your access token.');
+                return;
+            }
+
+            validateBtn.disabled = true;
+            validateBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Validating...';
+
+            try {
+                const response = await fetch('@Url.Action("ValidateWaveToken")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: 'accessToken=' + encodeURIComponent(token)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showValidationResult('success', 'Token validated! Select a business to connect.');
+
+                    // Populate business dropdown
+                    businessSelect.innerHTML = '<option value="">Select a business...</option>';
+                    data.businesses.forEach(function(business) {
+                        const option = document.createElement('option');
+                        option.value = business.id;
+                        option.textContent = business.name + (business.isPersonal ? ' (Personal)' : '') + ' - ' + business.currency;
+                        option.dataset.name = business.name;
+                        businessSelect.appendChild(option);
+                    });
+
+                    businessSelect.disabled = false;
+                    businessSection.style.display = 'block';
+                } else {
+                    showValidationResult('error', data.error || 'Token validation failed.');
+                    businessSection.style.display = 'none';
+                    connectBtn.disabled = true;
+                }
+            } catch (error) {
+                showValidationResult('error', 'An error occurred. Please try again.');
+                console.error('Validation error:', error);
+            } finally {
+                validateBtn.disabled = false;
+                validateBtn.innerHTML = '<i class="bi bi-check2 me-2"></i>Validate Token';
+            }
+        });
+
+        // Business selection
+        businessSelect.addEventListener('change', function () {
+            const selectedOption = businessSelect.options[businessSelect.selectedIndex];
+            if (this.value) {
+                selectedBusinessName = selectedOption.dataset.name;
+                connectBtn.disabled = false;
+            } else {
+                selectedBusinessName = '';
+                connectBtn.disabled = true;
+            }
+        });
+
+        // Form submit
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const token = accessTokenInput.value.trim();
+            const businessId = businessSelect.value;
+
+            if (!token || !businessId || !selectedBusinessName) {
+                showValidationResult('error', 'Please validate your token and select a business.');
+                return;
+            }
+
+            // Create and submit a new form with all required data
+            const submitForm = document.createElement('form');
+            submitForm.method = 'POST';
+            submitForm.action = '@Url.Action("ConnectWave")';
+
+            const tokenField = document.createElement('input');
+            tokenField.type = 'hidden';
+            tokenField.name = 'AccessToken';
+            tokenField.value = token;
+            submitForm.appendChild(tokenField);
+
+            const businessIdField = document.createElement('input');
+            businessIdField.type = 'hidden';
+            businessIdField.name = 'BusinessId';
+            businessIdField.value = businessId;
+            submitForm.appendChild(businessIdField);
+
+            const businessNameField = document.createElement('input');
+            businessNameField.type = 'hidden';
+            businessNameField.name = 'BusinessName';
+            businessNameField.value = selectedBusinessName;
+            submitForm.appendChild(businessNameField);
+
+            const antiForgeryField = document.createElement('input');
+            antiForgeryField.type = 'hidden';
+            antiForgeryField.name = '__RequestVerificationToken';
+            antiForgeryField.value = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            submitForm.appendChild(antiForgeryField);
+
+            document.body.appendChild(submitForm);
+
+            connectBtn.disabled = true;
+            connectBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Connecting...';
+
+            submitForm.submit();
+        });
+
+        function showValidationResult(type, message) {
+            validationResult.style.display = 'block';
+            validationResult.className = 'mt-3 alert alert-' + (type === 'success' ? 'success' : 'danger');
+            validationResult.innerHTML = '<i class="bi bi-' + (type === 'success' ? 'check-circle' : 'exclamation-triangle') + ' me-2"></i>' + message;
+        }
+    });
+</script>
+}

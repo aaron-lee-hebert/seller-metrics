@@ -1,8 +1,11 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SellerMetrics.Application.Revenue.Commands;
 using SellerMetrics.Application.Revenue.DTOs;
 using SellerMetrics.Application.Revenue.Queries;
+using SellerMetrics.Application.Wave.Commands;
+using SellerMetrics.Application.Wave.Queries;
 using SellerMetrics.Domain.Enums;
 using SellerMetrics.Domain.ValueObjects;
 using SellerMetrics.Web.Models;
@@ -10,8 +13,7 @@ using SellerMetrics.Web.Models;
 namespace SellerMetrics.Web.Controllers;
 
 /// <summary>
-/// Controller for service invoices (revenue entries with ComputerServices source).
-/// This is a placeholder UI until Wave API sync is implemented.
+/// Controller for service invoices (manual entries and Wave synced invoices).
 /// </summary>
 [Authorize]
 public class InvoiceController : Controller
@@ -22,6 +24,11 @@ public class InvoiceController : Controller
     private readonly CreateRevenueEntryCommandHandler _createHandler;
     private readonly UpdateRevenueEntryCommandHandler _updateHandler;
     private readonly DeleteRevenueEntryCommandHandler _deleteHandler;
+    private readonly GetWaveConnectionStatusQueryHandler _waveConnectionHandler;
+    private readonly GetWaveInvoiceListQueryHandler _waveInvoiceListHandler;
+    private readonly GetWaveInvoiceQueryHandler _waveInvoiceHandler;
+    private readonly GetWaveInvoiceStatsQueryHandler _waveStatsHandler;
+    private readonly SyncInvoicesFromWaveCommandHandler _waveSyncHandler;
 
     public InvoiceController(
         ILogger<InvoiceController> logger,
@@ -29,7 +36,12 @@ public class InvoiceController : Controller
         GetRevenueEntryQueryHandler getHandler,
         CreateRevenueEntryCommandHandler createHandler,
         UpdateRevenueEntryCommandHandler updateHandler,
-        DeleteRevenueEntryCommandHandler deleteHandler)
+        DeleteRevenueEntryCommandHandler deleteHandler,
+        GetWaveConnectionStatusQueryHandler waveConnectionHandler,
+        GetWaveInvoiceListQueryHandler waveInvoiceListHandler,
+        GetWaveInvoiceQueryHandler waveInvoiceHandler,
+        GetWaveInvoiceStatsQueryHandler waveStatsHandler,
+        SyncInvoicesFromWaveCommandHandler waveSyncHandler)
     {
         _logger = logger;
         _listHandler = listHandler;
@@ -37,10 +49,17 @@ public class InvoiceController : Controller
         _createHandler = createHandler;
         _updateHandler = updateHandler;
         _deleteHandler = deleteHandler;
+        _waveConnectionHandler = waveConnectionHandler;
+        _waveInvoiceListHandler = waveInvoiceListHandler;
+        _waveInvoiceHandler = waveInvoiceHandler;
+        _waveStatsHandler = waveStatsHandler;
+        _waveSyncHandler = waveSyncHandler;
     }
 
     public async Task<IActionResult> Index(DateTime? startDate, DateTime? endDate, int page = 1)
     {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
         // Default to current quarter
         var today = DateTime.Today;
         var quarterStart = new DateTime(today.Year, ((today.Month - 1) / 3) * 3 + 1, 1);
@@ -51,41 +70,97 @@ public class InvoiceController : Controller
         {
             StartDate = startDate,
             EndDate = endDate,
-            IsWaveSyncConfigured = false // TODO: Check if Wave API is configured
+            IsWaveSyncConfigured = false
         };
 
         try
         {
-            var invoices = await _listHandler.HandleAsync(
-                new GetRevenueListQuery(RevenueSource.ComputerServices, startDate, endDate.Value.AddDays(1)),
-                CancellationToken.None);
+            // Check Wave connection status
+            var waveStatus = await _waveConnectionHandler.HandleAsync(
+                new GetWaveConnectionStatusQuery(userId), CancellationToken.None);
 
-            // Apply pagination
-            const int pageSize = 20;
-            var totalItems = invoices.Count;
-            var pagedItems = invoices
-                .OrderByDescending(i => i.TransactionDate)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
+            viewModel.IsWaveSyncConfigured = waveStatus.IsConnected;
+            viewModel.LastSyncTime = waveStatus.LastSyncedAt;
 
-            viewModel.Invoices = pagedItems;
-            viewModel.Pagination = new PaginationViewModel
+            if (waveStatus.IsConnected)
             {
-                CurrentPage = page,
-                PageSize = pageSize,
-                TotalItems = totalItems,
-                BaseUrl = Url.Action("Index") ?? "/Invoice",
-                QueryParameters = BuildQueryParameters(startDate, endDate)
-            };
+                // Load Wave invoices
+                var waveInvoices = await _waveInvoiceListHandler.HandleAsync(
+                    new GetWaveInvoiceListQuery(userId, startDate, endDate.Value.AddDays(1)),
+                    CancellationToken.None);
 
-            // Calculate summary
-            viewModel.Summary = new InvoiceSummaryViewModel
+                // Convert to WaveInvoiceListItemDto for the view
+                viewModel.WaveInvoices = waveInvoices.ToList();
+
+                // Calculate Wave stats
+                var stats = await _waveStatsHandler.HandleAsync(
+                    new GetWaveInvoiceStatsQuery(userId, startDate, endDate.Value.AddDays(1)),
+                    CancellationToken.None);
+
+                viewModel.WaveSummary = new WaveInvoiceSummaryViewModel
+                {
+                    TotalInvoices = stats.TotalInvoices,
+                    PaidInvoices = stats.PaidInvoices,
+                    UnpaidInvoices = stats.UnpaidInvoices,
+                    OverdueInvoices = stats.OverdueInvoices,
+                    TotalRevenue = stats.TotalRevenue,
+                    TotalRevenueFormatted = new Money(stats.TotalRevenue, stats.Currency).ToString(),
+                    TotalOutstanding = stats.TotalOutstanding,
+                    TotalOutstandingFormatted = new Money(stats.TotalOutstanding, stats.Currency).ToString()
+                };
+
+                // Apply pagination
+                const int pageSize = 20;
+                var totalItems = waveInvoices.Count;
+                viewModel.WaveInvoices = waveInvoices
+                    .OrderByDescending(i => i.InvoiceDate)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                viewModel.Pagination = new PaginationViewModel
+                {
+                    CurrentPage = page,
+                    PageSize = pageSize,
+                    TotalItems = totalItems,
+                    BaseUrl = Url.Action("Index") ?? "/Invoice",
+                    QueryParameters = BuildQueryParameters(startDate, endDate)
+                };
+            }
+            else
             {
-                TotalInvoices = invoices.Count,
-                TotalRevenue = invoices.Sum(i => i.GrossAmount),
-                TotalRevenueFormatted = new Money(invoices.Sum(i => i.GrossAmount), "USD").ToString()
-            };
+                // Load manual revenue entries (fallback when Wave not connected)
+                var invoices = await _listHandler.HandleAsync(
+                    new GetRevenueListQuery(RevenueSource.ComputerServices, startDate, endDate.Value.AddDays(1)),
+                    CancellationToken.None);
+
+                // Apply pagination
+                const int pageSize = 20;
+                var totalItems = invoices.Count;
+                var pagedItems = invoices
+                    .OrderByDescending(i => i.TransactionDate)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                viewModel.Invoices = pagedItems;
+                viewModel.Pagination = new PaginationViewModel
+                {
+                    CurrentPage = page,
+                    PageSize = pageSize,
+                    TotalItems = totalItems,
+                    BaseUrl = Url.Action("Index") ?? "/Invoice",
+                    QueryParameters = BuildQueryParameters(startDate, endDate)
+                };
+
+                // Calculate summary
+                viewModel.Summary = new InvoiceSummaryViewModel
+                {
+                    TotalInvoices = invoices.Count,
+                    TotalRevenue = invoices.Sum(i => i.GrossAmount),
+                    TotalRevenueFormatted = new Money(invoices.Sum(i => i.GrossAmount), "USD").ToString()
+                };
+            }
         }
         catch (Exception ex)
         {
@@ -95,6 +170,62 @@ public class InvoiceController : Controller
 
         ViewData["Title"] = "Service Invoices";
         return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SyncNow()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+        try
+        {
+            var result = await _waveSyncHandler.HandleAsync(
+                new SyncInvoicesFromWaveCommand(userId), CancellationToken.None);
+
+            if (result.Success)
+            {
+                TempData["SuccessMessage"] = $"Sync completed. {result.InvoicesSynced} invoices synced, {result.InvoicesSkipped} skipped.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = result.Errors.FirstOrDefault() ?? "Sync failed.";
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error syncing Wave invoices");
+            TempData["ErrorMessage"] = "An error occurred during sync.";
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    public async Task<IActionResult> WaveDetails(int id)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+        try
+        {
+            var invoice = await _waveInvoiceHandler.HandleAsync(
+                new GetWaveInvoiceQuery(id, userId), CancellationToken.None);
+
+            if (invoice == null)
+            {
+                TempData["ErrorMessage"] = "Invoice not found.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            ViewData["Title"] = $"Invoice: {invoice.InvoiceNumber}";
+            ViewData["Breadcrumb"] = $"<li class=\"breadcrumb-item\"><a href=\"{Url.Action("Index")}\">Invoices</a></li><li class=\"breadcrumb-item active\">{invoice.InvoiceNumber}</li>";
+            return View(invoice);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading Wave invoice {Id}", id);
+            TempData["ErrorMessage"] = "Failed to load invoice.";
+            return RedirectToAction(nameof(Index));
+        }
     }
 
     public async Task<IActionResult> Details(int id)

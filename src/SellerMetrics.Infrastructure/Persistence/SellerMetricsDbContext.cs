@@ -75,6 +75,23 @@ public class SellerMetricsDbContext : IdentityDbContext<ApplicationUser>
     /// </summary>
     public DbSet<EstimatedTaxPayment> EstimatedTaxPayments => Set<EstimatedTaxPayment>();
 
+    // Note: eBay entities (EbayUserCredential, EbayOrder) will be added when eBay integration is implemented
+
+    /// <summary>
+    /// Wave user credentials for API access.
+    /// </summary>
+    public DbSet<WaveUserCredential> WaveUserCredentials => Set<WaveUserCredential>();
+
+    /// <summary>
+    /// Wave invoices synced from the Wave API.
+    /// </summary>
+    public DbSet<WaveInvoice> WaveInvoices => Set<WaveInvoice>();
+
+    /// <summary>
+    /// Wave payments synced from the Wave API.
+    /// </summary>
+    public DbSet<WavePayment> WavePayments => Set<WavePayment>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

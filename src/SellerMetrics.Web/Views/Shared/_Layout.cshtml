@@ -84,6 +84,15 @@
                             <i class="bi bi-calendar-range me-2"></i>Annual Summary
                         </a>
                     </div>
+
+                    <!-- Settings Section -->
+                    <div class="sidebar-section">
+                        <small class="text-muted px-3 py-2 d-block text-uppercase fw-semibold">System</small>
+                        <a asp-controller="Settings" asp-action="Index"
+                           class="list-group-item list-group-item-action list-group-item-light p-3 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Settings" ? "active" : "")">
+                            <i class="bi bi-plug me-2"></i>API Connections
+                        </a>
+                    </div>
                 </div>
             </div>
 

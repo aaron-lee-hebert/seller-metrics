@@ -200,36 +200,54 @@ This file tracks all development tasks for the SellerMetrics application.
 
 ### Wave API Client
 
-- [ ] Research Wave API (GraphQL-based)
-- [ ] Create IWaveApiClient interface
-- [ ] Implement authentication (OAuth or API token)
-- [ ] Handle API errors and rate limiting
+- [x] Research Wave API (GraphQL-based)
+- [x] Create IWaveApiClient interface
+- [x] Implement authentication (Full Access Token)
+- [x] Handle API errors and rate limiting
+
+### Per-User API Credentials
+
+- [x] Create WaveUserCredential entity
+  - [x] UserId (foreign key to ApplicationUser)
+  - [x] EncryptedAccessToken (using Data Protection API)
+  - [x] WaveBusinessId (selected business to sync)
+  - [x] WaveBusinessName (for display)
+  - [x] IsConnected, ConnectedAt, LastSyncedAt, LastSyncError
+- [x] Create ITokenEncryptionService interface and implementation
+- [x] Create Settings page for managing Wave connection
+  - [x] Token validation and business selection UI
+  - [x] Connect/Disconnect functionality
+  - [x] Sync Now button
 
 ### Invoice/Payment Sync (Read-Only)
 
-- [ ] Create WaveInvoice entity (local cache of Wave data)
-  - [ ] WaveInvoiceId
-  - [ ] InvoiceNumber
-  - [ ] CustomerName
-  - [ ] InvoiceDate
-  - [ ] DueDate
-  - [ ] TotalAmount
-  - [ ] AmountPaid
-  - [ ] Status (Draft, Sent, Viewed, Paid, Overdue)
-  - [ ] LastSyncedAt
-- [ ] Create WavePayment entity
-  - [ ] WavePaymentId
-  - [ ] WaveInvoiceId
-  - [ ] PaymentDate
-  - [ ] Amount
-  - [ ] PaymentMethod
-- [ ] Create Wave sync use cases:
-  - [ ] SyncInvoicesFromWave command (background job)
-  - [ ] SyncPaymentsFromWave command
-  - [ ] GetInvoiceList query (view-only)
-  - [ ] GetInvoiceDetails query
-  - [ ] GetUnpaidInvoices query
-  - [ ] GetServiceRevenue query (sum of paid invoices by period)
+- [x] Create WaveInvoice entity (local cache of Wave data)
+  - [x] WaveInvoiceId
+  - [x] InvoiceNumber
+  - [x] CustomerName
+  - [x] InvoiceDate
+  - [x] DueDate
+  - [x] TotalAmount (Money value object)
+  - [x] AmountPaid (Money value object)
+  - [x] AmountDue (Money value object)
+  - [x] Status (Draft, Sent, Viewed, PartiallyPaid, Paid, Overdue, Voided)
+  - [x] LastSyncedAt
+  - [x] Soft delete with WasDeletedAsync for skipping on future syncs
+- [x] Create WavePayment entity
+  - [x] WavePaymentId
+  - [x] WaveInvoiceId
+  - [x] PaymentDate
+  - [x] Amount (Money value object)
+  - [x] PaymentMethod
+- [x] Create Wave sync use cases:
+  - [x] SyncInvoicesFromWave command (syncs last 30 days)
+  - [x] GetInvoiceList query (view-only, with filters)
+  - [x] GetInvoiceDetails query (with payments)
+  - [x] GetInvoiceStats query (totals, paid/unpaid counts)
+  - [x] GetWaveConnectionStatus query
+  - [x] GetWaveBusinesses query (for connection UI)
+- [x] Create EF Core configurations for Wave entities
+- [x] Create migration for Wave entities
 
 ---
 
