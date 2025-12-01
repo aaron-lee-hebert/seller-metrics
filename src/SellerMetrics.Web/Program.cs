@@ -1,5 +1,9 @@
 using AspNetCoreRateLimit;
+using Hangfire;
+using Hangfire.PostgreSql;
 using SellerMetrics.Infrastructure;
+using SellerMetrics.Infrastructure.Services;
+using SellerMetrics.Web.Filters;
 using SellerMetrics.Web.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +15,17 @@ builder.Logging.AddDebug();
 
 // Add services to the container.
 builder.Services.AddInfrastructure(builder.Configuration);
+
+// Configure Hangfire with PostgreSQL storage
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddHangfire(config => config
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UsePostgreSqlStorage(options => options.UseNpgsqlConnection(connectionString)));
+
+builder.Services.AddHangfireServer();
+builder.Services.AddScoped<EbayOrderSyncJob>();
 
 // Configure rate limiting
 builder.Services.AddMemoryCache();
@@ -107,5 +122,22 @@ app.MapControllerRoute(
 
 // Map Razor Pages for Identity UI
 app.MapRazorPages();
+
+// Configure Hangfire dashboard (admin only)
+app.MapHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = new[] { new HangfireAuthorizationFilter() }
+});
+
+// Register recurring jobs for eBay sync
+RecurringJob.AddOrUpdate<EbayOrderSyncJob>(
+    "ebay-token-refresh",
+    job => job.RefreshExpiredTokensAsync(),
+    "*/5 * * * *"); // Every 5 minutes
+
+RecurringJob.AddOrUpdate<EbayOrderSyncJob>(
+    "ebay-order-sync",
+    job => job.ExecuteAsync(),
+    "0,15,30,45 * * * *"); // Every 15 minutes at :00, :15, :30, :45
 
 app.Run();

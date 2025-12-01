@@ -1,8 +1,12 @@
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Polly;
+using Polly.Extensions.Http;
+using SellerMetrics.Application.Ebay.Interfaces;
 using SellerMetrics.Domain.Entities;
 using SellerMetrics.Domain.Interfaces;
 using SellerMetrics.Infrastructure.Persistence;
@@ -161,6 +165,62 @@ public static class DependencyInjection
         services.AddScoped<Application.TaxReporting.Queries.GetQuarterlySummaryQueryHandler>();
         services.AddScoped<Application.TaxReporting.Queries.GetAnnualSummaryQueryHandler>();
 
+        // Register eBay repositories
+        services.AddScoped<IEbayUserCredentialRepository, EbayUserCredentialRepository>();
+        services.AddScoped<IEbayOrderRepository, EbayOrderRepository>();
+
+        // Configure Data Protection for token encryption
+        services.AddDataProtection()
+            .SetApplicationName("SellerMetrics")
+            .PersistKeysToFileSystem(new DirectoryInfo(
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "SellerMetrics", "DataProtection-Keys")));
+
+        // Register Token Encryption Service
+        services.AddScoped<ITokenEncryptionService, TokenEncryptionService>();
+
+        // Configure eBay API options
+        services.Configure<EbayApiOptions>(configuration.GetSection(EbayApiOptions.SectionName));
+
+        // Configure HttpClient for eBay API with retry policy
+        services.AddHttpClient<IEbayApiClient, EbayApiClient>()
+            .AddPolicyHandler(GetRetryPolicy())
+            .AddPolicyHandler(GetCircuitBreakerPolicy());
+
+        // Register Application layer handlers - eBay
+        services.AddScoped<Application.Ebay.Commands.ConnectEbayAccountCommandHandler>();
+        services.AddScoped<Application.Ebay.Commands.DisconnectEbayAccountCommandHandler>();
+        services.AddScoped<Application.Ebay.Commands.SyncOrdersFromEbayCommandHandler>();
+        services.AddScoped<Application.Ebay.Commands.LinkOrderToInventoryCommandHandler>();
+        services.AddScoped<Application.Ebay.Commands.UpdateShippingCostCommandHandler>();
+        services.AddScoped<Application.Ebay.Queries.GetEbayConnectionStatusQueryHandler>();
+        services.AddScoped<Application.Ebay.Queries.GetEbayAuthorizationUrlQueryHandler>();
+        services.AddScoped<Application.Ebay.Queries.GetEbayOrderListQueryHandler>();
+        services.AddScoped<Application.Ebay.Queries.GetEbayOrderQueryHandler>();
+        services.AddScoped<Application.Ebay.Queries.GetEbayOrderStatsQueryHandler>();
+
         return services;
+    }
+
+    /// <summary>
+    /// Gets the retry policy for HTTP requests.
+    /// </summary>
+    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+    {
+        return HttpPolicyExtensions
+            .HandleTransientHttpError()
+            .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+            .WaitAndRetryAsync(3, retryAttempt =>
+                TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+    }
+
+    /// <summary>
+    /// Gets the circuit breaker policy for HTTP requests.
+    /// </summary>
+    private static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()
+    {
+        return HttpPolicyExtensions
+            .HandleTransientHttpError()
+            .CircuitBreakerAsync(5, TimeSpan.FromSeconds(30));
     }
 }
