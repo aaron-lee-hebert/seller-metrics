@@ -38,6 +38,7 @@ public class GetInventoryValueQueryHandler
             Currency = query.Currency,
             TotalValueFormatted = new Money(totalValue, query.Currency).ToString(),
             TotalItems = unsoldItems.Count,
+            TotalQuantity = unsoldItems.Sum(i => i.Quantity),
             UnlistedCount = unsoldItems.Count(i => i.Status == InventoryStatus.Unlisted),
             ListedCount = unsoldItems.Count(i => i.Status == InventoryStatus.Listed)
         };

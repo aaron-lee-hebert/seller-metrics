@@ -16,6 +16,9 @@ public class InventoryItemDto
     public decimal CogsAmount { get; set; }
     public string CogsCurrency { get; set; } = "USD";
     public string CogsFormatted { get; set; } = string.Empty;
+    public int Quantity { get; set; } = 1;
+    public decimal TotalValueAmount { get; set; }
+    public string TotalValueFormatted { get; set; } = string.Empty;
     public DateTime? PurchaseDate { get; set; }
     public int? StorageLocationId { get; set; }
     public string? StorageLocationPath { get; set; }
@@ -41,6 +44,8 @@ public class InventoryItemSummaryDto
     public string EffectiveSku { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
     public string CogsFormatted { get; set; } = string.Empty;
+    public int Quantity { get; set; } = 1;
+    public string TotalValueFormatted { get; set; } = string.Empty;
     public InventoryStatus Status { get; set; }
     public string StatusDisplay { get; set; } = string.Empty;
     public string? StorageLocationPath { get; set; }
@@ -55,6 +60,7 @@ public class InventoryValueDto
     public string Currency { get; set; } = "USD";
     public string TotalValueFormatted { get; set; } = string.Empty;
     public int TotalItems { get; set; }
+    public int TotalQuantity { get; set; }
     public int UnlistedCount { get; set; }
     public int ListedCount { get; set; }
 }

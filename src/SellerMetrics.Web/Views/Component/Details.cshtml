@@ -53,7 +53,23 @@
                     <div class="col-md-4">
                         <div class="mb-3">
                             <label class="form-label text-muted small">Quantity</label>
-                            <p class="mb-0 fs-4 fw-bold">@Model.Item.Quantity</p>
+                            <p class="mb-0 fs-4 fw-bold">
+                                @if (Model.Item.IsLowStock)
+                                {
+                                    <span class="text-warning">
+                                        <i class="bi bi-exclamation-triangle me-1"></i>@Model.Item.Quantity
+                                    </span>
+                                    <span class="badge bg-warning text-dark ms-2">Low Stock</span>
+                                }
+                                else
+                                {
+                                    @Model.Item.Quantity
+                                }
+                            </p>
+                            @if (Model.Item.LowStockThreshold.HasValue)
+                            {
+                                <small class="text-muted">Threshold: @Model.Item.LowStockThreshold</small>
+                            }
                         </div>
                     </div>
                     <div class="col-md-4">

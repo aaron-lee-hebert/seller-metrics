@@ -18,7 +18,8 @@ public record UpdateComponentItemCommand(
     int? StorageLocationId,
     DateTime? AcquiredDate,
     ComponentSource Source,
-    string? Notes);
+    string? Notes,
+    int? LowStockThreshold = null);
 
 /// <summary>
 /// Handler for UpdateComponentItemCommand.
@@ -81,6 +82,7 @@ public class UpdateComponentItemCommandHandler
         component.AcquiredDate = command.AcquiredDate;
         component.Source = command.Source;
         component.Notes = command.Notes;
+        component.LowStockThreshold = command.LowStockThreshold;
         component.UpdatedAt = DateTime.UtcNow;
 
         _repository.Update(component);
@@ -111,6 +113,8 @@ public class UpdateComponentItemCommandHandler
             Source = item.Source,
             SourceDisplay = item.Source.ToString(),
             Notes = item.Notes,
+            LowStockThreshold = item.LowStockThreshold,
+            IsLowStock = item.IsLowStock,
             ServiceJobId = item.ServiceJobId,
             ServiceJobNumber = item.ServiceJob?.JobNumber,
             CreatedAt = item.CreatedAt,

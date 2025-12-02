@@ -14,12 +14,22 @@
                     </a>
                     @if (Model.Item.Status != InventoryStatus.Sold)
                     {
-                        <form asp-action="MarkAsSold" asp-route-id="@Model.Item.Id" method="post" class="d-inline">
+                        <form asp-action="SellOne" asp-route-id="@Model.Item.Id" method="post" class="d-inline">
                             @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-outline-success btn-sm"
-                                    onclick="return confirm('Mark this item as sold?');">
-                                <i class="bi bi-check-circle me-1"></i>Mark Sold
-                            </button>
+                            @if (Model.Item.Quantity > 1)
+                            {
+                                <button type="submit" class="btn btn-outline-success btn-sm"
+                                        onclick="return confirm('Sell 1 unit? (@(Model.Item.Quantity - 1) will remain)');">
+                                    <i class="bi bi-check-circle me-1"></i>Sell 1 Unit
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="submit" class="btn btn-outline-success btn-sm"
+                                        onclick="return confirm('Mark this item as sold?');">
+                                    <i class="bi bi-check-circle me-1"></i>Mark Sold
+                                </button>
+                            }
                         </form>
                     }
                     <button type="button" class="btn btn-outline-danger btn-sm"
@@ -72,13 +82,34 @@
                             </div>
                         </div>
                     }
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="mb-3">
-                            <label class="form-label text-muted small">Cost (COGS)</label>
+                            <label class="form-label text-muted small">Quantity</label>
+                            <p class="mb-0 fs-5 fw-semibold">
+                                @if (Model.Item.Quantity > 1)
+                                {
+                                    <span class="badge bg-primary fs-5">@Model.Item.Quantity</span>
+                                }
+                                else
+                                {
+                                    @Model.Item.Quantity
+                                }
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">Cost (COGS per unit)</label>
                             <p class="mb-0 fs-5 fw-semibold">@Model.Item.CogsFormatted</p>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">Total Value</label>
+                            <p class="mb-0 fs-5 fw-semibold">@Model.Item.TotalValueFormatted</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
                         <div class="mb-3">
                             <label class="form-label text-muted small">Condition</label>
                             <p class="mb-0">@(Model.Item.ConditionDisplay ?? "Not Specified")</p>

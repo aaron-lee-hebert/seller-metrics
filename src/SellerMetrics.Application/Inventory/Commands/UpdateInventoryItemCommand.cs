@@ -15,6 +15,7 @@ public record UpdateInventoryItemCommand(
     string? Description,
     decimal CogsAmount,
     string CogsCurrency,
+    int Quantity,
     DateTime? PurchaseDate,
     int? StorageLocationId,
     EbayCondition? Condition,
@@ -71,9 +72,16 @@ public class UpdateInventoryItemCommandHandler
             }
         }
 
+        // Validate quantity
+        if (command.Quantity < 1)
+        {
+            throw new ArgumentException("Quantity must be at least 1.");
+        }
+
         item.Title = command.Title;
         item.Description = command.Description;
         item.Cogs = new Money(command.CogsAmount, command.CogsCurrency);
+        item.Quantity = command.Quantity;
         item.PurchaseDate = command.PurchaseDate;
         item.StorageLocationId = command.StorageLocationId;
         item.StorageLocation = storageLocation;
@@ -101,6 +109,9 @@ public class UpdateInventoryItemCommandHandler
             CogsAmount = item.Cogs.Amount,
             CogsCurrency = item.Cogs.Currency,
             CogsFormatted = item.Cogs.ToString(),
+            Quantity = item.Quantity,
+            TotalValueAmount = item.TotalValue.Amount,
+            TotalValueFormatted = item.TotalValue.ToString(),
             PurchaseDate = item.PurchaseDate,
             StorageLocationId = item.StorageLocationId,
             StorageLocationPath = item.StorageLocation?.FullPath,

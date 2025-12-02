@@ -90,6 +90,15 @@
                             </select>
                         </div>
 
+                        <!-- Low Stock Threshold -->
+                        <div class="col-md-6">
+                            <label asp-for="LowStockThreshold" class="form-label"></label>
+                            <input asp-for="LowStockThreshold" type="number" min="0" class="form-control"
+                                   placeholder="Leave blank for no alert" />
+                            <div class="form-text">Alert when quantity falls at or below this level</div>
+                            <span asp-validation-for="LowStockThreshold" class="text-danger"></span>
+                        </div>
+
                         <!-- Notes -->
                         <div class="col-12">
                             <label asp-for="Notes" class="form-label"></label>

@@ -51,6 +51,8 @@ public class GetLowStockComponentsQueryHandler
             Source = item.Source,
             SourceDisplay = item.Source.ToString(),
             Notes = item.Notes,
+            LowStockThreshold = item.LowStockThreshold,
+            IsLowStock = item.IsLowStock,
             ServiceJobId = item.ServiceJobId,
             ServiceJobNumber = item.ServiceJob?.JobNumber,
             CreatedAt = item.CreatedAt,
