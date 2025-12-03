@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SellerMetrics.Infrastructure.Persistence;
 
 #nullable disable
@@ -341,7 +340,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.Property<int?>("LowStockThreshold")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(2000)
@@ -767,6 +766,11 @@ namespace SellerMetrics.Infrastructure.Migrations
 
                     b.Property<DateTime?>("PurchaseDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("Quantity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
 
                     b.Property<DateTime?>("SoldDate")
                         .HasColumnType("datetime2");

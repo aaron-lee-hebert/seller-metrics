@@ -2,9 +2,9 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SellerMetrics.Infrastructure.Persistence;
 
 #nullable disable
@@ -12,7 +12,7 @@ using SellerMetrics.Infrastructure.Persistence;
 namespace SellerMetrics.Infrastructure.Migrations
 {
     [DbContext(typeof(SellerMetricsDbContext))]
-    [Migration("20251201225631_AddInventoryQuantityAndLowStockThreshold")]
+    [Migration("20251203112334_AddInventoryQuantityAndLowStockThreshold")]
     partial class AddInventoryQuantityAndLowStockThreshold
     {
         /// <inheritdoc />
@@ -21,32 +21,33 @@ namespace SellerMetrics.Infrastructure.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "9.0.0")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("NormalizedName")
                         .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
-                        .HasDatabaseName("RoleNameIndex");
+                        .HasDatabaseName("RoleNameIndex")
+                        .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
                 });
@@ -55,19 +56,19 @@ namespace SellerMetrics.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RoleId")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -80,19 +81,19 @@ namespace SellerMetrics.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -104,17 +105,17 @@ namespace SellerMetrics.Infrastructure.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderKey")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -126,10 +127,10 @@ namespace SellerMetrics.Infrastructure.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("RoleId")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -141,16 +142,16 @@ namespace SellerMetrics.Infrastructure.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Value")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
@@ -160,68 +161,68 @@ namespace SellerMetrics.Infrastructure.Migrations
             modelBuilder.Entity("SellerMetrics.Domain.Entities.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("AccessFailedCount")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<string>("FirstName")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("NormalizedUserName")
                         .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("PasswordHash")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<string>("SecurityStamp")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
 
@@ -230,7 +231,8 @@ namespace SellerMetrics.Infrastructure.Migrations
 
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
-                        .HasDatabaseName("UserNameIndex");
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -239,59 +241,59 @@ namespace SellerMetrics.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("BusinessLine")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("Category")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<DateTime>("ExpenseDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsTaxDeductible")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("bit")
                         .HasDefaultValue(true);
 
                     b.Property<string>("Notes")
                         .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<string>("ReceiptPath")
                         .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("ReferenceNumber")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int?>("ServiceJobId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Vendor")
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasColumnType("nvarchar(200)");
 
                     b.HasKey("Id");
 
@@ -316,56 +318,56 @@ namespace SellerMetrics.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("AcquiredDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("ComponentTypeId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<int?>("LowStockThreshold")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<int>("Quantity")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasDefaultValue(1);
 
                     b.Property<int?>("ServiceJobId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("Source")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("Status")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int?>("StorageLocationId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -388,29 +390,29 @@ namespace SellerMetrics.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("AdjustedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Adjustment")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("ComponentItemId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("NewQuantity")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("PreviousQuantity")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<string>("Reason")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasColumnType("nvarchar(500)");
 
                     b.HasKey("Id");
 
@@ -425,42 +427,42 @@ namespace SellerMetrics.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("DefaultExpenseCategory")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsSystemType")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("SortOrder")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasDefaultValue(0);
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -477,7 +479,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 12, 1, 22, 56, 31, 171, DateTimeKind.Utc).AddTicks(9697),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DefaultExpenseCategory = "Parts & Materials",
                             Description = "Random Access Memory modules",
                             IsDeleted = false,
@@ -488,7 +490,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 12, 1, 22, 56, 31, 172, DateTimeKind.Utc).AddTicks(1070),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DefaultExpenseCategory = "Parts & Materials",
                             Description = "Solid State Drives",
                             IsDeleted = false,
@@ -499,7 +501,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 12, 1, 22, 56, 31, 172, DateTimeKind.Utc).AddTicks(1073),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DefaultExpenseCategory = "Parts & Materials",
                             Description = "Hard Disk Drives",
                             IsDeleted = false,
@@ -510,7 +512,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                         new
                         {
                             Id = 4,
-                            CreatedAt = new DateTime(2025, 12, 1, 22, 56, 31, 172, DateTimeKind.Utc).AddTicks(1074),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DefaultExpenseCategory = "Parts & Materials",
                             Description = "Power Supply Units (PSU)",
                             IsDeleted = false,
@@ -521,7 +523,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                         new
                         {
                             Id = 5,
-                            CreatedAt = new DateTime(2025, 12, 1, 22, 56, 31, 172, DateTimeKind.Utc).AddTicks(1076),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DefaultExpenseCategory = "Parts & Materials",
                             Description = "Central Processing Units",
                             IsDeleted = false,
@@ -532,7 +534,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                         new
                         {
                             Id = 6,
-                            CreatedAt = new DateTime(2025, 12, 1, 22, 56, 31, 172, DateTimeKind.Utc).AddTicks(1077),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DefaultExpenseCategory = "Parts & Materials",
                             Description = "System motherboards",
                             IsDeleted = false,
@@ -543,7 +545,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                         new
                         {
                             Id = 7,
-                            CreatedAt = new DateTime(2025, 12, 1, 22, 56, 31, 172, DateTimeKind.Utc).AddTicks(1078),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DefaultExpenseCategory = "Parts & Materials",
                             Description = "GPUs and video cards",
                             IsDeleted = false,
@@ -554,7 +556,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                         new
                         {
                             Id = 8,
-                            CreatedAt = new DateTime(2025, 12, 1, 22, 56, 31, 172, DateTimeKind.Utc).AddTicks(1080),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DefaultExpenseCategory = "Parts & Materials",
                             Description = "Network interface cards and adapters",
                             IsDeleted = false,
@@ -565,7 +567,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                         new
                         {
                             Id = 9,
-                            CreatedAt = new DateTime(2025, 12, 1, 22, 56, 31, 172, DateTimeKind.Utc).AddTicks(1081),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DefaultExpenseCategory = "Parts & Materials",
                             Description = "Fans, heatsinks, and cooling systems",
                             IsDeleted = false,
@@ -576,7 +578,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                         new
                         {
                             Id = 10,
-                            CreatedAt = new DateTime(2025, 12, 1, 22, 56, 31, 172, DateTimeKind.Utc).AddTicks(1082),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DefaultExpenseCategory = "Parts & Materials",
                             Description = "Computer cases and enclosures",
                             IsDeleted = false,
@@ -587,7 +589,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                         new
                         {
                             Id = 11,
-                            CreatedAt = new DateTime(2025, 12, 1, 22, 56, 31, 172, DateTimeKind.Utc).AddTicks(1083),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DefaultExpenseCategory = "Parts & Materials",
                             Description = "Cables and connectors",
                             IsDeleted = false,
@@ -598,7 +600,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                         new
                         {
                             Id = 12,
-                            CreatedAt = new DateTime(2025, 12, 1, 22, 56, 31, 172, DateTimeKind.Utc).AddTicks(1085),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DefaultExpenseCategory = "Parts & Materials",
                             Description = "Keyboards, mice, and other peripherals",
                             IsDeleted = false,
@@ -609,7 +611,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                         new
                         {
                             Id = 13,
-                            CreatedAt = new DateTime(2025, 12, 1, 22, 56, 31, 172, DateTimeKind.Utc).AddTicks(1086),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             DefaultExpenseCategory = "Parts & Materials",
                             Description = "Other components",
                             IsDeleted = false,
@@ -623,44 +625,44 @@ namespace SellerMetrics.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ConfirmationNumber")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DueDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsPaid")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("bit")
                         .HasDefaultValue(false);
 
                     b.Property<string>("Notes")
                         .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<DateTime?>("PaidDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("PaymentMethod")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("Quarter")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("TaxYear")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -676,29 +678,29 @@ namespace SellerMetrics.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("FiscalYearStartMonth")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("bit")
                         .HasDefaultValue(true);
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -721,74 +723,74 @@ namespace SellerMetrics.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int?>("Condition")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasMaxLength(4000)
-                        .HasColumnType("character varying(4000)");
+                        .HasColumnType("nvarchar(4000)");
 
                     b.Property<string>("EbayListingId")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("EbaySku")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("InternalSku")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("ListedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<string>("PhotoPath")
                         .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<DateTime?>("PurchaseDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Quantity")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasDefaultValue(1);
 
                     b.Property<DateTime?>("SoldDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int?>("StorageLocationId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -814,40 +816,40 @@ namespace SellerMetrics.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal?>("CharitableRate")
                         .HasColumnType("decimal(5,4)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("EffectiveDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<decimal?>("MedicalRate")
                         .HasColumnType("decimal(5,4)");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<decimal>("StandardRate")
                         .HasColumnType("decimal(5,4)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Year")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -890,30 +892,30 @@ namespace SellerMetrics.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("BusinessLine")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Destination")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsRoundTrip")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("bit")
                         .HasDefaultValue(false);
 
                     b.Property<decimal>("Miles")
@@ -921,32 +923,32 @@ namespace SellerMetrics.Infrastructure.Migrations
 
                     b.Property<string>("Notes")
                         .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<int?>("OdometerEnd")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int?>("OdometerStart")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<string>("Purpose")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int?>("ServiceJobId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<string>("StartLocation")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime>("TripDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -967,56 +969,56 @@ namespace SellerMetrics.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("EbayOrderId")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("EntryType")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int?>("InventoryItemId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("LastSyncedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<int?>("ServiceJobId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("Source")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("TransactionDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("WaveInvoiceNumber")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
@@ -1045,57 +1047,57 @@ namespace SellerMetrics.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("CompletedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("CustomerContact")
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("CustomerName")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<string>("JobNumber")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(4000)
-                        .HasColumnType("character varying(4000)");
+                        .HasColumnType("nvarchar(4000)");
 
                     b.Property<DateTime>("ReceivedDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("WaveInvoiceId")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
@@ -1119,38 +1121,38 @@ namespace SellerMetrics.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int?>("ParentId")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("SortOrder")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasDefaultValue(0);
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -1226,7 +1228,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                     b.OwnsOne("SellerMetrics.Domain.ValueObjects.Money", "Amount", b1 =>
                         {
                             b1.Property<int>("BusinessExpenseId")
-                                .HasColumnType("integer");
+                                .HasColumnType("int");
 
                             b1.Property<decimal>("Amount")
                                 .HasColumnType("decimal(18,2)")
@@ -1236,7 +1238,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                                 .IsRequired()
                                 .ValueGeneratedOnAdd()
                                 .HasMaxLength(3)
-                                .HasColumnType("character varying(3)")
+                                .HasColumnType("nvarchar(3)")
                                 .HasDefaultValue("USD")
                                 .HasColumnName("Currency");
 
@@ -1275,7 +1277,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                     b.OwnsOne("SellerMetrics.Domain.ValueObjects.Money", "UnitCost", b1 =>
                         {
                             b1.Property<int>("ComponentItemId")
-                                .HasColumnType("integer");
+                                .HasColumnType("int");
 
                             b1.Property<decimal>("Amount")
                                 .HasColumnType("decimal(18,2)")
@@ -1285,7 +1287,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                                 .IsRequired()
                                 .ValueGeneratedOnAdd()
                                 .HasMaxLength(3)
-                                .HasColumnType("character varying(3)")
+                                .HasColumnType("nvarchar(3)")
                                 .HasDefaultValue("USD")
                                 .HasColumnName("UnitCostCurrency");
 
@@ -1323,7 +1325,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                     b.OwnsOne("SellerMetrics.Domain.ValueObjects.Money", "AmountPaid", b1 =>
                         {
                             b1.Property<int>("EstimatedTaxPaymentId")
-                                .HasColumnType("integer");
+                                .HasColumnType("int");
 
                             b1.Property<decimal>("Amount")
                                 .HasColumnType("decimal(18,2)")
@@ -1332,7 +1334,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                             b1.Property<string>("Currency")
                                 .IsRequired()
                                 .HasMaxLength(3)
-                                .HasColumnType("character varying(3)")
+                                .HasColumnType("nvarchar(3)")
                                 .HasColumnName("PaidCurrency");
 
                             b1.HasKey("EstimatedTaxPaymentId");
@@ -1346,7 +1348,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                     b.OwnsOne("SellerMetrics.Domain.ValueObjects.Money", "EstimatedAmount", b1 =>
                         {
                             b1.Property<int>("EstimatedTaxPaymentId")
-                                .HasColumnType("integer");
+                                .HasColumnType("int");
 
                             b1.Property<decimal>("Amount")
                                 .HasColumnType("decimal(18,2)")
@@ -1355,7 +1357,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                             b1.Property<string>("Currency")
                                 .IsRequired()
                                 .HasMaxLength(3)
-                                .HasColumnType("character varying(3)")
+                                .HasColumnType("nvarchar(3)")
                                 .HasColumnName("EstimatedCurrency");
 
                             b1.HasKey("EstimatedTaxPaymentId");
@@ -1383,7 +1385,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                     b.OwnsOne("SellerMetrics.Domain.ValueObjects.Money", "Cogs", b1 =>
                         {
                             b1.Property<int>("InventoryItemId")
-                                .HasColumnType("integer");
+                                .HasColumnType("int");
 
                             b1.Property<decimal>("Amount")
                                 .HasColumnType("decimal(18,2)")
@@ -1393,7 +1395,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                                 .IsRequired()
                                 .ValueGeneratedOnAdd()
                                 .HasMaxLength(3)
-                                .HasColumnType("character varying(3)")
+                                .HasColumnType("nvarchar(3)")
                                 .HasDefaultValue("USD")
                                 .HasColumnName("CogsCurrency");
 
@@ -1436,7 +1438,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                     b.OwnsOne("SellerMetrics.Domain.ValueObjects.Money", "Fees", b1 =>
                         {
                             b1.Property<int>("RevenueEntryId")
-                                .HasColumnType("integer");
+                                .HasColumnType("int");
 
                             b1.Property<decimal>("Amount")
                                 .HasColumnType("decimal(18,2)")
@@ -1446,7 +1448,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                                 .IsRequired()
                                 .ValueGeneratedOnAdd()
                                 .HasMaxLength(3)
-                                .HasColumnType("character varying(3)")
+                                .HasColumnType("nvarchar(3)")
                                 .HasDefaultValue("USD")
                                 .HasColumnName("FeesCurrency");
 
@@ -1461,7 +1463,7 @@ namespace SellerMetrics.Infrastructure.Migrations
                     b.OwnsOne("SellerMetrics.Domain.ValueObjects.Money", "GrossAmount", b1 =>
                         {
                             b1.Property<int>("RevenueEntryId")
-                                .HasColumnType("integer");
+                                .HasColumnType("int");
 
                             b1.Property<decimal>("Amount")
                                 .HasColumnType("decimal(18,2)")
@@ -1471,9 +1473,59 @@ namespace SellerMetrics.Infrastructure.Migrations
                                 .IsRequired()
                                 .ValueGeneratedOnAdd()
                                 .HasMaxLength(3)
-                                .HasColumnType("character varying(3)")
+                                .HasColumnType("nvarchar(3)")
                                 .HasDefaultValue("USD")
                                 .HasColumnName("GrossCurrency");
+
+                            b1.HasKey("RevenueEntryId");
+
+                            b1.ToTable("RevenueEntries");
+
+                            b1.WithOwner()
+                                .HasForeignKey("RevenueEntryId");
+                        });
+
+                    b.OwnsOne("SellerMetrics.Domain.ValueObjects.Money", "Shipping", b1 =>
+                        {
+                            b1.Property<int>("RevenueEntryId")
+                                .HasColumnType("int");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("ShippingAmount");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .ValueGeneratedOnAdd()
+                                .HasMaxLength(3)
+                                .HasColumnType("nvarchar(3)")
+                                .HasDefaultValue("USD")
+                                .HasColumnName("ShippingCurrency");
+
+                            b1.HasKey("RevenueEntryId");
+
+                            b1.ToTable("RevenueEntries");
+
+                            b1.WithOwner()
+                                .HasForeignKey("RevenueEntryId");
+                        });
+
+                    b.OwnsOne("SellerMetrics.Domain.ValueObjects.Money", "TaxesCollected", b1 =>
+                        {
+                            b1.Property<int>("RevenueEntryId")
+                                .HasColumnType("int");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("TaxesCollectedAmount");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .ValueGeneratedOnAdd()
+                                .HasMaxLength(3)
+                                .HasColumnType("nvarchar(3)")
+                                .HasDefaultValue("USD")
+                                .HasColumnName("TaxesCollectedCurrency");
 
                             b1.HasKey("RevenueEntryId");
 
@@ -1492,6 +1544,12 @@ namespace SellerMetrics.Infrastructure.Migrations
                     b.Navigation("InventoryItem");
 
                     b.Navigation("ServiceJob");
+
+                    b.Navigation("Shipping")
+                        .IsRequired();
+
+                    b.Navigation("TaxesCollected")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("SellerMetrics.Domain.Entities.StorageLocation", b =>
