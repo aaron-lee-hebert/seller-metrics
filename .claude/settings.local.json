@@ -10,7 +10,13 @@
       "Bash(dotnet add:*)",
       "Bash(dotnet build:*)",
       "Bash(git checkout:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(dotnet ef migrations:*)",
+      "Bash(dotnet ef database update:*)",
+      "Bash(dotnet tool:*)",
+      "Bash(dotnet aspnet-codegenerator:*)",
+      "Bash(rm:*)",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []

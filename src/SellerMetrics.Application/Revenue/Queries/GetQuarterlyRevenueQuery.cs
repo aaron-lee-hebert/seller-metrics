@@ -54,11 +54,11 @@ public class GetQuarterlyRevenueQueryHandler
 
             var ebayRevenue = filteredEntries
                 .Where(e => e.Source == RevenueSource.eBay)
-                .Sum(e => e.GrossAmount.Amount - e.Fees.Amount);
+                .Sum(e => e.NetAmount.Amount);
 
             var serviceRevenue = filteredEntries
                 .Where(e => e.Source == RevenueSource.ComputerServices)
-                .Sum(e => e.GrossAmount.Amount - e.Fees.Amount);
+                .Sum(e => e.NetAmount.Amount);
 
             result.Add(new QuarterlyRevenueDto
             {

@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using SellerMetrics.Domain.Entities;
 using SellerMetrics.Domain.Interfaces;
 using SellerMetrics.Infrastructure.Persistence;
@@ -21,25 +23,31 @@ public static class DependencyInjection
     /// </summary>
     /// <param name="services">The service collection.</param>
     /// <param name="configuration">The application configuration.</param>
+    /// <param name="environment">The hosting environment (optional, for environment-specific configuration).</param>
     /// <returns>The service collection for chaining.</returns>
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IWebHostEnvironment? environment = null)
     {
-        // Configure PostgreSQL database context
+        // Configure SQL Server database context
         services.AddDbContext<SellerMetricsDbContext>(options =>
-            options.UseNpgsql(
+        {
+            options.UseSqlServer(
                 configuration.GetConnectionString("DefaultConnection"),
-                npgsqlOptions =>
+                sqlServerOptions =>
                 {
-                    npgsqlOptions.MigrationsAssembly(typeof(SellerMetricsDbContext).Assembly.FullName);
-                    npgsqlOptions.EnableRetryOnFailure(
+                    sqlServerOptions.MigrationsAssembly(typeof(SellerMetricsDbContext).Assembly.FullName);
+                    sqlServerOptions.EnableRetryOnFailure(
                         maxRetryCount: 3,
                         maxRetryDelay: TimeSpan.FromSeconds(30),
-                        errorCodesToAdd: null);
-                }));
+                        errorNumbersToAdd: null);
+                });
+        });
 
         // Configure ASP.NET Core Identity
+        var isDevelopment = environment?.IsDevelopment() ?? false;
+
         services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
                 // Password requirements
@@ -57,9 +65,9 @@ public static class DependencyInjection
                 // User settings
                 options.User.RequireUniqueEmail = true;
 
-                // Sign-in settings
-                options.SignIn.RequireConfirmedEmail = true;
-                options.SignIn.RequireConfirmedAccount = true;
+                // Sign-in settings - disable email confirmation in development
+                options.SignIn.RequireConfirmedEmail = !isDevelopment;
+                options.SignIn.RequireConfirmedAccount = !isDevelopment;
             })
             .AddEntityFrameworkStores<SellerMetricsDbContext>()
             .AddDefaultTokenProviders();

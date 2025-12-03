@@ -12,6 +12,7 @@
                 <form asp-action="Edit" asp-route-id="@Model.Id" method="post" class="needs-validation" novalidate>
                     @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="Id" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
                     <div class="row g-3">
                         <!-- Component Type -->

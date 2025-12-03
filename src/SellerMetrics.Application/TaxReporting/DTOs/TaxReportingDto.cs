@@ -49,6 +49,16 @@ public class QuarterlySummaryDto
     public decimal TotalRevenue { get; set; }
 
     /// <summary>
+    /// Total fees deduction (eBay fees, payment processing fees).
+    /// </summary>
+    public decimal TotalFees { get; set; }
+
+    /// <summary>
+    /// Total shipping deduction (actual shipping costs paid).
+    /// </summary>
+    public decimal TotalShipping { get; set; }
+
+    /// <summary>
     /// Revenue breakdown by source.
     /// </summary>
     public IReadOnlyList<RevenueBySourceSummaryDto> RevenueBySource { get; set; } = new List<RevenueBySourceSummaryDto>();
@@ -93,6 +103,8 @@ public class QuarterlySummaryDto
     public string EbayRevenueFormatted { get; set; } = string.Empty;
     public string ServiceRevenueFormatted { get; set; } = string.Empty;
     public string TotalRevenueFormatted { get; set; } = string.Empty;
+    public string TotalFeesFormatted { get; set; } = string.Empty;
+    public string TotalShippingFormatted { get; set; } = string.Empty;
     public string TotalExpensesFormatted { get; set; } = string.Empty;
     public string MileageDeductionFormatted { get; set; } = string.Empty;
     public string NetProfitFormatted { get; set; } = string.Empty;
@@ -107,11 +119,13 @@ public class RevenueBySourceSummaryDto
     public string SourceDisplay { get; set; } = string.Empty;
     public decimal GrossRevenue { get; set; }
     public decimal Fees { get; set; }
+    public decimal Shipping { get; set; }
     public decimal NetRevenue { get; set; }
     public int TransactionCount { get; set; }
     public string Currency { get; set; } = "USD";
     public string GrossRevenueFormatted { get; set; } = string.Empty;
     public string FeesFormatted { get; set; } = string.Empty;
+    public string ShippingFormatted { get; set; } = string.Empty;
     public string NetRevenueFormatted { get; set; } = string.Empty;
 }
 
@@ -182,7 +196,12 @@ public class AnnualSummaryDto
     public decimal TotalFees { get; set; }
 
     /// <summary>
-    /// Total net revenue (Gross - Fees).
+    /// Total shipping costs paid.
+    /// </summary>
+    public decimal TotalShipping { get; set; }
+
+    /// <summary>
+    /// Total net revenue (Gross - Fees - Shipping).
     /// </summary>
     public decimal TotalNetRevenue { get; set; }
 
@@ -230,6 +249,7 @@ public class AnnualSummaryDto
     public string Currency { get; set; } = "USD";
     public string TotalGrossRevenueFormatted { get; set; } = string.Empty;
     public string TotalFeesFormatted { get; set; } = string.Empty;
+    public string TotalShippingFormatted { get; set; } = string.Empty;
     public string TotalNetRevenueFormatted { get; set; } = string.Empty;
     public string EbayRevenueFormatted { get; set; } = string.Empty;
     public string ServiceRevenueFormatted { get; set; } = string.Empty;

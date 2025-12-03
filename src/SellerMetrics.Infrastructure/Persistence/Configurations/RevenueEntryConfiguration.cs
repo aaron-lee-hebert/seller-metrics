@@ -67,9 +67,41 @@ public class RevenueEntryConfiguration : IEntityTypeConfiguration<RevenueEntry>
                 .HasDefaultValue("USD");
         });
 
+        // Money value object - Shipping
+        builder.OwnsOne(r => r.Shipping, shippingBuilder =>
+        {
+            shippingBuilder.Property(m => m.Amount)
+                .HasColumnName("ShippingAmount")
+                .HasColumnType("decimal(18,2)")
+                .IsRequired();
+
+            shippingBuilder.Property(m => m.Currency)
+                .HasColumnName("ShippingCurrency")
+                .HasMaxLength(3)
+                .IsRequired()
+                .HasDefaultValue("USD");
+        });
+
+        // Money value object - TaxesCollected
+        builder.OwnsOne(r => r.TaxesCollected, taxesBuilder =>
+        {
+            taxesBuilder.Property(m => m.Amount)
+                .HasColumnName("TaxesCollectedAmount")
+                .HasColumnType("decimal(18,2)")
+                .IsRequired();
+
+            taxesBuilder.Property(m => m.Currency)
+                .HasColumnName("TaxesCollectedCurrency")
+                .HasMaxLength(3)
+                .IsRequired()
+                .HasDefaultValue("USD");
+        });
+
         // Ensure owned entities are always initialized
         builder.Navigation(r => r.GrossAmount).IsRequired();
         builder.Navigation(r => r.Fees).IsRequired();
+        builder.Navigation(r => r.Shipping).IsRequired();
+        builder.Navigation(r => r.TaxesCollected).IsRequired();
 
         // Relationship with InventoryItem
         builder.HasOne(r => r.InventoryItem)
