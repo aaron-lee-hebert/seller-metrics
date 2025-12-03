@@ -1,0 +1,313 @@
+@model EbayOrderDetailViewModel
+@using SellerMetrics.Domain.Enums
+
+<div class="row">
+    <!-- Main Order Details -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-cart me-2"></i>Order Details
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">eBay Order ID</label>
+                        <p class="mb-0 fw-semibold">@Model.Order.EbayOrderId</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Legacy Order ID</label>
+                        <p class="mb-0">@(Model.Order.LegacyOrderId ?? "-")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Order Date</label>
+                        <p class="mb-0">@Model.Order.OrderDate.ToString("MMMM d, yyyy h:mm tt")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Buyer</label>
+                        <p class="mb-0">@Model.Order.BuyerUsername</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Item Title</label>
+                        <p class="mb-0 fw-semibold">@Model.Order.ItemTitle</p>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-muted">SKU</label>
+                        <p class="mb-0">@(Model.Order.Sku ?? "-")</p>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-muted">Quantity</label>
+                        <p class="mb-0">@Model.Order.Quantity</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial Breakdown -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-cash-stack me-2"></i>Financial Breakdown
+                </h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless mb-0">
+                    <tbody>
+                        <tr>
+                            <td>Gross Sale</td>
+                            <td class="text-end">@Model.Order.GrossSaleFormatted</td>
+                        </tr>
+                        <tr>
+                            <td>Shipping (Buyer Paid)</td>
+                            <td class="text-end">+ @Model.Order.ShippingPaidFormatted</td>
+                        </tr>
+                        <tr>
+                            <td>eBay Fees</td>
+                            <td class="text-end text-danger">- @Model.Order.TotalFeesFormatted</td>
+                        </tr>
+                        <tr class="border-top">
+                            <td class="fw-bold">Net Payout</td>
+                            <td class="text-end fw-bold">@Model.Order.NetPayoutFormatted</td>
+                        </tr>
+                        <tr class="border-top">
+                            <td>COGS</td>
+                            <td class="text-end @(Model.Order.CogsFormatted != null ? "" : "text-muted")">
+                                @(Model.Order.CogsFormatted != null ? $"- {Model.Order.CogsFormatted}" : "Not linked")
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Actual Shipping Cost</td>
+                            <td class="text-end">- @Model.Order.ShippingActualFormatted</td>
+                        </tr>
+                        <tr class="border-top bg-light">
+                            <td class="fw-bold">Profit</td>
+                            <td class="text-end fw-bold @(Model.Order.ProfitAmount >= 0 ? "text-success" : "text-danger")">
+                                @(Model.Order.ProfitFormatted ?? "N/A")
+                                @if (Model.Order.ProfitMarginFormatted != null)
+                                {
+                                    <small class="text-muted">(@Model.Order.ProfitMarginFormatted)</small>
+                                }
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Update Shipping Cost -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-truck me-2"></i>Actual Shipping Cost
+                </h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="UpdateShippingCost" method="post" class="row g-3 align-items-end">
+                    <input type="hidden" name="orderId" value="@Model.Order.Id" />
+                    <div class="col-md-4">
+                        <label class="form-label">Shipping Cost</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" name="shippingAmount" class="form-control"
+                                   step="0.01" min="0" max="9999.99"
+                                   value="@Model.Order.ShippingActualAmount.ToString("F2")" />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check me-1"></i>Update
+                        </button>
+                    </div>
+                    <input type="hidden" name="currency" value="@Model.Order.Currency" />
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Status Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-info-circle me-2"></i>Status
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label text-muted">Order Status</label>
+                    <div>
+                        @{
+                            var statusClass = Model.Order.Status switch
+                            {
+                                EbayOrderStatus.Active => "bg-primary",
+                                EbayOrderStatus.Completed => "bg-success",
+                                EbayOrderStatus.Cancelled => "bg-danger",
+                                EbayOrderStatus.Inactive => "bg-secondary",
+                                _ => "bg-secondary"
+                            };
+                        }
+                        <span class="badge @statusClass fs-6">@Model.Order.StatusDisplay</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted">Payment</label>
+                    <div>
+                        @{
+                            var paymentClass = Model.Order.PaymentStatus switch
+                            {
+                                EbayPaymentStatus.Paid => "bg-success",
+                                EbayPaymentStatus.Pending => "bg-warning text-dark",
+                                EbayPaymentStatus.Failed => "bg-danger",
+                                EbayPaymentStatus.PartiallyRefunded => "bg-info",
+                                EbayPaymentStatus.FullyRefunded => "bg-secondary",
+                                _ => "bg-secondary"
+                            };
+                        }
+                        <span class="badge @paymentClass">@Model.Order.PaymentStatusDisplay</span>
+                    </div>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label text-muted">Fulfillment</label>
+                    <div>
+                        @{
+                            var fulfillmentClass = Model.Order.FulfillmentStatus switch
+                            {
+                                EbayFulfillmentStatus.Fulfilled => "bg-success",
+                                EbayFulfillmentStatus.InProgress => "bg-info",
+                                EbayFulfillmentStatus.NotStarted => "bg-warning text-dark",
+                                _ => "bg-secondary"
+                            };
+                        }
+                        <span class="badge @fulfillmentClass">@Model.Order.FulfillmentStatusDisplay</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Linked Inventory Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-link-45deg me-2"></i>Linked Inventory
+                </h5>
+            </div>
+            <div class="card-body">
+                @if (Model.Order.InventoryItemId.HasValue)
+                {
+                    <div class="d-flex align-items-start">
+                        <div class="flex-grow-1">
+                            <a asp-controller="Inventory" asp-action="Details" asp-route-id="@Model.Order.InventoryItemId"
+                               class="text-decoration-none fw-semibold">
+                                @Model.Order.InventoryItemSku
+                            </a>
+                            <p class="mb-0 small text-muted">@Model.Order.InventoryItemTitle</p>
+                            <p class="mb-0 small">COGS: @Model.Order.CogsFormatted</p>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted mb-3">This order is not linked to an inventory item.</p>
+                    <div id="inventory-search">
+                        <div class="mb-2">
+                            <input type="text" id="inventory-search-input" class="form-control"
+                                   placeholder="Search inventory by SKU or title..." />
+                        </div>
+                        <div id="inventory-search-results" class="list-group" style="display: none;"></div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Sync Info -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <small class="text-muted">
+                    <i class="bi bi-clock me-1"></i>Last synced: @Model.Order.LastSyncedAt.ToString("MMM d, yyyy h:mm tt")
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('inventory-search-input');
+        const resultsContainer = document.getElementById('inventory-search-results');
+
+        if (!searchInput || !resultsContainer) return;
+
+        let timeout = null;
+
+        searchInput.addEventListener('input', function() {
+            clearTimeout(timeout);
+            const term = this.value.trim();
+
+            if (term.length < 2) {
+                resultsContainer.style.display = 'none';
+                return;
+            }
+
+            timeout = setTimeout(async function() {
+                try {
+                    const response = await fetch(`/EbayOrders/SearchInventory?term=${encodeURIComponent(term)}`);
+                    const items = await response.json();
+
+                    if (items.length === 0) {
+                        resultsContainer.innerHTML = '<div class="list-group-item text-muted">No items found</div>';
+                    } else {
+                        resultsContainer.innerHTML = items.map(item =>
+                            `<button type="button" class="list-group-item list-group-item-action" data-id="${item.id}">
+                                <strong>${item.effectiveSku}</strong> - ${item.title}
+                                <br /><small class="text-muted">${item.cogsFormatted} | ${item.statusDisplay}</small>
+                            </button>`
+                        ).join('');
+                    }
+
+                    resultsContainer.style.display = 'block';
+
+                    // Add click handlers
+                    resultsContainer.querySelectorAll('button').forEach(btn => {
+                        btn.addEventListener('click', async function() {
+                            const inventoryItemId = this.dataset.id;
+                            await linkToInventory(inventoryItemId);
+                        });
+                    });
+                } catch (error) {
+                    console.error('Search failed:', error);
+                }
+            }, 300);
+        });
+
+        async function linkToInventory(inventoryItemId) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/EbayOrders/LinkToInventory';
+
+            const orderIdInput = document.createElement('input');
+            orderIdInput.type = 'hidden';
+            orderIdInput.name = 'orderId';
+            orderIdInput.value = '@Model.Order.Id';
+            form.appendChild(orderIdInput);
+
+            const inventoryInput = document.createElement('input');
+            inventoryInput.type = 'hidden';
+            inventoryInput.name = 'inventoryItemId';
+            inventoryInput.value = inventoryItemId;
+            form.appendChild(inventoryInput);
+
+            const tokenInput = document.createElement('input');
+            tokenInput.type = 'hidden';
+            tokenInput.name = '__RequestVerificationToken';
+            tokenInput.value = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+            form.appendChild(tokenInput);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+</script>
+}

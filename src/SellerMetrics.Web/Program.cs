@@ -1,5 +1,9 @@
 using AspNetCoreRateLimit;
+using Hangfire;
+using Hangfire.SqlServer;
 using SellerMetrics.Infrastructure;
+using SellerMetrics.Infrastructure.Services;
+using SellerMetrics.Web.Filters;
 using SellerMetrics.Web.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,47 +16,55 @@ builder.Logging.AddDebug();
 // Add services to the container.
 builder.Services.AddInfrastructure(builder.Configuration, builder.Environment);
 
-// Configure rate limiting (only in production)
-if (!builder.Environment.IsDevelopment())
+// Configure Hangfire with SQL Server storage
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddHangfire(config => config
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseSqlServerStorage(connectionString));
+
+builder.Services.AddHangfireServer();
+builder.Services.AddScoped<EbayOrderSyncJob>();
+
+// Configure rate limiting
+builder.Services.AddMemoryCache();
+builder.Services.Configure<IpRateLimitOptions>(options =>
 {
-    builder.Services.AddMemoryCache();
-    builder.Services.Configure<IpRateLimitOptions>(options =>
+    options.EnableEndpointRateLimiting = true;
+    options.StackBlockedRequests = false;
+    options.HttpStatusCode = 429;
+    options.RealIpHeader = "X-Forwarded-For";
+    options.GeneralRules = new List<RateLimitRule>
     {
-        options.EnableEndpointRateLimiting = true;
-        options.StackBlockedRequests = false;
-        options.HttpStatusCode = 429;
-        options.RealIpHeader = "X-Forwarded-For";
-        options.GeneralRules = new List<RateLimitRule>
+        // General rate limit: 100 requests per minute
+        new RateLimitRule
         {
-            // General rate limit: 1000 requests per minute (relaxed for development testing)
-            new RateLimitRule
-            {
-                Endpoint = "*",
-                Period = "1m",
-                Limit = 1000
-            },
-            // Login endpoint: 20 requests per 15 minutes (relaxed)
-            new RateLimitRule
-            {
-                Endpoint = "*:/Identity/Account/Login*",
-                Period = "15m",
-                Limit = 20
-            },
-            // Register endpoint: 10 requests per 15 minutes (relaxed)
-            new RateLimitRule
-            {
-                Endpoint = "*:/Identity/Account/Register*",
-                Period = "15m",
-                Limit = 10
-            }
-        };
-    });
-    builder.Services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
-    builder.Services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
-    builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
-    builder.Services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrategy>();
-    builder.Services.AddInMemoryRateLimiting();
-}
+            Endpoint = "*",
+            Period = "1m",
+            Limit = 100
+        },
+        // Login endpoint: 5 requests per 15 minutes
+        new RateLimitRule
+        {
+            Endpoint = "*:/Identity/Account/Login*",
+            Period = "15m",
+            Limit = 5
+        },
+        // Register endpoint: 3 requests per 15 minutes
+        new RateLimitRule
+        {
+            Endpoint = "*:/Identity/Account/Register*",
+            Period = "15m",
+            Limit = 3
+        }
+    };
+});
+builder.Services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
+builder.Services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+builder.Services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrategy>();
+builder.Services.AddInMemoryRateLimiting();
 
 // Configure cookie settings for authentication
 builder.Services.ConfigureApplicationCookie(options =>
@@ -119,5 +131,22 @@ app.MapControllerRoute(
 
 // Map Razor Pages for Identity UI
 app.MapRazorPages();
+
+// Configure Hangfire dashboard (admin only)
+app.MapHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = new[] { new HangfireAuthorizationFilter() }
+});
+
+// Register recurring jobs for eBay sync
+RecurringJob.AddOrUpdate<EbayOrderSyncJob>(
+    "ebay-token-refresh",
+    job => job.RefreshExpiredTokensAsync(),
+    "*/5 * * * *"); // Every 5 minutes
+
+RecurringJob.AddOrUpdate<EbayOrderSyncJob>(
+    "ebay-order-sync",
+    job => job.ExecuteAsync(),
+    "0,15,30,45 * * * *"); // Every 15 minutes at :00, :15, :30, :45
 
 app.Run();

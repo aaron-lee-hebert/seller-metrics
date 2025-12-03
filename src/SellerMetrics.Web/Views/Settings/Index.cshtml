@@ -1,0 +1,142 @@
+@model EbayConnectionViewModel
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- eBay Connection -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-plug me-2"></i>eBay Connection
+                </h5>
+            </div>
+            <div class="card-body">
+                @if (Model.Status.IsConnected)
+                {
+                    <div class="alert alert-success d-flex align-items-center" role="alert">
+                        <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                        <div>
+                            <strong>Connected to eBay</strong>
+                            <p class="mb-0">Your eBay account <strong>@Model.Status.EbayUsername</strong> is connected.</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Connected Since</label>
+                            <p class="mb-0">@Model.Status.ConnectedAt?.ToString("MMMM d, yyyy")</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Last Synced</label>
+                            <p class="mb-0">
+                                @if (Model.Status.LastSyncedAt.HasValue)
+                                {
+                                    @Model.Status.LastSyncedAt.Value.ToString("MMMM d, yyyy h:mm tt")
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Never</span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.Status.LastSyncError))
+                    {
+                        <div class="alert alert-warning" role="alert">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Last Sync Error:</strong> @Model.Status.LastSyncError
+                        </div>
+                    }
+
+                    @if (Model.Status.RequiresReauthorization)
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            <i class="bi bi-exclamation-circle me-2"></i>
+                            <strong>Reauthorization Required:</strong> Your eBay authorization has expired. Please reconnect your account.
+                        </div>
+                        <form asp-action="ConnectEbay" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-arrow-repeat me-2"></i>Reconnect eBay Account
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-action="DisconnectEbay" method="post" class="d-inline"
+                              onsubmit="return confirm('Are you sure you want to disconnect your eBay account? You will need to reconnect to sync orders.');">
+                            <button type="submit" class="btn btn-outline-danger">
+                                <i class="bi bi-x-circle me-2"></i>Disconnect eBay Account
+                            </button>
+                        </form>
+                    }
+                }
+                else
+                {
+                    <div class="mb-4">
+                        <p>Connect your eBay seller account to automatically sync orders and track your profits.</p>
+                        <ul class="text-muted">
+                            <li>Orders from the last 30 days will be imported</li>
+                            <li>Orders sync automatically every 15 minutes</li>
+                            <li>Link orders to inventory items to calculate profit</li>
+                        </ul>
+                    </div>
+
+                    <form asp-action="ConnectEbay" method="post">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-plug me-2"></i>Connect eBay Account
+                        </button>
+                    </form>
+
+                    <p class="text-muted small mt-3">
+                        You will be redirected to eBay to authorize access. We only request read-only access to your orders.
+                    </p>
+                }
+            </div>
+        </div>
+
+        <!-- Sync Information -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-arrow-repeat me-2"></i>Automatic Sync Schedule
+                </h5>
+            </div>
+            <div class="card-body">
+                <p>eBay orders are automatically synced at:</p>
+                <ul>
+                    <li>Every 15 minutes (at :00, :15, :30, and :45 past the hour)</li>
+                    <li>Syncs orders from the last 30 days</li>
+                    <li>Automatically links orders to inventory items by SKU</li>
+                </ul>
+                <p class="text-muted mb-0">
+                    You can also manually sync orders from the <a asp-controller="EbayOrders" asp-action="Index">eBay Orders</a> page.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-shield-check me-2"></i>Security & Privacy
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="small">
+                    <strong>Read-Only Access:</strong> We only request read-only access to your eBay orders and account information.
+                    We cannot make any changes to your eBay account.
+                </p>
+                <p class="small">
+                    <strong>Secure Storage:</strong> Your eBay authorization tokens are encrypted using industry-standard
+                    encryption and stored securely.
+                </p>
+                <p class="small mb-0">
+                    <strong>You're in Control:</strong> You can disconnect your eBay account at any time.
+                    This will stop automatic syncing but won't delete your existing order data.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

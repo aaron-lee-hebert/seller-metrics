@@ -168,31 +168,66 @@ This file tracks all development tasks for the SellerMetrics application.
 
 ### eBay API Client
 
-- [ ] Create IEbayApiClient interface
-- [ ] Implement OAuth 2.0 authentication
-- [ ] Implement GetOrders API call (sync sold items)
-- [ ] Configure rate limiting and retry policies (Polly)
-- [ ] Handle API errors gracefully
+- [x] Create IEbayApiClient interface
+- [x] Implement OAuth 2.0 authentication (per-user token storage with Data Protection API)
+- [x] Implement GetOrders API call (sync sold items from last 30 days)
+- [x] Configure rate limiting and retry policies (Polly with exponential backoff)
+- [x] Handle API errors gracefully
+
+### eBay User Credentials
+
+- [x] Create EbayUserCredential entity (encrypted token storage per user)
+  - [x] UserId (links to ApplicationUser)
+  - [x] EbayUserId / EbayUsername
+  - [x] Encrypted access/refresh tokens (Data Protection API)
+  - [x] Token expiration tracking
+  - [x] Connection status (IsConnected, LastSyncedAt, LastSyncError)
+- [x] Create IEbayUserCredentialRepository with specialized queries:
+  - [x] GetAllConnectedAsync (for global sync job)
+  - [x] GetNeedingTokenRefreshAsync
+  - [x] GetWithExpiredRefreshTokensAsync
 
 ### Order Sync
 
-- [ ] Create EbayOrder entity
-  - [ ] EbayOrderId
-  - [ ] OrderDate
-  - [ ] BuyerUsername
-  - [ ] GrossSale (sale price)
-  - [ ] EbayFees (final value fee + payment processing)
-  - [ ] ShippingCost (what buyer paid)
-  - [ ] ShippingActual (what you paid - manual entry)
-  - [ ] InventoryItemId (link to local inventory)
-  - [ ] NetPayout (Gross - Fees)
-  - [ ] Profit (NetPayout - COGS - ShippingActual)
-- [ ] Create order sync use cases:
-  - [ ] SyncOrdersFromEbay command (background job)
-  - [ ] LinkOrderToInventory command (match order to inventory item)
-  - [ ] UpdateShippingCost command (enter actual shipping paid)
-  - [ ] GetOrderList query (with profit calculations)
-  - [ ] GetOrderDetails query
+- [x] Create EbayOrder entity
+  - [x] EbayOrderId
+  - [x] OrderDate
+  - [x] BuyerUsername
+  - [x] GrossSale (sale price)
+  - [x] EbayFees (final value fee + payment processing)
+  - [x] ShippingCost (what buyer paid)
+  - [x] ShippingActual (what you paid - manual entry)
+  - [x] InventoryItemId (link to local inventory)
+  - [x] NetPayout (Gross - Fees)
+  - [x] Profit (NetPayout - COGS - ShippingActual)
+- [x] Create order sync use cases:
+  - [x] SyncOrdersFromEbay command (background job)
+  - [x] LinkOrderToInventory command (match order to inventory item)
+  - [x] UpdateShippingCost command (enter actual shipping paid)
+  - [x] GetOrderList query (with profit calculations)
+  - [x] GetOrderDetails query
+  - [x] GetEbayConnectionStatus query
+  - [x] GetEbayAuthorizationUrl query
+  - [x] ConnectEbayAccount command (OAuth callback handling)
+  - [x] DisconnectEbayAccount command
+
+### Background Jobs (Hangfire)
+
+- [x] Set up Hangfire with PostgreSQL storage
+- [x] EbayOrderSyncJob (global job for all connected users)
+  - [x] Runs every 15 minutes at :00, :15, :30, :45
+  - [x] Token refresh job runs every 5 minutes
+- [x] Hangfire dashboard (secured with authentication)
+
+### eBay Connection UI
+
+- [x] Settings page with eBay connection management
+  - [x] Connect/Disconnect eBay account
+  - [x] OAuth redirect flow with state parameter (CSRF protection)
+  - [x] Display connection status (username, last sync, errors)
+  - [x] Reauthorization prompt when tokens expire
+- [x] eBay Orders page with connection status indicator
+  - [x] Manual "Sync Now" button
 
 ---
 
@@ -628,10 +663,11 @@ This file tracks all development tasks for the SellerMetrics application.
 
 ## Background Jobs
 
-- [ ] Set up Hangfire (with SQL Server storage)
-- [ ] eBay order sync job (configurable schedule)
+- [x] Set up Hangfire (with PostgreSQL storage)
+- [x] eBay order sync job (every 15 minutes at :00, :15, :30, :45)
+- [x] eBay token refresh job (every 5 minutes)
 - [ ] Wave invoice/payment sync job (configurable schedule)
-- [ ] Hangfire dashboard (secured with Microsoft Identity)
+- [x] Hangfire dashboard (secured with authentication)
 
 ---
 

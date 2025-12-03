@@ -16,7 +16,8 @@
       "Bash(dotnet tool:*)",
       "Bash(dotnet aspnet-codegenerator:*)",
       "Bash(rm:*)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(findstr:*)"
     ],
     "deny": [],
     "ask": []

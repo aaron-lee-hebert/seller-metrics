@@ -75,6 +75,16 @@ public class SellerMetricsDbContext : IdentityDbContext<ApplicationUser>
     /// </summary>
     public DbSet<EstimatedTaxPayment> EstimatedTaxPayments => Set<EstimatedTaxPayment>();
 
+    /// <summary>
+    /// eBay user credentials for OAuth tokens.
+    /// </summary>
+    public DbSet<EbayUserCredential> EbayUserCredentials => Set<EbayUserCredential>();
+
+    /// <summary>
+    /// eBay orders synced from the eBay API.
+    /// </summary>
+    public DbSet<EbayOrder> EbayOrders => Set<EbayOrder>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
