@@ -11,6 +11,7 @@
             <div class="card-body">
                 <form asp-action="Create" method="post" class="needs-validation" novalidate>
                     @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
                     <div class="row g-3">
                         <!-- Name -->

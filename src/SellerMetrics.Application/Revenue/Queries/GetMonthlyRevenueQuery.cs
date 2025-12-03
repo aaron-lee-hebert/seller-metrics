@@ -47,11 +47,11 @@ public class GetMonthlyRevenueQueryHandler
             {
                 var ebayRevenue = g
                     .Where(e => e.Source == RevenueSource.eBay)
-                    .Sum(e => e.GrossAmount.Amount - e.Fees.Amount);
+                    .Sum(e => e.NetAmount.Amount);
 
                 var serviceRevenue = g
                     .Where(e => e.Source == RevenueSource.ComputerServices)
-                    .Sum(e => e.GrossAmount.Amount - e.Fees.Amount);
+                    .Sum(e => e.NetAmount.Amount);
 
                 return new MonthlyRevenueDto
                 {

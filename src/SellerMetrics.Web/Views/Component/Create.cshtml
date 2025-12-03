@@ -11,6 +11,7 @@
             <div class="card-body">
                 <form asp-action="Create" method="post" class="needs-validation" novalidate>
                     @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
                     <div class="row g-3">
                         <!-- Component Type -->
@@ -88,6 +89,15 @@
                                     <option value="@option.Value" selected="@option.Selected">@option.Text</option>
                                 }
                             </select>
+                        </div>
+
+                        <!-- Low Stock Threshold -->
+                        <div class="col-md-6">
+                            <label asp-for="LowStockThreshold" class="form-label"></label>
+                            <input asp-for="LowStockThreshold" type="number" min="0" class="form-control"
+                                   placeholder="Leave blank for no alert" />
+                            <div class="form-text">Alert when quantity falls at or below this level</div>
+                            <span asp-validation-for="LowStockThreshold" class="text-danger"></span>
                         </div>
 
                         <!-- Notes -->

@@ -190,7 +190,8 @@ public class ComponentController : Controller
                 model.StorageLocationId,
                 model.AcquiredDate,
                 model.Source,
-                model.Notes);
+                model.Notes,
+                model.LowStockThreshold);
 
             var result = await _createHandler.HandleAsync(command, CancellationToken.None);
             TempData["SuccessMessage"] = $"Component '{result.Description}' created successfully.";
@@ -233,6 +234,7 @@ public class ComponentController : Controller
                 AcquiredDate = item.AcquiredDate,
                 Source = item.Source,
                 Notes = item.Notes,
+                LowStockThreshold = item.LowStockThreshold,
                 TypeOptions = await GetTypeOptionsAsync(item.ComponentTypeId),
                 LocationOptions = await GetLocationOptionsAsync(item.StorageLocationId),
                 SourceOptions = GetSourceOptions(item.Source)
@@ -278,7 +280,8 @@ public class ComponentController : Controller
                 model.StorageLocationId,
                 model.AcquiredDate,
                 model.Source,
-                model.Notes);
+                model.Notes,
+                model.LowStockThreshold);
 
             await _updateHandler.HandleAsync(command, CancellationToken.None);
             TempData["SuccessMessage"] = "Component updated successfully.";

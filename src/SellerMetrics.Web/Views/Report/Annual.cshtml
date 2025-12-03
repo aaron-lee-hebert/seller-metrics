@@ -35,7 +35,7 @@
 
 <!-- Annual Summary Cards -->
 <div class="row g-3 mb-4">
-    <div class="col-lg-2 col-md-4">
+    <div class="col-lg-2 col-md-4 col-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body text-center">
                 <i class="bi bi-currency-dollar text-primary fs-3"></i>
@@ -44,7 +44,7 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-2 col-md-4">
+    <div class="col-lg-2 col-md-4 col-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body text-center">
                 <i class="bi bi-dash-circle text-danger fs-3"></i>
@@ -53,16 +53,16 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-2 col-md-4">
+    <div class="col-lg-2 col-md-4 col-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body text-center">
-                <i class="bi bi-wallet2 text-info fs-3"></i>
-                <h6 class="text-muted mt-2 mb-1">Net Revenue</h6>
-                <h5 class="mb-0">@summary.TotalNetRevenueFormatted</h5>
+                <i class="bi bi-box-seam text-danger fs-3"></i>
+                <h6 class="text-muted mt-2 mb-1">Shipping</h6>
+                <h5 class="mb-0 text-danger">-@summary.TotalShippingFormatted</h5>
             </div>
         </div>
     </div>
-    <div class="col-lg-2 col-md-4">
+    <div class="col-lg-2 col-md-4 col-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body text-center">
                 <i class="bi bi-receipt text-warning fs-3"></i>
@@ -71,7 +71,7 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-2 col-md-4">
+    <div class="col-lg-2 col-md-4 col-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body text-center">
                 <i class="bi bi-car-front text-info fs-3"></i>
@@ -80,7 +80,7 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-2 col-md-4">
+    <div class="col-lg-2 col-md-4 col-6">
         <div class="card border-0 shadow-sm h-100 @(summary.NetProfit >= 0 ? "border-success" : "border-danger")">
             <div class="card-body text-center">
                 <i class="bi bi-graph-up-arrow @profitClass fs-3"></i>

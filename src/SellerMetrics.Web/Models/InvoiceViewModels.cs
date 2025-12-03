@@ -70,12 +70,23 @@ public class ManualInvoiceFormViewModel
     [DataType(DataType.Currency)]
     public decimal GrossAmount { get; set; }
 
+    [Required]
+    [Display(Name = "Sales Tax Collected")]
+    [Range(0, 999999.99)]
+    [DataType(DataType.Currency)]
+    public decimal TaxesCollectedAmount { get; set; }
+
     [Display(Name = "Currency")]
     public string Currency { get; set; } = "USD";
 
     [Display(Name = "Notes")]
     [StringLength(1000)]
     public string? Notes { get; set; }
+
+    // Calculated properties
+    public decimal InvoiceSubtotal => GrossAmount - TaxesCollectedAmount;
+    public decimal TaxLiability => TaxesCollectedAmount > 0 ? 0 : InvoiceSubtotal * 0.0825m;
+    public bool TaxesWereCollected => TaxesCollectedAmount > 0;
 
     public bool IsEdit => Id.HasValue;
     public string FormTitle => IsEdit ? "Edit Invoice" : "Add Manual Invoice";

@@ -41,9 +41,21 @@ public class RevenueEntry : BaseEntity
     public Money Fees { get; set; } = Money.Zero();
 
     /// <summary>
-    /// Net amount after fees (GrossAmount - Fees).
+    /// Shipping cost paid by seller (eBay orders only).
     /// </summary>
-    public Money NetAmount => GrossAmount - Fees;
+    public Money Shipping { get; set; } = Money.Zero();
+
+    /// <summary>
+    /// Sales tax collected from buyer (Service invoices only).
+    /// If zero, indicates no tax was collected and 8.25% tax liability applies to profit.
+    /// </summary>
+    public Money TaxesCollected { get; set; } = Money.Zero();
+
+    /// <summary>
+    /// Net amount after fees and shipping (GrossAmount - Fees - Shipping).
+    /// For services with taxes collected, this includes the tax amount.
+    /// </summary>
+    public Money NetAmount => GrossAmount - Fees - Shipping;
 
     /// <summary>
     /// eBay order ID for synced eBay orders.

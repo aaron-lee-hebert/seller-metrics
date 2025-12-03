@@ -25,6 +25,8 @@ public class ComponentItemDto
     public ComponentSource Source { get; set; }
     public string SourceDisplay { get; set; } = string.Empty;
     public string? Notes { get; set; }
+    public int? LowStockThreshold { get; set; }
+    public bool IsLowStock { get; set; }
     public int? ServiceJobId { get; set; }
     public string? ServiceJobNumber { get; set; }
     public DateTime CreatedAt { get; set; }

@@ -80,6 +80,7 @@
                                     <th>Source</th>
                                     <th class="text-end">Gross</th>
                                     <th class="text-end">Fees</th>
+                                    <th class="text-end">Shipping</th>
                                     <th class="text-end">Net</th>
                                     <th class="text-center"># Trans</th>
                                 </tr>
@@ -91,6 +92,7 @@
                                         <td>@source.SourceDisplay</td>
                                         <td class="text-end">@source.GrossRevenueFormatted</td>
                                         <td class="text-end text-danger">-@source.FeesFormatted</td>
+                                        <td class="text-end text-danger">-@source.ShippingFormatted</td>
                                         <td class="text-end">@source.NetRevenueFormatted</td>
                                         <td class="text-center">@source.TransactionCount</td>
                                     </tr>
@@ -98,7 +100,9 @@
                                 <tr class="table-light fw-bold">
                                     <td>Total</td>
                                     <td class="text-end">@summary.TotalRevenueFormatted</td>
-                                    <td colspan="3"></td>
+                                    <td class="text-end text-danger">-@summary.TotalFeesFormatted</td>
+                                    <td class="text-end text-danger">-@summary.TotalShippingFormatted</td>
+                                    <td colspan="2"></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -257,6 +261,14 @@
                         <tr>
                             <td class="ps-0">Gross Revenue</td>
                             <td class="text-end pe-0">@summary.TotalRevenueFormatted</td>
+                        </tr>
+                        <tr>
+                            <td class="ps-0">Less: Fees (Schedule C Line 10)</td>
+                            <td class="text-end pe-0 text-danger">-@summary.TotalFeesFormatted</td>
+                        </tr>
+                        <tr>
+                            <td class="ps-0">Less: Shipping Costs (Schedule C Line 22)</td>
+                            <td class="text-end pe-0 text-danger">-@summary.TotalShippingFormatted</td>
                         </tr>
                         <tr>
                             <td class="ps-0">Less: Business Expenses</td>

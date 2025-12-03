@@ -1,6 +1,6 @@
 # SellerMetrics
 
-**SellerMetrics** is a comprehensive inventory and financial management system designed specifically for eBay resellers. Track your cost of goods, calculate actual profit margins after fees, monitor monthly performance, and gain actionable insights into your reselling business. Built with modern ASP.NET Core MVC, Entity Framework Core, and PostgreSQL, SellerMetrics offers a robust, self-hosted alternative to spreadsheet-based tracking systems.
+**SellerMetrics** is a comprehensive inventory and financial management system designed specifically for eBay resellers. Track your cost of goods, calculate actual profit margins after fees, monitor monthly performance, and gain actionable insights into your reselling business. Built with modern ASP.NET Core MVC, Entity Framework Core, and SQL Server, SellerMetrics offers a robust, self-hosted alternative to spreadsheet-based tracking systems.
 
 ## Key Features
 
@@ -17,7 +17,7 @@
 - .NET 9
 - ASP.NET Core MVC
 - Entity Framework Core
-- PostgreSQL
+- SQL Server
 - Bootstrap 5
 
 ## Getting Started
@@ -25,7 +25,7 @@
 ### Prerequisites
 
 - [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
-- [PostgreSQL](https://www.postgresql.org/download/) (local or remote instance)
+- [SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) (Express, Developer, or higher edition)
 
 ### Setup
 
@@ -43,8 +43,8 @@
    # Initialize user secrets (already configured in project)
    dotnet user-secrets init --project src/SellerMetrics.Web
 
-   # Set the PostgreSQL connection string
-   dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Database=sellermetrics;Username=your_username;Password=your_password" --project src/SellerMetrics.Web
+   # Set the SQL Server connection string
+   dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=localhost;Database=SellerMetrics;Trusted_Connection=True;TrustServerCertificate=True;" --project src/SellerMetrics.Web
 
    # Set eBay API credentials (when ready)
    dotnet user-secrets set "EbayApi:ClientId" "your-client-id" --project src/SellerMetrics.Web
@@ -54,9 +54,13 @@
    dotnet user-secrets list --project src/SellerMetrics.Web
    ```
 
-   **PostgreSQL Connection String Format:**
+   **SQL Server Connection String Format:**
    ```
-   Host=localhost;Port=5432;Database=sellermetrics;Username=your_username;Password=your_password
+   # Windows Authentication (Recommended for Development)
+   Server=localhost;Database=SellerMetrics;Trusted_Connection=True;TrustServerCertificate=True;
+
+   # SQL Authentication
+   Server=localhost;Database=SellerMetrics;User Id=your_username;Password=your_password;TrustServerCertificate=True;
    ```
 
 3. **Build the solution:**

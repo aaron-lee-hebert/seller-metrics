@@ -1,6 +1,6 @@
 using AspNetCoreRateLimit;
 using Hangfire;
-using Hangfire.PostgreSql;
+using Hangfire.SqlServer;
 using SellerMetrics.Infrastructure;
 using SellerMetrics.Infrastructure.Services;
 using SellerMetrics.Web.Filters;
@@ -14,15 +14,15 @@ builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
 // Add services to the container.
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddInfrastructure(builder.Configuration, builder.Environment);
 
-// Configure Hangfire with PostgreSQL storage
+// Configure Hangfire with SQL Server storage
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddHangfire(config => config
     .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
     .UseSimpleAssemblyNameTypeSerializer()
     .UseRecommendedSerializerSettings()
-    .UsePostgreSqlStorage(options => options.UseNpgsqlConnection(connectionString)));
+    .UseSqlServerStorage(connectionString));
 
 builder.Services.AddHangfireServer();
 builder.Services.AddScoped<EbayOrderSyncJob>();
@@ -75,7 +75,10 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.ExpireTimeSpan = TimeSpan.FromDays(14);
     options.SlidingExpiration = true;
     options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    // Use SameAsRequest in development, Always in production
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+        ? CookieSecurePolicy.SameAsRequest
+        : CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.Strict;
 });
 
@@ -83,7 +86,10 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddAntiforgery(options =>
 {
     options.HeaderName = "X-CSRF-TOKEN";
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    // Use SameAsRequest in development, Always in production
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+        ? CookieSecurePolicy.SameAsRequest
+        : CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.Strict;
 });
 
@@ -95,8 +101,11 @@ var app = builder.Build();
 // Security headers middleware (apply to all responses)
 app.UseSecurityHeaders();
 
-// Rate limiting middleware
-app.UseIpRateLimiting();
+// Rate limiting middleware (only in production)
+if (!app.Environment.IsDevelopment())
+{
+    app.UseIpRateLimiting();
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

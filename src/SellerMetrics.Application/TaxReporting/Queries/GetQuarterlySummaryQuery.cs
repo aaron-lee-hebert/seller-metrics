@@ -59,6 +59,10 @@ public class GetQuarterlySummaryQueryHandler
         var serviceRevenue = revenueBySource.FirstOrDefault(r => r.Source == RevenueSource.ComputerServices)?.GrossRevenue ?? 0;
         var totalRevenue = ebayRevenue + serviceRevenue;
 
+        // Calculate total fees and shipping (Schedule C deductions)
+        var totalFees = filteredRevenues.Sum(r => r.Fees.Amount);
+        var totalShipping = filteredRevenues.Sum(r => r.Shipping.Amount);
+
         // Get expense data
         var expenses = await _expenseRepository.GetByDateRangeAsync(startDate, endDate, cancellationToken);
         var filteredExpenses = expenses
@@ -77,8 +81,8 @@ public class GetQuarterlySummaryQueryHandler
         var taxPayment = await _taxPaymentRepository.GetByQuarterAsync(query.Year, query.Quarter, cancellationToken);
         var taxPaymentDto = taxPayment != null ? MapTaxPaymentToDto(taxPayment) : null;
 
-        // Calculate net profit
-        var netProfit = totalRevenue - totalExpenses - mileageBreakdown.TotalDeduction;
+        // Calculate net profit (Revenue - Fees - Shipping - Expenses - Mileage Deduction)
+        var netProfit = totalRevenue - totalFees - totalShipping - totalExpenses - mileageBreakdown.TotalDeduction;
 
         return new QuarterlySummaryDto
         {
@@ -90,6 +94,8 @@ public class GetQuarterlySummaryQueryHandler
             EbayRevenue = ebayRevenue,
             ServiceRevenue = serviceRevenue,
             TotalRevenue = totalRevenue,
+            TotalFees = totalFees,
+            TotalShipping = totalShipping,
             RevenueBySource = revenueBySource,
             TotalExpenses = totalExpenses,
             ExpensesByCategory = expensesByCategory,
@@ -102,6 +108,8 @@ public class GetQuarterlySummaryQueryHandler
             EbayRevenueFormatted = new Money(ebayRevenue, query.Currency).ToString(),
             ServiceRevenueFormatted = new Money(serviceRevenue, query.Currency).ToString(),
             TotalRevenueFormatted = new Money(totalRevenue, query.Currency).ToString(),
+            TotalFeesFormatted = new Money(totalFees, query.Currency).ToString(),
+            TotalShippingFormatted = new Money(totalShipping, query.Currency).ToString(),
             TotalExpensesFormatted = new Money(totalExpenses, query.Currency).ToString(),
             MileageDeductionFormatted = new Money(mileageBreakdown.TotalDeduction, query.Currency).ToString(),
             NetProfitFormatted = new Money(netProfit, query.Currency).ToString()
@@ -133,12 +141,14 @@ public class GetQuarterlySummaryQueryHandler
                 SourceDisplay = g.Key == RevenueSource.eBay ? "eBay" : "Computer Services",
                 GrossRevenue = g.Sum(r => r.GrossAmount.Amount),
                 Fees = g.Sum(r => r.Fees.Amount),
-                NetRevenue = g.Sum(r => r.GrossAmount.Amount - r.Fees.Amount),
+                Shipping = g.Sum(r => r.Shipping.Amount),
+                NetRevenue = g.Sum(r => r.GrossAmount.Amount - r.Fees.Amount - r.Shipping.Amount),
                 TransactionCount = g.Count(),
                 Currency = currency,
                 GrossRevenueFormatted = new Money(g.Sum(r => r.GrossAmount.Amount), currency).ToString(),
                 FeesFormatted = new Money(g.Sum(r => r.Fees.Amount), currency).ToString(),
-                NetRevenueFormatted = new Money(g.Sum(r => r.GrossAmount.Amount - r.Fees.Amount), currency).ToString()
+                ShippingFormatted = new Money(g.Sum(r => r.Shipping.Amount), currency).ToString(),
+                NetRevenueFormatted = new Money(g.Sum(r => r.GrossAmount.Amount - r.Fees.Amount - r.Shipping.Amount), currency).ToString()
             })
             .OrderBy(r => r.Source)
             .ToList();

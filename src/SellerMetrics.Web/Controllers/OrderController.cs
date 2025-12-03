@@ -92,6 +92,8 @@ public class OrderController : Controller
                 TotalGrossFormatted = new Money(orders.Sum(o => o.GrossAmount), "USD").ToString(),
                 TotalFees = orders.Sum(o => o.FeesAmount),
                 TotalFeesFormatted = new Money(orders.Sum(o => o.FeesAmount), "USD").ToString(),
+                TotalShipping = orders.Sum(o => o.ShippingAmount),
+                TotalShippingFormatted = new Money(orders.Sum(o => o.ShippingAmount), "USD").ToString(),
                 TotalNet = orders.Sum(o => o.NetAmount),
                 TotalNetFormatted = new Money(orders.Sum(o => o.NetAmount), "USD").ToString()
             };
@@ -187,6 +189,8 @@ public class OrderController : Controller
                 model.Description,
                 model.GrossAmount,
                 model.FeesAmount,
+                model.ShippingAmount,
+                0, // No taxes collected for eBay orders
                 model.Currency,
                 model.EbayOrderId,
                 null, // WaveInvoiceNumber
@@ -234,6 +238,7 @@ public class OrderController : Controller
                 Description = order.Description,
                 GrossAmount = order.GrossAmount,
                 FeesAmount = order.FeesAmount,
+                ShippingAmount = order.ShippingAmount,
                 Currency = order.Currency,
                 InventoryItemId = order.InventoryItemId,
                 Notes = order.Notes,
@@ -276,6 +281,8 @@ public class OrderController : Controller
                 model.Description,
                 model.GrossAmount,
                 model.FeesAmount,
+                model.ShippingAmount,
+                0, // No taxes collected for eBay orders
                 model.Currency,
                 model.EbayOrderId,
                 null, // WaveInvoiceNumber

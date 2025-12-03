@@ -14,6 +14,7 @@ public record CreateInventoryItemCommand(
     string? Description,
     decimal CogsAmount,
     string CogsCurrency,
+    int Quantity,
     DateTime? PurchaseDate,
     int? StorageLocationId,
     EbayCondition? Condition,
@@ -70,6 +71,12 @@ public class CreateInventoryItemCommandHandler
             }
         }
 
+        // Validate quantity
+        if (command.Quantity < 1)
+        {
+            throw new ArgumentException("Quantity must be at least 1.");
+        }
+
         var item = new InventoryItem
         {
             InternalSku = internalSku,
@@ -77,6 +84,7 @@ public class CreateInventoryItemCommandHandler
             Title = command.Title,
             Description = command.Description,
             Cogs = new Money(command.CogsAmount, command.CogsCurrency),
+            Quantity = command.Quantity,
             PurchaseDate = command.PurchaseDate,
             StorageLocationId = command.StorageLocationId,
             StorageLocation = storageLocation,
@@ -104,6 +112,9 @@ public class CreateInventoryItemCommandHandler
             CogsAmount = item.Cogs.Amount,
             CogsCurrency = item.Cogs.Currency,
             CogsFormatted = item.Cogs.ToString(),
+            Quantity = item.Quantity,
+            TotalValueAmount = item.TotalValue.Amount,
+            TotalValueFormatted = item.TotalValue.ToString(),
             PurchaseDate = item.PurchaseDate,
             StorageLocationId = item.StorageLocationId,
             StorageLocationPath = item.StorageLocation?.FullPath,

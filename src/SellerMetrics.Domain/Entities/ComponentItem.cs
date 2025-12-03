@@ -65,6 +65,13 @@ public class ComponentItem : BaseEntity
     public string? Notes { get; set; }
 
     /// <summary>
+    /// Low stock threshold for this component.
+    /// When quantity falls at or below this value, the component is considered low stock.
+    /// Null means no low stock alert for this component.
+    /// </summary>
+    public int? LowStockThreshold { get; set; }
+
+    /// <summary>
     /// Service job ID if the component is reserved or used for a job.
     /// </summary>
     public int? ServiceJobId { get; set; }
@@ -83,6 +90,14 @@ public class ComponentItem : BaseEntity
     /// Gets the total value of this component (Quantity × UnitCost).
     /// </summary>
     public Money TotalValue => UnitCost.Multiply(Quantity);
+
+    /// <summary>
+    /// Gets whether this component is at or below its low stock threshold.
+    /// Returns false if no threshold is set.
+    /// </summary>
+    public bool IsLowStock => LowStockThreshold.HasValue &&
+                              Status == ComponentStatus.Available &&
+                              Quantity <= LowStockThreshold.Value;
 
     /// <summary>
     /// Adjusts the quantity and creates an audit record.

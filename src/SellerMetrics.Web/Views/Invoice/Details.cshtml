@@ -45,11 +45,29 @@
                             <p class="mb-0 fs-5">@Model.Invoice.Description</p>
                         </div>
                     </div>
-                    <div class="col-12">
-                        <div class="p-4 bg-success bg-opacity-10 rounded text-center">
+                    <div class="col-md-6">
+                        <div class="p-3 bg-success bg-opacity-10 rounded text-center">
                             <small class="text-muted d-block mb-2">Invoice Amount</small>
-                            <span class="fs-2 fw-bold text-success">@Model.Invoice.GrossFormatted</span>
+                            <span class="fs-3 fw-bold text-success">@Model.Invoice.GrossFormatted</span>
                         </div>
+                    </div>
+                    <div class="col-md-6">
+                        @if (Model.Invoice.TaxesCollectedAmount > 0)
+                        {
+                            <div class="p-3 bg-info bg-opacity-10 rounded text-center">
+                                <small class="text-muted d-block mb-2">Sales Tax Collected</small>
+                                <span class="fs-3 fw-bold text-info">@Model.Invoice.TaxesCollectedFormatted</span>
+                            </div>
+                        }
+                        else
+                        {
+                            var subtotal = Model.Invoice.GrossAmount;
+                            var taxLiability = subtotal * 0.0825m;
+                            <div class="p-3 bg-warning bg-opacity-10 rounded text-center">
+                                <small class="text-muted d-block mb-2">Tax Liability (8.25%)</small>
+                                <span class="fs-3 fw-bold text-warning">@taxLiability.ToString("C2")</span>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>

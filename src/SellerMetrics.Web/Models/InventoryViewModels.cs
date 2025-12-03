@@ -55,6 +55,11 @@ public class InventoryFormViewModel
     [Display(Name = "Currency")]
     public string CogsCurrency { get; set; } = "USD";
 
+    [Required]
+    [Display(Name = "Quantity")]
+    [Range(1, 10000)]
+    public int Quantity { get; set; } = 1;
+
     [Display(Name = "Purchase Date")]
     [DataType(DataType.Date)]
     public DateTime? PurchaseDate { get; set; }

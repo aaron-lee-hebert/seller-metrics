@@ -26,6 +26,9 @@ public class ComponentItemConfiguration : IEntityTypeConfiguration<ComponentItem
         builder.Property(c => c.Notes)
             .HasMaxLength(2000);
 
+        builder.Property(c => c.LowStockThreshold)
+            .IsRequired(false);
+
         // Money value object - owned entity
         builder.OwnsOne(c => c.UnitCost, costBuilder =>
         {

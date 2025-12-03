@@ -20,7 +20,7 @@ public class InventoryController : Controller
     private readonly CreateInventoryItemCommandHandler _createHandler;
     private readonly UpdateInventoryItemCommandHandler _updateHandler;
     private readonly MoveInventoryItemCommandHandler _moveHandler;
-    private readonly MarkInventoryItemAsSoldCommandHandler _markSoldHandler;
+    private readonly SellInventoryItemCommandHandler _sellHandler;
     private readonly DeleteInventoryItemCommandHandler _deleteHandler;
     private readonly GetAllStorageLocationsQueryHandler _locationsHandler;
 
@@ -33,7 +33,7 @@ public class InventoryController : Controller
         CreateInventoryItemCommandHandler createHandler,
         UpdateInventoryItemCommandHandler updateHandler,
         MoveInventoryItemCommandHandler moveHandler,
-        MarkInventoryItemAsSoldCommandHandler markSoldHandler,
+        SellInventoryItemCommandHandler sellHandler,
         DeleteInventoryItemCommandHandler deleteHandler,
         GetAllStorageLocationsQueryHandler locationsHandler)
     {
@@ -45,7 +45,7 @@ public class InventoryController : Controller
         _createHandler = createHandler;
         _updateHandler = updateHandler;
         _moveHandler = moveHandler;
-        _markSoldHandler = markSoldHandler;
+        _sellHandler = sellHandler;
         _deleteHandler = deleteHandler;
         _locationsHandler = locationsHandler;
     }
@@ -179,6 +179,7 @@ public class InventoryController : Controller
                 model.Description,
                 model.CogsAmount,
                 model.CogsCurrency,
+                model.Quantity,
                 model.PurchaseDate,
                 model.StorageLocationId,
                 model.Condition,
@@ -221,6 +222,7 @@ public class InventoryController : Controller
                 Description = item.Description,
                 CogsAmount = item.CogsAmount,
                 CogsCurrency = item.CogsCurrency,
+                Quantity = item.Quantity,
                 PurchaseDate = item.PurchaseDate,
                 StorageLocationId = item.StorageLocationId,
                 Status = item.Status,
@@ -269,6 +271,7 @@ public class InventoryController : Controller
                 model.Description,
                 model.CogsAmount,
                 model.CogsCurrency,
+                model.Quantity,
                 model.PurchaseDate,
                 model.StorageLocationId,
                 model.Condition,
@@ -311,18 +314,26 @@ public class InventoryController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> MarkAsSold(int id)
+    public async Task<IActionResult> SellOne(int id)
     {
         try
         {
-            await _markSoldHandler.HandleAsync(
-                new MarkInventoryItemAsSoldCommand(id), CancellationToken.None);
-            TempData["SuccessMessage"] = "Inventory item marked as sold.";
+            var result = await _sellHandler.HandleAsync(
+                new SellInventoryItemCommand(id), CancellationToken.None);
+
+            if (result.IsCompletelySold)
+            {
+                TempData["SuccessMessage"] = "Inventory item marked as sold.";
+            }
+            else
+            {
+                TempData["SuccessMessage"] = $"Sold 1 unit. {result.OriginalItem.Quantity} remaining.";
+            }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error marking inventory item as sold {Id}", id);
-            TempData["ErrorMessage"] = $"Failed to mark as sold: {ex.Message}";
+            _logger.LogError(ex, "Error selling inventory item {Id}", id);
+            TempData["ErrorMessage"] = $"Failed to sell item: {ex.Message}";
         }
 
         return RedirectToAction(nameof(Details), new { id });
