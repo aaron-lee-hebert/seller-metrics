@@ -29,8 +29,8 @@
                             <span asp-validation-for="Description" class="text-danger"></span>
                         </div>
 
-                        <!-- Cost and Currency -->
-                        <div class="col-md-6">
+                        <!-- Cost, Currency, and Quantity -->
+                        <div class="col-md-4">
                             <label asp-for="CogsAmount" class="form-label"></label>
                             <div class="input-group">
                                 <span class="input-group-text">$</span>
@@ -38,7 +38,7 @@
                             </div>
                             <span asp-validation-for="CogsAmount" class="text-danger"></span>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="CogsCurrency" class="form-label"></label>
                             <select asp-for="CogsCurrency" class="form-select">
                                 <option value="USD">USD - US Dollar</option>
@@ -46,6 +46,12 @@
                                 <option value="GBP">GBP - British Pound</option>
                                 <option value="EUR">EUR - Euro</option>
                             </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Quantity" class="form-label"></label>
+                            <input asp-for="Quantity" type="number" min="1" class="form-control" />
+                            <div class="form-text">Number of identical items</div>
+                            <span asp-validation-for="Quantity" class="text-danger"></span>
                         </div>
 
                         <!-- Purchase Date -->

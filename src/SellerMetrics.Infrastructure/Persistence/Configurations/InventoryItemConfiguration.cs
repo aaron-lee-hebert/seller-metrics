@@ -29,6 +29,10 @@ public class InventoryItemConfiguration : IEntityTypeConfiguration<InventoryItem
         builder.Property(i => i.Description)
             .HasMaxLength(4000);
 
+        builder.Property(i => i.Quantity)
+            .IsRequired()
+            .HasDefaultValue(1);
+
         builder.Property(i => i.Notes)
             .HasMaxLength(2000);
 

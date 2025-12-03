@@ -72,6 +72,10 @@ public class ComponentFormViewModel
     [StringLength(1000)]
     public string? Notes { get; set; }
 
+    [Display(Name = "Low Stock Threshold")]
+    [Range(0, 99999)]
+    public int? LowStockThreshold { get; set; }
+
     // Dropdown options
     public List<SelectListItem> TypeOptions { get; set; } = new();
     public List<SelectListItem> LocationOptions { get; set; } = new();

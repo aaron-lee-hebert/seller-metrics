@@ -32,8 +32,15 @@ public class InventoryItem : BaseEntity
 
     /// <summary>
     /// Cost of goods sold (what was paid to acquire the item).
+    /// This represents the per-unit cost when Quantity > 1.
     /// </summary>
     public Money Cogs { get; set; } = Money.Zero();
+
+    /// <summary>
+    /// Quantity of this item in stock.
+    /// For items with multiple identical units (e.g., bought a lot of 10).
+    /// </summary>
+    public int Quantity { get; set; } = 1;
 
     /// <summary>
     /// Date the item was purchased/acquired.
@@ -98,6 +105,60 @@ public class InventoryItem : BaseEntity
     /// Gets the effective SKU (eBay SKU if available, otherwise Internal SKU).
     /// </summary>
     public string EffectiveSku => !string.IsNullOrEmpty(EbaySku) ? EbaySku : InternalSku;
+
+    /// <summary>
+    /// Gets the total inventory value (Quantity × COGS).
+    /// </summary>
+    public Money TotalValue => Cogs.Multiply(Quantity);
+
+    /// <summary>
+    /// Sells one unit from this inventory item.
+    /// If quantity > 1, decrements quantity and returns a new "Sold" clone with quantity=1.
+    /// If quantity = 1, marks this item as sold and returns null.
+    /// </summary>
+    /// <returns>A new sold InventoryItem if quantity was > 1, otherwise null.</returns>
+    public InventoryItem? SellOne()
+    {
+        if (Quantity <= 0)
+        {
+            throw new InvalidOperationException("Cannot sell: no quantity available.");
+        }
+
+        if (Status == InventoryStatus.Sold)
+        {
+            throw new InvalidOperationException("Cannot sell: item is already sold.");
+        }
+
+        if (Quantity == 1)
+        {
+            MarkAsSold();
+            return null;
+        }
+
+        // Quantity > 1: decrement and create a sold clone
+        Quantity--;
+        UpdatedAt = DateTime.UtcNow;
+
+        return new InventoryItem
+        {
+            InternalSku = $"{InternalSku}-SOLD-{DateTime.UtcNow:yyyyMMddHHmmss}",
+            EbaySku = EbaySku,
+            Title = Title,
+            Description = Description,
+            Cogs = Cogs,
+            Quantity = 1,
+            PurchaseDate = PurchaseDate,
+            StorageLocationId = null, // Sold items don't need storage location
+            Status = InventoryStatus.Sold,
+            Condition = Condition,
+            Notes = Notes,
+            PhotoPath = PhotoPath,
+            EbayListingId = EbayListingId,
+            ListedDate = ListedDate,
+            SoldDate = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow
+        };
+    }
 
     /// <summary>
     /// Marks the item as listed on eBay.

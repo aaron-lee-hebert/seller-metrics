@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SellerMetrics.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using SellerMetrics.Infrastructure.Persistence;
 namespace SellerMetrics.Infrastructure.Migrations
 {
     [DbContext(typeof(SellerMetricsDbContext))]
-    partial class SellerMetricsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251203112334_AddInventoryQuantityAndLowStockThreshold")]
+    partial class AddInventoryQuantityAndLowStockThreshold
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

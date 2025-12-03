@@ -136,7 +136,16 @@
                                     @item.Description
                                 </td>
                                 <td class="text-center">
-                                    <span class="badge bg-light text-dark fs-6">@item.Quantity</span>
+                                    @if (item.IsLowStock)
+                                    {
+                                        <span class="badge bg-warning text-dark fs-6" title="Low stock (threshold: @item.LowStockThreshold)">
+                                            <i class="bi bi-exclamation-triangle me-1"></i>@item.Quantity
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-light text-dark fs-6">@item.Quantity</span>
+                                    }
                                 </td>
                                 <td>@item.UnitCostFormatted</td>
                                 <td class="fw-semibold">@item.TotalValueFormatted</td>

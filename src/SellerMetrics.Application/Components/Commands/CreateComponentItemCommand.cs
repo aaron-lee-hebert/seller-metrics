@@ -18,7 +18,8 @@ public record CreateComponentItemCommand(
     int? StorageLocationId,
     DateTime? AcquiredDate,
     ComponentSource Source,
-    string? Notes);
+    string? Notes,
+    int? LowStockThreshold = null);
 
 /// <summary>
 /// Handler for CreateComponentItemCommand.
@@ -83,6 +84,7 @@ public class CreateComponentItemCommandHandler
             AcquiredDate = command.AcquiredDate,
             Source = command.Source,
             Notes = command.Notes,
+            LowStockThreshold = command.LowStockThreshold,
             Status = ComponentStatus.Available
         };
 
@@ -114,6 +116,8 @@ public class CreateComponentItemCommandHandler
             Source = item.Source,
             SourceDisplay = item.Source.ToString(),
             Notes = item.Notes,
+            LowStockThreshold = item.LowStockThreshold,
+            IsLowStock = item.IsLowStock,
             ServiceJobId = item.ServiceJobId,
             ServiceJobNumber = item.ServiceJob?.JobNumber,
             CreatedAt = item.CreatedAt,

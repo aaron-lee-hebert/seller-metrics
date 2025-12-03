@@ -106,7 +106,7 @@ public static class DependencyInjection
         services.AddScoped<Application.Inventory.Commands.CreateInventoryItemCommandHandler>();
         services.AddScoped<Application.Inventory.Commands.UpdateInventoryItemCommandHandler>();
         services.AddScoped<Application.Inventory.Commands.MoveInventoryItemCommandHandler>();
-        services.AddScoped<Application.Inventory.Commands.MarkInventoryItemAsSoldCommandHandler>();
+        services.AddScoped<Application.Inventory.Commands.SellInventoryItemCommandHandler>();
         services.AddScoped<Application.Inventory.Commands.DeleteInventoryItemCommandHandler>();
         services.AddScoped<Application.Inventory.Queries.GetInventoryListQueryHandler>();
         services.AddScoped<Application.Inventory.Queries.GetInventoryItemQueryHandler>();

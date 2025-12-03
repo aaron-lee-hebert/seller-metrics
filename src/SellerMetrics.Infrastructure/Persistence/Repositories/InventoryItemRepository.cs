@@ -91,7 +91,7 @@ public class InventoryItemRepository : RepositoryBase<InventoryItem>, IInventory
         return await _dbSet
             .AsNoTracking()
             .Where(i => i.Status != InventoryStatus.Sold && i.Cogs.Currency == currency)
-            .SumAsync(i => i.Cogs.Amount, cancellationToken);
+            .SumAsync(i => i.Cogs.Amount * i.Quantity, cancellationToken);
     }
 
     public async Task<int> GetNextSkuSequenceAsync(CancellationToken cancellationToken = default)
