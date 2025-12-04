@@ -1,7 +1,9 @@
 using AspNetCoreRateLimit;
 using Hangfire;
 using Hangfire.SqlServer;
+using Microsoft.EntityFrameworkCore;
 using SellerMetrics.Infrastructure;
+using SellerMetrics.Infrastructure.Persistence;
 using SellerMetrics.Infrastructure.Services;
 using SellerMetrics.Web.Filters;
 using SellerMetrics.Web.Middleware;
@@ -97,6 +99,39 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
+
+// Apply pending database migrations on startup
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<SellerMetricsDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+    var retryCount = 0;
+    const int maxRetries = 10;
+    const int retryDelaySeconds = 5;
+
+    while (retryCount < maxRetries)
+    {
+        try
+        {
+            logger.LogInformation("Applying database migrations...");
+            db.Database.Migrate();
+            logger.LogInformation("Database migrations applied successfully.");
+            break;
+        }
+        catch (Exception ex)
+        {
+            retryCount++;
+            if (retryCount >= maxRetries)
+            {
+                logger.LogCritical(ex, "Failed to apply database migrations after {MaxRetries} attempts.", maxRetries);
+                throw;
+            }
+            logger.LogWarning(ex, "Database migration attempt {RetryCount}/{MaxRetries} failed. Retrying in {Delay} seconds...", retryCount, maxRetries, retryDelaySeconds);
+            Thread.Sleep(TimeSpan.FromSeconds(retryDelaySeconds));
+        }
+    }
+}
 
 // Security headers middleware (apply to all responses)
 app.UseSecurityHeaders();
