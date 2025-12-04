@@ -101,21 +101,25 @@ builder.Services.AddRazorPages();
 var app = builder.Build();
 
 // Apply pending database migrations on startup
-using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<SellerMetricsDbContext>();
-    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
 
     var retryCount = 0;
-    const int maxRetries = 10;
+    const int maxRetries = 15;
     const int retryDelaySeconds = 5;
 
     while (retryCount < maxRetries)
     {
         try
         {
-            logger.LogInformation("Applying database migrations...");
+            using var scope = app.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<SellerMetricsDbContext>();
+
+            logger.LogInformation("Checking database connection and applying migrations (attempt {Attempt}/{MaxRetries})...", retryCount + 1, maxRetries);
+
+            // Migrate() will create the database if it doesn't exist and apply all migrations.
             db.Database.Migrate();
+
             logger.LogInformation("Database migrations applied successfully.");
             break;
         }
@@ -127,7 +131,14 @@ using (var scope = app.Services.CreateScope())
                 logger.LogCritical(ex, "Failed to apply database migrations after {MaxRetries} attempts.", maxRetries);
                 throw;
             }
-            logger.LogWarning(ex, "Database migration attempt {RetryCount}/{MaxRetries} failed. Retrying in {Delay} seconds...", retryCount, maxRetries, retryDelaySeconds);
+
+            var errorMessage = ex is Microsoft.Data.SqlClient.SqlException sqlEx
+                ? $"SQL Error {sqlEx.Number}: {sqlEx.Message}"
+                : ex.Message;
+
+            logger.LogWarning("Database migration attempt {RetryCount}/{MaxRetries} failed: {Error}. Retrying in {Delay} seconds...",
+                retryCount, maxRetries, errorMessage, retryDelaySeconds);
+
             Thread.Sleep(TimeSpan.FromSeconds(retryDelaySeconds));
         }
     }

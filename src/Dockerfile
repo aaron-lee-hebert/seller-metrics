@@ -2,15 +2,20 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-# Copy solution and project files
-COPY SellerMetrics.sln .
-COPY SellerMetrics.Domain/*.csproj SellerMetrics.Domain/
-COPY SellerMetrics.Application/*.csproj SellerMetrics.Application/
-COPY SellerMetrics.Infrastructure/*.csproj SellerMetrics.Infrastructure/
-COPY SellerMetrics.Web/*.csproj SellerMetrics.Web/
+# Copy Directory.Build.props and Directory.Packages.props first (Central Package Management)
+COPY Directory.Build.props .
+COPY Directory.Packages.props .
 
-# Restore dependencies
-RUN dotnet restore SellerMetrics.Web/SellerMetrics.Web.csproj
+# Copy solution and project files for layer caching
+COPY SellerMetrics.sln .
+COPY SellerMetrics.Domain/SellerMetrics.Domain.csproj SellerMetrics.Domain/
+COPY SellerMetrics.Application/SellerMetrics.Application.csproj SellerMetrics.Application/
+COPY SellerMetrics.Infrastructure/SellerMetrics.Infrastructure.csproj SellerMetrics.Infrastructure/
+COPY SellerMetrics.Web/SellerMetrics.Web.csproj SellerMetrics.Web/
+COPY SellerMetrics.Tests/SellerMetrics.Tests.csproj SellerMetrics.Tests/
+
+# Restore dependencies for entire solution
+RUN dotnet restore SellerMetrics.sln
 
 # Copy all source code
 COPY . .
@@ -37,8 +42,8 @@ USER appuser
 # Expose port (ASP.NET Core 8+ defaults to port 8080)
 EXPOSE 8080
 
-# Health check
+# Health check using wget (curl not available in aspnet image)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
 
 ENTRYPOINT ["dotnet", "SellerMetrics.Web.dll"]
