@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sellermetrics-db
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${SA_PASSWORD:-YourStrong!Passw0rd}
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    restart: unless-stopped
+    networks:
+      - sellermetrics-network
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$${MSSQL_SA_PASSWORD}" -C -Q "SELECT 1" || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sellermetrics-web
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=SellerMetrics;User Id=sa;Password=${SA_PASSWORD:-YourStrong!Passw0rd};TrustServerCertificate=True;MultipleActiveResultSets=true
+      - EbayApi__ClientId=${EBAY_CLIENT_ID:-}
+      - EbayApi__ClientSecret=${EBAY_CLIENT_SECRET:-}
+      - EbayApi__RedirectUri=${EBAY_REDIRECT_URI:-}
+      - EbayApi__Environment=${EBAY_ENVIRONMENT:-Production}
+      - SendGrid__ApiKey=${SENDGRID_API_KEY:-}
+      - SendGrid__SenderEmail=${SENDGRID_SENDER_EMAIL:-}
+      - SendGrid__SenderName=${SENDGRID_SENDER_NAME:-SellerMetrics}
+    ports:
+      - "5000:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - sellermetrics-network
+
+volumes:
+  sqlserver-data:
+
+networks:
+  sellermetrics-network:
+    driver: bridge
