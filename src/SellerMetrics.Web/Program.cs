@@ -1,6 +1,7 @@
 using AspNetCoreRateLimit;
 using Hangfire;
 using Hangfire.SqlServer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using SellerMetrics.Infrastructure;
 using SellerMetrics.Infrastructure.Persistence;
@@ -9,6 +10,15 @@ using SellerMetrics.Web.Filters;
 using SellerMetrics.Web.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure forwarded headers for reverse proxy (nginx, Caddy, etc.)
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    // Clear default known networks/proxies to allow any proxy in Docker/container environments
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 // Configure logging
 builder.Logging.ClearProviders();
@@ -143,6 +153,9 @@ var app = builder.Build();
         }
     }
 }
+
+// Use forwarded headers from reverse proxy (must be first)
+app.UseForwardedHeaders();
 
 // Security headers middleware (apply to all responses)
 app.UseSecurityHeaders();
